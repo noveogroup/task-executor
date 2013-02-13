@@ -3,15 +3,20 @@
 <project
         xmlns="http://maven.apache.org/POM/4.0.0"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.noveogroup.android</groupId>
-    <artifactId>android-task-executor</artifactId>
+    <artifactId>android-task-executor-samples</artifactId>
     <version>1.0</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
-    <name>Android Task Executor</name>
+    <modules>
+        <module>..</module>
+        <module>demos</module>
+    </modules>
+
+    <name>Android Task Executor Samples</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -32,18 +37,15 @@
             </plugin>
 
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>2.2.1</version>
-                <executions>
-                    <execution>
-                        <id>package-sources</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                <artifactId>android-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <sdk>
+                        <platform>17</platform>
+                    </sdk>
+                </configuration>
             </plugin>
 
         </plugins>
@@ -59,6 +61,14 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.noveogroup.android</groupId>
+            <artifactId>android-task-executor</artifactId>
+            <version>1.0</version>
+            <scope>compile</scope>
+        </dependency>
+
     </dependencies>
+
 
 </project>

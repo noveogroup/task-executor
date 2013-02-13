@@ -23,4 +23,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.noveogroup.android.task;
+package com.noveogroup.android.task.example;
+
+import android.app.Activity;
+
+public class MainActivity extends Activity {
+}
