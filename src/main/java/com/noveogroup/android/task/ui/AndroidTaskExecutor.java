@@ -84,9 +84,7 @@ public class AndroidTaskExecutor extends SimpleTaskExecutor<TaskEnvironment> {
 
     @Override
     protected <T extends Task> TaskEnvironment createTaskEnvironment(TaskHandler<T, TaskEnvironment> taskHandler, Pack args) {
-        TaskEnvironment<T, TaskEnvironment> env = new TaskEnvironment<T, TaskEnvironment>(taskHandler);
-        env.args().putAll(args);
-        return env;
+        return new TaskEnvironment<T, TaskEnvironment>(taskHandler, args);
     }
 
 }

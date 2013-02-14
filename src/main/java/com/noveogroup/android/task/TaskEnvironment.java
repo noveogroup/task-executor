@@ -42,11 +42,17 @@ package com.noveogroup.android.task;
 // todo strange cyclic dependency between TaskEnvironment and TaskHandler (may be to delete TaskHandler.env ???)
 public class TaskEnvironment<T extends Task, E extends TaskEnvironment> {
 
-    private final Pack args = new Pack();
+    private final Pack args;
     private final TaskHandler<T, E> taskHandler;
 
     public TaskEnvironment(TaskHandler<T, E> taskHandler) {
         this.taskHandler = taskHandler;
+        this.args = new Pack();
+    }
+
+    public TaskEnvironment(TaskHandler<T, E> taskHandler, Pack args) {
+        this(taskHandler);
+        this.args.putAll(args);
     }
 
     public final Object lock() {
