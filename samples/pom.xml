@@ -8,7 +8,7 @@
 
     <groupId>com.noveogroup.android</groupId>
     <artifactId>android-task-executor-samples</artifactId>
-    <version>1.0</version>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -64,7 +64,7 @@
         <dependency>
             <groupId>com.noveogroup.android</groupId>
             <artifactId>android-task-executor</artifactId>
-            <version>1.0</version>
+            <version>1.0.0</version>
             <scope>compile</scope>
         </dependency>
 

@@ -9,13 +9,13 @@
     <parent>
         <groupId>com.noveogroup.android</groupId>
         <artifactId>android-task-executor-samples</artifactId>
-        <version>1.0</version>
+        <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>com.noveogroup.android</groupId>
     <artifactId>android-task-executor-sample-demos</artifactId>
-    <version>1.0</version>
+    <version>1.0.0</version>
     <packaging>apk</packaging>
 
     <name>Android Task Executor Sample Demos</name>
