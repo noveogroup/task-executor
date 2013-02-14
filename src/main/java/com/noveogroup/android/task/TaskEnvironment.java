@@ -27,50 +27,81 @@
 package com.noveogroup.android.task;
 
 ////////////////////////////////////////////////////////////////////////////////
-// Синхронизационный объект используется из pack, то есть:
-// lock() == args().lock()
-////////////////////////////////////////////////////////////////////////////////
 // Этот интерфейс - заготовка для всяческих помощников, которые упрощают
 // вывод диалогов и прочую такую вот вспомогательную ерунду.
 ////////////////////////////////////////////////////////////////////////////////
-// Синхронизация при работе с этим объектом происходит по другому объекту,
-// так как эта синхронизхация - частная, она - личное дело задачи.
-// Но вложенность синхронизаций все же может быть, да и скорее есть:
-// НО: только в порядке частная - общая, что должно быть проверено прямо в
-// реализации метода lock().
+// Синхронизационный объект принадлежит лично этому TaskEnvironment.
+// Главное правило, которое, правда, все равно проверяется автоматически:
+// блокировать только в порядке главный блок - частный блок.
+// эта проверка реализуется внутри метода этого интерфейса. В случае нарушения
+// контракта бросаем исключение IllegalStateException.
+// Синхронизируется этим объектом следующее:
+// - операции с аргументами
+// - все другие действия, которые можно выполнять при осуществлении блокировки
+//   очереди. Когда очередь блокируется - замораживаются почти все процессы.
+//   но запущенные задачи могут продолжать работать, пока не обратятся к
+//   заблокированному функционалу.
+// - а все остальные действия синхронизируются по основному объекту:
+//   (потому что они все напрямую влияют на очередь задач)
+//   - isInterrupted
+//   - checkInterrupted
+//   - interruptSelf
+//   - owner
 ////////////////////////////////////////////////////////////////////////////////
-// todo strange cyclic dependency between TaskEnvironment and TaskHandler (may be to delete TaskHandler.env ???)
-public class TaskEnvironment<T extends Task, E extends TaskEnvironment> {
+// todo описать
+// todo часть методов нужны снаружи, а часть нет. как быть ?
+// todo 1. сделать еще один интерфейс и выделить в него общую часть
+// todo 2. удалить отсюда лишние методы и реализовать их в классе
+/* ВАРИАНТ 1:
+TaskEnvironment {
+  public Object taskLock();
+  public Pack args();
+}
+TaskHandler {
+  public Object taskLock();
+  public Pack args();
+}
+*/
+/* ВАРИАНТ 2:
+TaskEnvironment {
+  public Pack args();
+}
+TaskHandler {
+  public Pack args();
+}
+*/
+/* ВАРИАНТ 3:
+TaskEnvironment {
+  public XXX xxx();
+}
+TaskHandler {
+  public XXX xxx();
+}
+XXX {
+  public Object lock();
+  public Pack args();
+}
+*/
 
-    private final Pack args;
-    private final TaskHandler<T, E> taskHandler;
+// а вообще все это растет из синхронизации.
+// синхронизация очереди задач влючает в себя практически все.
+// единственное что нуждается в похожей синхронизации и при этом
+// отчуждаемо от блокировок, связанных с очередью - это аргументы
 
-    public TaskEnvironment(TaskHandler<T, E> taskHandler) {
-        this.taskHandler = taskHandler;
-        this.args = new Pack();
-    }
+// но делать аргументы синхронизируемыми - можут быть излишним усложнением
+// поэтому возможно следует сделать синхронизацию аргументов проще
+public interface TaskEnvironment {
 
-    public TaskEnvironment(TaskHandler<T, E> taskHandler, Pack args) {
-        this(taskHandler);
-        this.args.putAll(args);
-    }
+    public Object lock() throws IllegalStateException;
 
-    public final Object lock() {
-        return args().lock();
-    }
+    public Pack args();
 
-    public final Pack args() {
-        return args;
-    }
+    public TaskSet owner();
 
-    public final TaskHandler<T, E> taskHandler() {
-        return taskHandler;
-    }
+    public void interruptSelf();
 
-    public final void checkInterrupted() throws InterruptedException {
-        if (taskHandler().isInterrupted()) {
-            throw new InterruptedException();
-        }
-    }
+    public boolean isInterrupted();
+
+    public void checkInterrupted() throws InterruptedException;
 
 }

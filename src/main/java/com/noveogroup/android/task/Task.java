@@ -26,19 +26,23 @@
 
 package com.noveogroup.android.task;
 
-////////////////////////////////////////////////////////////////////////////////
-// интерфейс, а не класс, - не мешает отсутствие множественного наследования
-////////////////////////////////////////////////////////////////////////////////
-// объект-параметр позволяет задаче:
-// - передавать input-output значения
-// - управлять освобождаемыми ресурсами
-// - проверять статус отмены через isInterrupted и checkInterrupted
-////////////////////////////////////////////////////////////////////////////////
-// метод кидает произвольную ошибку чтобы не приходилось оборачивать алгоритм
-// лишними конструкциями try-catch
-////////////////////////////////////////////////////////////////////////////////
-public interface Task<T extends Task, CustomEnvironment extends TaskEnvironment> {
+/**
+ * Represents a task that can be executed.
+ *
+ * @param <E> custom task environment.
+ */
+public interface Task<E extends TaskEnvironment> {
 
-    public <E extends CustomEnvironment> void run(TaskHandler<T, E> handler, E env) throws Throwable;
+    /**
+     * Starts executing the task inside the specified environment.
+     * Further task can be reused so this method will be
+     * called more than once.
+     * Implementation can throw any exception/error - so there are
+     * no need to duplicate try-catch clauses.
+     *
+     * @param env the task environment.
+     * @throws Throwable the throwable object.
+     */
+    public void run(E env) throws Throwable;
 
 }
