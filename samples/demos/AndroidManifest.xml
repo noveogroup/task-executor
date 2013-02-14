@@ -1,21 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <manifest
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  android:versionCode="1" android:versionName="1.0"
-  package="com.noveogroup.android.task.example">
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        package="com.noveogroup.android.task.example"
+        android:versionCode="1"
+        android:versionName="1.0">
 
-  <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="17"/>
+    <uses-sdk
+            android:minSdkVersion="7"
+            android:targetSdkVersion="17"/>
 
-  <application android:label="@string/application_name">
+    <uses-permission android:name="android.permission.INTERNET"/>
 
-    <activity android:name=".MainActivity">
-      <intent-filter>
-        <action android:name="android.intent.action.MAIN"/>
-        <category android:name="android.intent.category.LAUNCHER"/>
-      </intent-filter>
-    </activity>
+    <application android:label="@string/application_name">
 
-  </application>
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <activity
+                android:name=".SimpleTaskExampleActivity"
+                android:label="@string/simple_task_example_activity"/>
+
+        <activity
+                android:name=".TaskSequenceExampleActivity"
+                android:label="@string/task_sequence_example_activity"/>
+
+        <activity
+                android:name=".TaskFailureExampleActivity"
+                android:label="@string/task_failure_example_activity"/>
+
+    </application>
 
 </manifest>

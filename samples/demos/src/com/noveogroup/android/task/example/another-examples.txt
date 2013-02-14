@@ -1,0 +1,290 @@
+package com.example;
+
+import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.SystemClock;
+import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
+import com.noveo.android.task.R;
+import com.noveogroup.android.task.*;
+import com.noveogroup.android.task.ui.AndroidTaskExecutor;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+// todo по интерфайсу тестера:
+// - тестирование ошибок
+// - тестирование последовательностей задач
+// - тестирование отмены задач
+// - тестирование стандартных ситуаций
+public class MainActivity extends Activity {
+
+    public static Bitmap downloadBitmap(int width, int height, String text) throws IOException {
+        Uri uri = Uri.parse("http://dummyimage.com/" + width + "x" + height + "/000/fff.png").buildUpon()
+                .appendQueryParameter("text", text).build();
+        HttpClient httpClient = new DefaultHttpClient();
+        HttpResponse response = httpClient.execute(new HttpGet(uri.toString()));
+        byte[] bytes = EntityUtils.toByteArray(response.getEntity());
+        return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+    }
+
+    private AndroidTaskExecutor executor;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        executor.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        executor.onPause();
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.main);
+
+        executor = new AndroidTaskExecutor(this);
+
+        executor.addTaskListener(new TaskListener.Default() {
+            @Override
+            public void onCreate(TaskHandler handler) {
+                Log.i("XXX", "TaskListener::onCreate: " + handler.hashCode());
+            }
+
+            @Override
+            public void onCancel(TaskHandler handler) {
+                Log.i("XXX", "TaskListener::onCancel: " + handler.hashCode());
+            }
+
+            @Override
+            public void onStart(TaskHandler handler) {
+                Log.i("XXX", "TaskListener::onStart: " + handler.hashCode());
+            }
+
+            @Override
+            public void onFinish(TaskHandler handler) {
+                Log.i("XXX", "TaskListener::onFinish: " + handler.hashCode());
+            }
+
+            @Override
+            public void onSucceed(TaskHandler handler) {
+                Log.i("XXX", "TaskListener::onSucceed: " + handler.hashCode());
+            }
+
+            @Override
+            public void onFailed(TaskHandler handler) {
+                Log.i("XXX", "TaskListener::onFailed: " + handler.hashCode());
+            }
+
+            @Override
+            public void onDestroy(TaskHandler handler) {
+                Log.i("XXX", "TaskListener::onDestroy: " + handler.hashCode());
+            }
+        });
+    }
+
+    public void startSimpleTask(View view) {
+        int width = 200;
+        int height = 100;
+        String text = "simple task";
+        executor.execute(new Task() {
+            @Override
+            public void run(TaskHandler handler, TaskEnvironment env) throws Throwable {
+                int width = env.args().get("width");
+                int height = env.args().get("height");
+                String text = env.args().get("text");
+                Log.i("XXX", "START: simple task");
+                downloadBitmap(width, height, text);
+                Log.i("XXX", "FINISH: simple task");
+            }
+        }, new Pack().put("width", width).put("height", height).put("text", text));
+    }
+
+    public void startTaskSequence(View view) {
+        executor.execute(new Task() {
+            @Override
+            public void run(TaskHandler handler, TaskEnvironment env) throws Throwable {
+                Log.i("XXX", "START: task sequence 1");
+                downloadBitmap(200, 100, "task sequence 1");
+
+                executor.execute(
+                        new Task() {
+                            @Override
+                            public void run(TaskHandler handler, TaskEnvironment env) throws Throwable {
+                                Log.i("XXX", "START: task sequence 2");
+                                downloadBitmap(200, 100, "task sequence 2");
+                                Log.i("XXX", "FINISH: task sequence 2");
+                            }
+                        }, new TaskListener.Default() {
+                            @Override
+                            public void onSucceed(TaskHandler handler) {
+                                executor.execute(
+                                        new Task() {
+                                            @Override
+                                            public void run(TaskHandler handler, TaskEnvironment env) throws Throwable {
+                                                Log.i("XXX", "START: task sequence 3");
+                                                downloadBitmap(200, 100, "task sequence 3");
+                                                Log.i("XXX", "FINISH: task sequence 3");
+                                            }
+                                        });
+                            }
+                        }
+                );
+                Log.i("XXX", "FINISH: task sequence 1");
+            }
+        });
+    }
+
+    public void startManyTasks(View view) {
+        for (int i = 0; i < 100; i++) {
+            final int index = i;
+            executor.execute(new Task() {
+                @Override
+                public void run(TaskHandler handler, TaskEnvironment env) throws Throwable {
+                    Log.i("XXX", "START: many tasks " + index);
+                    downloadBitmap(10, 10, "many tasks " + index);
+                    Log.i("XXX", "FINISH: many tasks " + index);
+                }
+            });
+        }
+    }
+
+    public void startTaskFailure(View view) {
+        executor.execute(new Task() {
+            @Override
+            public void run(TaskHandler handler, TaskEnvironment env) throws Throwable {
+                Log.i("XXX", "START: task failure");
+                downloadBitmap(200, 100, "task failure");
+                Log.i("XXX", "FINISH: task failure");
+                throw new IOException("something goes wrong");
+            }
+        });
+    }
+
+    private void startPerformanceTest(int tasks, final long difficulty) {
+        final long time = SystemClock.uptimeMillis();
+        for (int i = 0; i < tasks; i++) {
+            final int index = i;
+            executor.execute(new Task() {
+                @Override
+                public void run(TaskHandler handler, TaskEnvironment env) throws Throwable {
+                    Log.i("XXX", "START: performance task " + index);
+                    long m = 1;
+                    for (long x = 0; x < difficulty; x++) {
+                        m *= System.currentTimeMillis();
+                    }
+                    System.out.println(m);
+                    Log.i("XXX", "FINISH: performance task " + index);
+                }
+            }, Arrays.asList((Object) "tag"));
+        }
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    executor.queue().sub("tag").join();
+                } catch (InterruptedException e) {
+                    Log.i("XXX", "waiter interrupted");
+                }
+                final long delta = SystemClock.uptimeMillis() - time;
+                Log.i("XXX", "delta time: " + delta);
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this, "time: " + delta, Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        }.start();
+    }
+
+    public void startPerformanceTest1x1000000(View view) {
+        startPerformanceTest(1, 1000000);
+    }
+
+    public void startPerformanceTest10x100000(View view) {
+        startPerformanceTest(10, 100000);
+    }
+
+    public void startPerformanceTest100x10000(View view) {
+        startPerformanceTest(100, 10000);
+    }
+
+    public void startPerformanceTest1000x1000(View view) {
+        startPerformanceTest(1000, 1000);
+    }
+
+    private void startPerformanceCheck(int tasks, final long difficulty) {
+        final ExecutorService executorService = Executors.newFixedThreadPool(7);
+        final long time = SystemClock.uptimeMillis();
+        for (int i = 0; i < tasks; i++) {
+            final int index = i;
+            executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    Log.i("XXX", "START: performance check " + index);
+                    long m = 1;
+                    for (long x = 0; x < difficulty; x++) {
+                        m *= System.currentTimeMillis();
+                    }
+                    System.out.println(m);
+                    Log.i("XXX", "FINISH: performance check " + index);
+                }
+            });
+        }
+        executorService.shutdown();
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    while (!executorService.isTerminated()) {
+                        executorService.awaitTermination(10, TimeUnit.SECONDS);
+                    }
+                } catch (InterruptedException e) {
+                    Log.i("XXX", "waiter interrupted");
+                }
+                final long delta = SystemClock.uptimeMillis() - time;
+                Log.i("XXX", "delta time: " + delta);
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this, "time: " + delta, Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        }.start();
+    }
+
+    public void startPerformanceCheck1x1000000(View view) {
+        startPerformanceCheck(1, 1000000);
+    }
+
+    public void startPerformanceCheck10x100000(View view) {
+        startPerformanceCheck(10, 100000);
+    }
+
+    public void startPerformanceCheck100x10000(View view) {
+        startPerformanceCheck(100, 10000);
+    }
+
+    public void startPerformanceCheck1000x1000(View view) {
+        startPerformanceCheck(1000, 1000);
+    }
+
+}

@@ -4,4 +4,10 @@
 
     <string name="application_name">Android Task Executor Sample Demos</string>
 
+    <string name="simple_task_example_activity">Simple Task</string>
+    <string name="task_sequence_example_activity">Task Sequence</string>
+    <string name="task_failure_example_activity">Task Failure</string>
+
+    <string name="button_start">Start</string>
+
 </resources>

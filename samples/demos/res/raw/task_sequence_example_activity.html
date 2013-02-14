@@ -1,0 +1,31 @@
+<html>
+<body>
+<pre>
+executor.execute(new Task() {                                                                             <br/>
+    @Override                                                                                             <br/>
+    public void run(TaskHandler handler, TaskEnvironment env) throws Throwable {                          <br/>
+        Utils.download(1500);                                                                             <br/>
+        executor.execute(                                                                                 <br/>
+                new Task() {                                                                              <br/>
+                    @Override                                                                             <br/>
+                    public void run(TaskHandler handler, TaskEnvironment env) throws Throwable {          <br/>
+                        Utils.download(1500);                                                             <br/>
+                    }                                                                                     <br/>
+                },                                                                                        <br/>
+                new TaskListener.Default() {                                                              <br/>
+                    @Override                                                                             <br/>
+                    public void onFinish(TaskHandler<?, ?> handler) {                                     <br/>
+                        executor.execute(new Task() {                                                     <br/>
+                            @Override                                                                     <br/>
+                            public void run(TaskHandler handler, TaskEnvironment env) throws Throwable {  <br/>
+                                Utils.download(1500);                                                     <br/>
+                            }                                                                             <br/>
+                        });                                                                               <br/>
+                    }                                                                                     <br/>
+                }                                                                                         <br/>
+        );                                                                                                <br/>
+    }                                                                                                     <br/>
+});                                                                                                       <br/>
+</pre>
+</body>
+</html>
