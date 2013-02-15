@@ -74,6 +74,7 @@ public interface TaskExecutor<E extends TaskEnvironment> {
 
     public void removeTaskListener(TaskListener... taskListeners);
 
+    // todo may be remove super ???
     public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, Collection<Object> tags, Pack args, TaskListener... taskListeners);
 
     public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, Collection<Object> tags, TaskListener... taskListeners);
