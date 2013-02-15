@@ -33,10 +33,9 @@ import java.util.*;
 // удаляемыми элементами.
 ////////////////////////////////////////////////////////////////////////////////
 // Для синхронизации есть специальный объект, возвращаемый методом lock().
+// этот объект совпадает с глобальным объектом синхронизции
 ////////////////////////////////////////////////////////////////////////////////
-// Этот класс может создаваться с помощью конструктора, а затем использоваться
-// для создания задачи, так как он и задает синхронизационный объект env.
-////////////////////////////////////////////////////////////////////////////////
+// todo lock заимствуется извне и поэтому создание этого объекта усложняется
 public final class Pack implements Cloneable, Iterable<String> {
 
     private final Object lock = new Object();
@@ -118,6 +117,8 @@ public final class Pack implements Cloneable, Iterable<String> {
 
     public Set<String> keySet() {
         return new AbstractSet<String>() {
+            // todo implement remove & may be some other methods
+
             @Override
             public Iterator<String> iterator() {
                 return Pack.this.iterator();
@@ -157,13 +158,20 @@ public final class Pack implements Cloneable, Iterable<String> {
         }
     }
 
-    public Pack remove(Object key) {
+    public Pack remove(String key) {
         synchronized (lock()) {
             map.remove(key);
             return this;
         }
     }
 
+    /**
+     * Updates an argument corresponding to the specified key and sets its value to the specified one.
+     *
+     * @param key   the key.
+     * @param value the value.
+     * @return this pack object.
+     */
     public <T> Pack put(String key, T value) {
         synchronized (lock()) {
             map.put(key, value);
@@ -200,6 +208,11 @@ public final class Pack implements Cloneable, Iterable<String> {
         }
     }
 
+    /**
+     * Copies all the arguments in the specified pack to this pack.
+     *
+     * @param pack the pack to copy arguments from.
+     */
     public Pack putAll(Pack pack) {
         synchronized (lock()) {
             synchronized (pack.lock()) {
