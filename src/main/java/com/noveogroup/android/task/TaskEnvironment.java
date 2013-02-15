@@ -34,7 +34,7 @@ package com.noveogroup.android.task;
  * representing a task is reused different task environments will be passed
  * inside {@link Task#run(TaskEnvironment)} as a parameter.
  */
-public interface TaskEnvironment {
+public interface TaskEnvironment<E extends TaskEnvironment> {
 
     /**
      * Returns an object manages both input and output arguments of task
@@ -56,7 +56,7 @@ public interface TaskEnvironment {
      *
      * @return owner {@link TaskSet}.
      */
-    public TaskSet owner();
+    public TaskSet<E> owner();
 
     /**
      * Posts an interrupt request to a task corresponding to this task environment.

@@ -28,20 +28,19 @@ package com.noveogroup.android.task;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Состояния задачи: CREATED, STARTED, CANCELED, SUCCEED, FAILED
-// STARTED  - задача ожидает исполнения в очереди
+// CREATED  - задача ожидает исполнения в очереди
 // STARTED  - задача запущена и в данный момент исполняется
 // CANCELED - задача была отменена когда ожидала исполнения
 // FAILED   - исполнение задачи завершилось ошибкой (+ InterruptedException)
 // SUCCEED  - задача корректно завершилась
 ////////////////////////////////////////////////////////////////////////////////
 // Этот интерфейс позволяет пользователю управлять задачей извне, а именно:
-// - получить окружение задачи                 env
+// - получить множество-хозяин                 owner
 // - получить исполняемую задачу               task
-// - получить список тэгов задачи              tags
+// - получить аргументы задачи                 args
 // - получить статус задачи                    getStatus
 // - получить ошибку                           getThrowable
 // - получить статус отмены                    isInterrupted
-// - проверить статус отмены                   checkInterrupted
 // - отменить задачу                           interrupt
 // - ожидать завершения задачи                 join
 ////////////////////////////////////////////////////////////////////////////////
@@ -49,20 +48,23 @@ package com.noveogroup.android.task;
 // любой объект, поэтому ссылки на тэг уничтожаются из менеджера сразу
 // по завершении задачи и ни в коем случае не хранятся.
 ////////////////////////////////////////////////////////////////////////////////
-// todo ??? can TaskHandler be customized ???
 public interface TaskHandler<T extends Task, E extends TaskEnvironment> {
 
     public enum Status {
 
         CREATED,
 
-        CANCELED,
-
         STARTED,
+
+        CANCELED,
 
         FAILED,
 
         SUCCEED;
+
+        public boolean isAlive() {
+            return this == CREATED || this == STARTED;
+        }
 
         public boolean isDestroyed() {
             return this == CANCELED || this == FAILED || this == SUCCEED;
@@ -77,8 +79,6 @@ public interface TaskHandler<T extends Task, E extends TaskEnvironment> {
     public TaskSet<E> owner();
 
     public T task();
-
-    // todo ??? link to TaskEnvironment ???
 
     public Pack args();
 
