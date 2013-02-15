@@ -31,22 +31,38 @@ import java.util.Iterator;
 import java.util.Set;
 
 ////////////////////////////////////////////////////////////////////////////////
-// смотри TaskExecutor - описание пока там, пока не разделил
+// Интерфейс TaskSet - это просто обертка вокруг синхронизованных проходов
+// по списку задач с отсевом задач не подходящих по тэгам.
+////////////////////////////////////////////////////////////////////////////////
+// Можно делать следующее:
+// - Добавлять задачу в task set (чтобы не указывать тэги и привязывать задачу
+//   сразу к данному множеству).
+// - Узнать тэги используемые для фильтрации, отдается unmodifiable множество
+// - Гонять по иерархии - получать подмножества
+// - получить количество задач (со статусами CREATED и STARTED)
+//   просто задачи с другими статусами в очереди отсутствуют
+// - отменять задачи скопом (исключая добавленные после вызова)
+// - ожидать завершения задач (исключая добавленные после вызова)
+// - перебирать задачи итератором, правда нельзя удалять
+////////////////////////////////////////////////////////////////////////////////
+// Список тэгов нельзя изменить. В качестве тэга может быть использован
+// любой объект, поэтому ссылки на тэг уничтожаются из менеджера сразу
+// по завершении задачи и ни в коем случае не хранятся.
 // todo тэги Object неудобны тем, что Collection тэгов и массив тэгов - тоже тэг
 ////////////////////////////////////////////////////////////////////////////////
-public interface TaskSet<E extends TaskEnvironment> extends Iterable<TaskHandler<? extends Task, E>> {
+public interface TaskSet<E extends TaskEnvironment> extends Iterable<TaskHandler<?, E>> {
 
-    // todo ??? add method executor() ???
+    public TaskExecutor<E> executor();
 
     public Set<Object> tags();
 
-    public TaskSet sub(Object... tags);
+    public TaskSet<E> sub(Object... tags);
 
-    public TaskSet sub(Collection<Object> tags);
+    public TaskSet<E> sub(Collection<Object> tags);
 
-    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, Pack args, TaskListener... taskListeners);
+    public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, TaskListener... taskListeners);
 
-    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, TaskListener... taskListeners);
+    public <T extends Task<E>> TaskHandler<T, E> execute(T task, TaskListener... taskListeners);
 
     public int size();
 
