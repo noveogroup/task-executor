@@ -29,9 +29,6 @@ package com.noveogroup.android.task;
 import java.util.*;
 
 ////////////////////////////////////////////////////////////////////////////////
-// Следует обратить внимание, что метод keySet() возвращает множество с
-// удаляемыми элементами.
-////////////////////////////////////////////////////////////////////////////////
 // Для синхронизации есть специальный объект, возвращаемый методом lock().
 // этот объект совпадает с глобальным объектом синхронизции
 ////////////////////////////////////////////////////////////////////////////////
@@ -41,9 +38,18 @@ public final class Pack implements Cloneable, Iterable<String> {
     private final Object lock = new Object();
     private final HashMap<String, Object> map = new HashMap<String, Object>();
 
+    /**
+     * Constructs a new empty pack.
+     */
     public Pack() {
     }
 
+    /**
+     * Constructs a new packs containing the arguments from
+     * the specified one.
+     *
+     * @param pack the pack of arguments to add.
+     */
     public Pack(Pack pack) {
         synchronized (lock()) {
             synchronized (pack.lock()) {
@@ -52,10 +58,12 @@ public final class Pack implements Cloneable, Iterable<String> {
         }
     }
 
+    // todo public ???
     public Object lock() {
         return lock;
     }
 
+    // todo remove clone ???
     @Override
     public Pack clone() {
         synchronized (lock()) {
@@ -67,18 +75,35 @@ public final class Pack implements Cloneable, Iterable<String> {
         }
     }
 
+    /**
+     * Returns the number of arguments in this pack.
+     *
+     * @return the number of arguments in this pack.
+     */
     public int size() {
         synchronized (lock()) {
             return map.size();
         }
     }
 
+    /**
+     * Returns whether this pack is empty.
+     *
+     * @return {@code true} if this pack has no arguments, {@code false} otherwise.
+     * @see #size()
+     */
     public boolean isEmpty() {
         synchronized (lock()) {
             return map.isEmpty();
         }
     }
 
+    /**
+     * Returns an iterator over a set of keys of arguments contained in
+     * this pack. The iterator supports removing.
+     *
+     * @return an iterator.
+     */
     @Override
     public Iterator<String> iterator() {
         synchronized (lock()) {
@@ -115,9 +140,15 @@ public final class Pack implements Cloneable, Iterable<String> {
         }
     }
 
+    /**
+     * Returns a set of the keys of arguments contained in this pack.
+     * The set supports modifications except adding.
+     *
+     * @return a set of the keys.
+     */
     public Set<String> keySet() {
         return new AbstractSet<String>() {
-            // todo implement remove & may be some other methods
+            // todo implement all methods (except add, addAll) & review iterator() method
 
             @Override
             public Iterator<String> iterator() {
@@ -131,18 +162,46 @@ public final class Pack implements Cloneable, Iterable<String> {
         };
     }
 
+    /**
+     * Returns whether this pack contains an argument corresponding
+     * to the specified key.
+     *
+     * @param key the key.
+     * @return {@code true} if this pack contains the argument corresponding to
+     *         the specified key otherwise {@code false}.
+     */
     public boolean containsKey(String key) {
         synchronized (lock()) {
             return map.containsKey(key);
         }
     }
 
+    /**
+     * Returns the value of an argument corresponding to the specified key.
+     *
+     * @param key the key.
+     * @param <T> desired type of the value.
+     * @return the value of the argument or {@code null} if no value
+     *         corresponding to this key was found.
+     * @see #get(String, Object)
+     */
+    @SuppressWarnings("unchecked")
     public <T> T get(String key) {
         synchronized (lock()) {
-            return get(key, null);
+            return (T) map.get(key);
         }
     }
 
+    /**
+     * Returns the value of an argument corresponding to the specified key.
+     *
+     * @param key          the key.
+     * @param defaultValue the default value.
+     * @param <T>          desired type of the value.
+     * @return the value of the argument or provided default if no value
+     *         corresponding to this key was found.
+     * @see #get(String)
+     */
     @SuppressWarnings("unchecked")
     public <T> T get(String key, T defaultValue) {
         synchronized (lock()) {
