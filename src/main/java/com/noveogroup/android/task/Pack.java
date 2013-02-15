@@ -151,6 +151,13 @@ public final class Pack implements Cloneable, Iterable<String> {
         }
     }
 
+    /**
+     * Clears the pack. Removes all arguments and leaves pack empty.
+     *
+     * @return this pack object.
+     * @see #isEmpty()
+     * @see #size()
+     */
     public Pack clear() {
         synchronized (lock()) {
             map.clear();
@@ -158,6 +165,12 @@ public final class Pack implements Cloneable, Iterable<String> {
         }
     }
 
+    /**
+     * Removes an argument corresponding the specified key.
+     *
+     * @param key the key.
+     * @return this pack object.
+     */
     public Pack remove(String key) {
         synchronized (lock()) {
             map.remove(key);
@@ -170,7 +183,12 @@ public final class Pack implements Cloneable, Iterable<String> {
      *
      * @param key   the key.
      * @param value the value.
+     * @param <T>   the type of the value.
      * @return this pack object.
+     * @see #put(String, Object)
+     * @see #put(String, Object, Object)
+     * @see #putIf(boolean, String, Object)
+     * @see #putAll(Pack)
      */
     public <T> Pack put(String key, T value) {
         synchronized (lock()) {
@@ -179,6 +197,19 @@ public final class Pack implements Cloneable, Iterable<String> {
         }
     }
 
+    /**
+     * Updates an argument corresponding to the specified key and sets its value to the specified one
+     * or, if the specified value is {@code null} - to the specified default one.
+     *
+     * @param key          the key.
+     * @param value        the value.
+     * @param defaultValue the default value to use when the usual one is {@code null}.
+     * @param <T>          the type of the value.
+     * @return this pack object.
+     * @see #put(String, Object)
+     * @see #putIf(boolean, String, Object)
+     * @see #putAll(Pack)
+     */
     public <T> Pack put(String key, T value, T defaultValue) {
         synchronized (lock()) {
             if (value != null) {
@@ -190,15 +221,19 @@ public final class Pack implements Cloneable, Iterable<String> {
         }
     }
 
-    public <T> Pack putNotNull(String key, T value) {
-        synchronized (lock()) {
-            if (value != null) {
-                map.put(key, value);
-            }
-            return this;
-        }
-    }
-
+    /**
+     * Updates an argument just like {@link #put(String, Object)} but do it if only the specified
+     * condition is {@code true}.
+     *
+     * @param condition the condition.
+     * @param key       the key.
+     * @param value     the value.
+     * @param <T>       the type of the value.
+     * @return this pack object.
+     * @see #put(String, Object)
+     * @see #put(String, Object, Object)
+     * @see #putAll(Pack)
+     */
     public <T> Pack putIf(boolean condition, String key, T value) {
         synchronized (lock()) {
             if (condition) {
@@ -212,6 +247,10 @@ public final class Pack implements Cloneable, Iterable<String> {
      * Copies all the arguments in the specified pack to this pack.
      *
      * @param pack the pack to copy arguments from.
+     * @return this pack object.
+     * @see #put(String, Object)
+     * @see #put(String, Object, Object)
+     * @see #putIf(boolean, String, Object)
      */
     public Pack putAll(Pack pack) {
         synchronized (lock()) {
