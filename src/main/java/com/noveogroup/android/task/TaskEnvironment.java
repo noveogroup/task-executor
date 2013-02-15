@@ -26,92 +26,73 @@
 
 package com.noveogroup.android.task;
 
-////////////////////////////////////////////////////////////////////////////////
-// Этот интерфейс - заготовка для всяческих помощников, которые упрощают
-// вывод диалогов и прочую такую вот вспомогательную ерунду.
-////////////////////////////////////////////////////////////////////////////////
-// Синхронизационный объект принадлежит лично этому TaskEnvironment.
-// Главное правило, которое, правда, все равно проверяется автоматически:
-// блокировать только в порядке главный блок - частный блок.
-// эта проверка реализуется внутри метода этого интерфейса. В случае нарушения
-// контракта бросаем исключение IllegalStateException.
-// Синхронизируется этим объектом следующее:
-// - операции с аргументами
-// - все другие действия, которые можно выполнять при осуществлении блокировки
-//   очереди. Когда очередь блокируется - замораживаются почти все процессы.
-//   но запущенные задачи могут продолжать работать, пока не обратятся к
-//   заблокированному функционалу.
-// - а все остальные действия синхронизируются по основному объекту:
-//   (потому что они все напрямую влияют на очередь задач)
-//   - isInterrupted
-//   - checkInterrupted
-//   - interruptSelf
-//   - owner
-////////////////////////////////////////////////////////////////////////////////
-// todo описать
-// todo часть методов нужны снаружи, а часть нет. как быть ?
-// todo 1. сделать еще один интерфейс и выделить в него общую часть
-// todo 2. удалить отсюда лишние методы и реализовать их в классе
-/* ВАРИАНТ 1:
-TaskEnvironment {
-  public Object taskLock();
-  public Pack args();
-}
-TaskHandler {
-  public Object taskLock();
-  public Pack args();
-}
-*/
-/* ВАРИАНТ 2:
-TaskEnvironment {
-  public Pack args();
-}
-TaskHandler {
-  public Pack args();
-}
-*/
-/* ВАРИАНТ 3:
-TaskEnvironment {
-  public XXX xxx();
-}
-TaskHandler {
-  public XXX xxx();
-}
-XXX {
-  public Object lock();
-  public Pack args();
-}
-*/
-
-// а вообще все это растет из синхронизации.
-// синхронизация очереди задач влючает в себя практически все.
-// единственное что нуждается в похожей синхронизации и при этом
-// отчуждаемо от блокировок, связанных с очередью - это аргументы
-
-// но делать аргументы синхронизируемыми - может быть излишним усложнением
-// поэтому возможно следует сделать синхронизацию аргументов проще
-
-// с другой стороны, частный синхронизационный объект задачи с проверкой
-// порядка блокировки общий-частный - не так уж плохо. даже вполне хорошо
-// но такая архитектура все равно имеет врожденную склонность к dead-lock-ам
-
-// есть левый вариант: сделать всю синхронизацию завязанной на один объект
-// тогда отпадает столько проблем ... и с синхронизацией, и с интерфейсами,
-// и с dead-lock-ами ...
-// правда в этом случае проблема синхронизации внутри задачи остается
-// непроработанной. может быть это и не такая проблема ...
+/**
+ * Represents a task environment for {@link Task}. Each time an assigned
+ * task environment is passed as a parameter to {@link Task#run(TaskEnvironment)}.
+ * <p/>
+ * Task environment is strictly corresponds to task execution. Even if the object
+ * representing a task is reused different task environments will be passed
+ * inside {@link Task#run(TaskEnvironment)} as a parameter.
+ */
 public interface TaskEnvironment {
 
-    public Object lock() throws IllegalStateException;
-
+    /**
+     * Returns an object manages both input and output arguments of task
+     * corresponding to this task environment.
+     * <p/>
+     * Access to this container can be synchronized using an object returning
+     * {@link Pack#lock()} which is the same object as the global lock object
+     * of task executor returning by {@link TaskExecutor#lock()}.
+     *
+     * @return the container of arguments.
+     * @see Pack
+     * @see Pack#lock()
+     * @see TaskExecutor#lock()
+     */
     public Pack args();
 
+    /**
+     * Returns a task set that owns a task corresponding to this task environment.
+     *
+     * @return owner {@link TaskSet}.
+     */
     public TaskSet owner();
 
+    /**
+     * Posts an interrupt request to a task corresponding to this task environment.
+     * Usually this method is called from inside of {@link Task#run(TaskEnvironment)}
+     * and in this case an interruption flag will be set only.
+     * If somehow this method is calling from outside of {@link Task#run(TaskEnvironment)},
+     * it is similar to calling corresponding {@link TaskHandler#interrupt()}.
+     *
+     * @see #isInterrupted()
+     * @see #checkInterrupted()
+     * @see TaskHandler#interrupt()
+     */
     public void interruptSelf();
 
+    /**
+     * Returns a {@code boolean} indicating whether the receiver has
+     * an interrupt request {@code true} or {@code false}.
+     *
+     * @return a {@code boolean} indicating the interrupt status.
+     * @see #interruptSelf()
+     * @see #checkInterrupted()
+     * @see TaskHandler#isInterrupted()
+     */
     public boolean isInterrupted();
 
+    /**
+     * Checks if the receiver was interrupted and throws an exception
+     * if so.
+     * <p/>
+     * This method is recommended to use inside {@link Task#run(TaskEnvironment)}
+     * in key points of execution process to support task interruption.
+     *
+     * @throws InterruptedException if the receiver was interrupted.
+     * @see #interruptSelf()
+     * @see #isInterrupted()
+     */
     public void checkInterrupted() throws InterruptedException;
 
 }
