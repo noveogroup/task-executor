@@ -124,8 +124,11 @@ public final class Pack implements Cloneable, Iterable<String> {
     @Override
     public Iterator<String> iterator() {
         synchronized (lock()) {
+            // copy key set and create delegate iterator
             HashSet<String> copyKeySet = new HashSet<String>(map.keySet());
             final Iterator<String> delegate = copyKeySet.iterator();
+
+            // return a thread-safe iterator
             return new Iterator<String>() {
                 private final Object iteratorLock = new Object();
                 private String currentKey = null;
@@ -165,8 +168,6 @@ public final class Pack implements Cloneable, Iterable<String> {
      */
     public Set<String> keySet() {
         return new AbstractSet<String>() {
-            // todo implement all methods (except add, addAll) & review iterator() method
-
             @Override
             public Iterator<String> iterator() {
                 return Pack.this.iterator();
