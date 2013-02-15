@@ -28,20 +28,31 @@ package com.noveogroup.android.task;
 
 import java.util.*;
 
-////////////////////////////////////////////////////////////////////////////////
-// Для синхронизации есть специальный объект, возвращаемый методом lock().
-// этот объект совпадает с глобальным объектом синхронизции
-////////////////////////////////////////////////////////////////////////////////
-// todo lock заимствуется извне и поэтому создание этого объекта усложняется
+/**
+ * A {@link Pack} is a data structure consisting of a set of arguments.
+ * Each argument has a unique key that corresponds to a value.
+ * <p/>
+ * A {@link Pack} provides helper methods to iterate through all of
+ * the arguments contained, as well as various methods to access and update
+ * the arguments.
+ * <p/>
+ * Any access to the pack is synchronized using a special object returning
+ * by {@link Pack#lock()} method. This object can be used outside of pack
+ * to synchronize complex and dependent sequences of accesses/updates.
+ */
 public final class Pack implements Cloneable, Iterable<String> {
 
-    private final Object lock = new Object();
-    private final HashMap<String, Object> map = new HashMap<String, Object>();
+    private final Object lock;
+    private final HashMap<String, Object> map;
 
     /**
      * Constructs a new empty pack.
+     *
+     * @param lock synchronization object.
      */
-    public Pack() {
+    public Pack(Object lock) {
+        this.lock = lock;
+        this.map = new HashMap<String, Object>();
     }
 
     /**
@@ -51,28 +62,34 @@ public final class Pack implements Cloneable, Iterable<String> {
      * @param pack the pack of arguments to add.
      */
     public Pack(Pack pack) {
-        synchronized (lock()) {
-            synchronized (pack.lock()) {
-                putAll(pack);
-            }
-        }
+        this(pack.lock());
+        putAll(pack);
     }
 
-    // todo public ???
+    /**
+     * Constructs a new packs containing the arguments from
+     * the specified one.
+     *
+     * @param lock synchronization object.
+     * @param pack the pack of arguments to add.
+     */
+    public Pack(Object lock, Pack pack) {
+        this(lock);
+        putAll(pack);
+    }
+
+    /**
+     * Returns synchronization object of this pack.
+     *
+     * @return the synchronization object.
+     */
     public Object lock() {
         return lock;
     }
 
-    // todo remove clone ???
     @Override
     public Pack clone() {
-        synchronized (lock()) {
-            Pack pack = new Pack();
-            synchronized (pack.lock()) {
-                pack.putAll(this);
-            }
-            return pack;
-        }
+        return new Pack(this);
     }
 
     /**
