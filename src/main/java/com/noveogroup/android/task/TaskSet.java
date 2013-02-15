@@ -36,6 +36,8 @@ import java.util.Set;
 ////////////////////////////////////////////////////////////////////////////////
 public interface TaskSet<E extends TaskEnvironment> extends Iterable<TaskHandler<? extends Task, E>> {
 
+    // todo ??? add method executor() ???
+
     public Set<Object> tags();
 
     public TaskSet sub(Object... tags);

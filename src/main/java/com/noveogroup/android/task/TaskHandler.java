@@ -26,8 +26,6 @@
 
 package com.noveogroup.android.task;
 
-import java.util.Set;
-
 ////////////////////////////////////////////////////////////////////////////////
 // Состояния задачи: CREATED, STARTED, CANCELED, SUCCEED, FAILED
 // STARTED  - задача ожидает исполнения в очереди
@@ -51,6 +49,7 @@ import java.util.Set;
 // любой объект, поэтому ссылки на тэг уничтожаются из менеджера сразу
 // по завершении задачи и ни в коем случае не хранятся.
 ////////////////////////////////////////////////////////////////////////////////
+// todo ??? can TaskHandler be customized ???
 public interface TaskHandler<T extends Task, E extends TaskEnvironment> {
 
     public enum Status {
@@ -79,10 +78,9 @@ public interface TaskHandler<T extends Task, E extends TaskEnvironment> {
 
     public T task();
 
-    public E env();
+    // todo ??? link to TaskEnvironment ???
 
-    // todo дублирование с owner().tags()
-    public Set<Object> tags();
+    public Pack args();
 
     public Status getStatus();
 
