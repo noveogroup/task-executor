@@ -60,16 +60,16 @@ public class TEST {
     public static class TaskEnvironment2 extends TaskEnvironment1 {
     }
 
-    public static class Task1 implements Task<TaskEnvironment1> {
+    public static class Task1<E extends TaskEnvironment1> implements Task<E> {
         @Override
-        public void run(TaskEnvironment1 env) throws Throwable {
+        public void run(E env) throws Throwable {
             //To change body of implemented methods use File | Settings | File Templates.
         }
     }
 
-    public static class Task2 implements Task<TaskEnvironment2> {
+    public static class Task2<E extends TaskEnvironment2> implements Task<E> {
         @Override
-        public void run(TaskEnvironment2 env) throws Throwable {
+        public void run(E env) throws Throwable {
             //To change body of implemented methods use File | Settings | File Templates.
         }
     }
@@ -86,22 +86,22 @@ public class TEST {
         }
 
         @Override
-        public <T extends Task<? super TaskEnvironment1>> TaskHandler<T, TaskEnvironment1> execute(T task, Collection<Object> tags, Pack args, TaskListener... taskListeners) {
+        public <T extends Task<TaskEnvironment1>> TaskHandler<T, TaskEnvironment1> execute(T task, Collection<Object> tags, Pack args, TaskListener... taskListeners) {
             return null;  //To change body of implemented methods use File | Settings | File Templates.
         }
 
         @Override
-        public <T extends Task<? super TaskEnvironment1>> TaskHandler<T, TaskEnvironment1> execute(T task, Collection<Object> tags, TaskListener... taskListeners) {
+        public <T extends Task<TaskEnvironment1>> TaskHandler<T, TaskEnvironment1> execute(T task, Collection<Object> tags, TaskListener... taskListeners) {
             return null;  //To change body of implemented methods use File | Settings | File Templates.
         }
 
         @Override
-        public <T extends Task<? super TaskEnvironment1>> TaskHandler<T, TaskEnvironment1> execute(T task, Pack args, TaskListener... taskListeners) {
+        public <T extends Task<TaskEnvironment1>> TaskHandler<T, TaskEnvironment1> execute(T task, Pack args, TaskListener... taskListeners) {
             return null;  //To change body of implemented methods use File | Settings | File Templates.
         }
 
         @Override
-        public <T extends Task<? super TaskEnvironment1>> TaskHandler<T, TaskEnvironment1> execute(T task, TaskListener... taskListeners) {
+        public <T extends Task<TaskEnvironment1>> TaskHandler<T, TaskEnvironment1> execute(T task, TaskListener... taskListeners) {
             return null;  //To change body of implemented methods use File | Settings | File Templates.
         }
 
@@ -148,22 +148,22 @@ public class TEST {
         }
 
         @Override
-        public <T extends Task<? super TaskEnvironment2>> TaskHandler<T, TaskEnvironment2> execute(T task, Collection<Object> tags, Pack args, TaskListener... taskListeners) {
+        public <T extends Task<TaskEnvironment2>> TaskHandler<T, TaskEnvironment2> execute(T task, Collection<Object> tags, Pack args, TaskListener... taskListeners) {
             return null;  //To change body of implemented methods use File | Settings | File Templates.
         }
 
         @Override
-        public <T extends Task<? super TaskEnvironment2>> TaskHandler<T, TaskEnvironment2> execute(T task, Collection<Object> tags, TaskListener... taskListeners) {
+        public <T extends Task<TaskEnvironment2>> TaskHandler<T, TaskEnvironment2> execute(T task, Collection<Object> tags, TaskListener... taskListeners) {
             return null;  //To change body of implemented methods use File | Settings | File Templates.
         }
 
         @Override
-        public <T extends Task<? super TaskEnvironment2>> TaskHandler<T, TaskEnvironment2> execute(T task, Pack args, TaskListener... taskListeners) {
+        public <T extends Task<TaskEnvironment2>> TaskHandler<T, TaskEnvironment2> execute(T task, Pack args, TaskListener... taskListeners) {
             return null;  //To change body of implemented methods use File | Settings | File Templates.
         }
 
         @Override
-        public <T extends Task<? super TaskEnvironment2>> TaskHandler<T, TaskEnvironment2> execute(T task, TaskListener... taskListeners) {
+        public <T extends Task<TaskEnvironment2>> TaskHandler<T, TaskEnvironment2> execute(T task, TaskListener... taskListeners) {
             return null;  //To change body of implemented methods use File | Settings | File Templates.
         }
 
@@ -204,8 +204,10 @@ public class TEST {
         TaskExecutor1 taskExecutor1 = new TaskExecutor1();
         TaskExecutor2 taskExecutor2 = new TaskExecutor2();
 
+        taskExecutor1.execute(task1);
         taskExecutor1.execute(task2);
         taskExecutor2.execute(task1);
+        taskExecutor2.execute(task2);
     }
 
 }
