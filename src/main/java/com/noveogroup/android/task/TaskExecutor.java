@@ -55,6 +55,7 @@ import java.util.Collection;
 ////////////////////////////////////////////////////////////////////////////////
 // Методы execute позволяют добавить задачу в очередь, при этом добавляется
 // фиктивный тэг, случайно сгенерированный, если такой тэг не указан.
+// todo тэги Object неудобны тем, что Collection тэгов и массив тэгов - тоже тэг
 // todo то есть тэгов у меня уже целых два типа ?
 // todo по-моему тэги расслоились из-за того , что не была проработана идея с указанием множества для задач
 /*
@@ -83,9 +84,9 @@ public interface TaskExecutor<E extends TaskEnvironment> {
 
     public void removeTaskListener(TaskListener... taskListeners);
 
-    public <T extends Task<E>> TaskHandler<T, E> execute(T task, Collection<Object> tags, Pack args, TaskListener... taskListeners);
+    public <T extends Task<E>> TaskHandler<T, E> execute(T task, Collection<String> tags, Pack args, TaskListener... taskListeners);
 
-    public <T extends Task<E>> TaskHandler<T, E> execute(T task, Collection<Object> tags, TaskListener... taskListeners);
+    public <T extends Task<E>> TaskHandler<T, E> execute(T task, Collection<String> tags, TaskListener... taskListeners);
 
     public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, TaskListener... taskListeners);
 
@@ -95,15 +96,17 @@ public interface TaskExecutor<E extends TaskEnvironment> {
 
     public TaskSet<E> queue();
 
-    public TaskSet<E> queue(Object... tags);
+    public TaskSet<E> queue(String... tags);
 
-    public TaskSet<E> queue(Collection<Object> tags);
+    public TaskSet<E> queue(Collection<String> tags);
 
     public void shutdown();
 
     public boolean isShutdown();
 
     public boolean isTerminated();
+
+    public void awaitTermination() throws InterruptedException;
 
     public boolean awaitTermination(long timeout) throws InterruptedException;
 

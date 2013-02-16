@@ -48,17 +48,16 @@ import java.util.Set;
 // Список тэгов нельзя изменить. В качестве тэга может быть использован
 // любой объект, поэтому ссылки на тэг уничтожаются из менеджера сразу
 // по завершении задачи и ни в коем случае не хранятся.
-// todo тэги Object неудобны тем, что Collection тэгов и массив тэгов - тоже тэг
 ////////////////////////////////////////////////////////////////////////////////
 public interface TaskSet<E extends TaskEnvironment> extends Iterable<TaskHandler<?, E>> {
 
     public TaskExecutor<E> executor();
 
-    public Set<Object> tags();
+    public Set<String> tags();
 
-    public TaskSet<E> sub(Object... tags);
+    public TaskSet<E> sub(String... tags);
 
-    public TaskSet<E> sub(Collection<Object> tags);
+    public TaskSet<E> sub(Collection<String> tags);
 
     public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, TaskListener... taskListeners);
 
@@ -71,10 +70,12 @@ public interface TaskSet<E extends TaskEnvironment> extends Iterable<TaskHandler
     @Override
     public Iterator<TaskHandler<? extends Task, E>> iterator();
 
+    public boolean isInterrupted();
+
     public void interrupt();
 
     public void join() throws InterruptedException;
 
-    public void join(long timeout) throws InterruptedException;
+    public boolean join(long timeout) throws InterruptedException;
 
 }

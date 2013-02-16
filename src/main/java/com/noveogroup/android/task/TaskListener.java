@@ -26,8 +26,23 @@
 
 package com.noveogroup.android.task;
 
+/* todo onQueueInsert и onQueueRemove - это какая-то ересz
+эти операции должны быть мгновенны.
+все пошло от желания иметь гарантированно вызываемые onCreate-onDestroy
+а при добавлении задачи в отмененную очередь у меня жизненный цикл шел вообще не так
+то есть есть необходимость - не вызывать кучу раз листенеры и не дергать
+progress dialog для по-любому отмененных задач.
+ */
 ////////////////////////////////////////////////////////////////////////////////
-// Напомним, что состояния задачи: CREATED, STARTED, CANCELED, SUCCEED, FAILED
+// * Методы при создании задачи:      onCreate      - onDestroy
+// * Методы при добавлении в очередь: onQueueInsert - onQueueRemove
+// * Методы при исполнении задачи:    onStart       - onFinish
+// * Задача отменена:   onCanceled
+// * Задача поломалась: onFailed
+// * Задача выполнена:  onSucceed
+////////////////////////////////////////////////////////////////////////////////
+// Порядок исполнения листенеров подобран специально - сначала прямой, а в конце
+// обратный порядку добаления. Это сделано для симметрии исполнения.
 ////////////////////////////////////////////////////////////////////////////////
 // * Создали задачу и добавили в очередь
 //   > CREATE onCreate                        { in direct order
@@ -52,71 +67,115 @@ package com.noveogroup.android.task;
 // CREATE [ADD] onCreate STARTED onStart [RUN] SUCCEED onFinish onSucceed [DEL] onDestroy
 // CREATE [ADD] onCreate STARTED onStart [RUN] FAILED  onFinish onFailed  [DEL] onDestroy
 // CANCELED onCanceled
-// то есть существуют парные методы: onCreate - onDestroy, onStart  - onFinish
-// и непарные, уведомляющие: onCanceled, onFailed, onSucceed
 ////////////////////////////////////////////////////////////////////////////////
-// Порядок исполнения листенеров подобран специально - сначала прямой, а в конце
-// обратный порядку добаления. Это сделано для симметрии исполнения.
-////////////////////////////////////////////////////////////////////////////////
-// Листенер Default сделан просто для удобства
-// Самодельный Wrapper делать не стал потому что он особенно не нужен снаружи
-////////////////////////////////////////////////////////////////////////////////
-// Внутри методов листенера можно виснуть сколько угодно
-// Это ни на что не повлияет, разве что задержит жизненный цикл задачи
-// То есть пока onCreate не исполнится задача не запустится
-// Ломаться внутри листенеров лучше не надо - любой exception уходит на
-// обработку соответствующему UncaughtExceptionHandler, после чего приложение
-// скорее всего будет аварийно завершено.
-////////////////////////////////////////////////////////////////////////////////
-// Листенеры запускаются по очереди, то есть не параллельно.
-////////////////////////////////////////////////////////////////////////////////
-// todo ??? add onQueueInsert and onQueueRemove to TaskListener (onCreate onCancel onDestroy && onCreate onQueueInsert onCancel onQueueRemove onDestroy)
+
+/**
+ * Interface definition for a callbacks to be invoked during task lifecycle.
+ * <p/>
+ * Each task can have a set of listeners to report its state to. When it is
+ * needed the corresponding callback methods (the same for each listener) are
+ * called is direct of reverse order, one by one. The task won't call a next
+ * set of callbacks before the current is done.
+ * <p/>
+ * The callback method can take any time to execute - it only makes the task
+ * lifetime longer. If some exception is thrown from a callback it won't be
+ * caught and will be reported to the standard {@link Thread.UncaughtExceptionHandler}.
+ * <p/>
+ * The whole set of callbacks is divided onto two subsets:
+ * <ul>
+ * <li>
+ * Life cycle callbacks
+ * <ul>
+ * <li>{@link #onCreate(TaskHandler)} and {@link #onDestroy(TaskHandler)}</li>
+ * <li>{@link #onQueueInsert(TaskHandler)} and {@link #onQueueRemove(TaskHandler)}</li>
+ * <li>{@link #onStart(TaskHandler)} and {@link #onFinish(TaskHandler)}</li>
+ * </ul>
+ * </li>
+ * <li>
+ * Informational callbacks
+ * <ul>
+ * <li>{@link #onCanceled(TaskHandler)} </li>
+ * <li>{@link #onFailed(TaskHandler)}</li>
+ * <li>{@link #onSucceed(TaskHandler)} </li>
+ * </ul>
+ * </li>
+ * </ul>
+ *
+ * @see TaskListener.Default
+ * @see TaskHandler.Status
+ */
 public interface TaskListener {
 
+    /**
+     * Default implementation of {@link TaskListener}.
+     * <p/>
+     * Does nothing.
+     */
     public class Default implements TaskListener {
 
         @Override
         public void onCreate(TaskHandler<?, ?> handler) {
+            // do nothing
         }
 
         @Override
-        public void onCancel(TaskHandler<?, ?> handler) {
+        public void onQueueInsert(TaskHandler<?, ?> handler) {
+            // do nothing
         }
 
         @Override
         public void onStart(TaskHandler<?, ?> handler) {
+            // do nothing
         }
 
         @Override
         public void onFinish(TaskHandler<?, ?> handler) {
+            // do nothing
         }
 
         @Override
-        public void onSucceed(TaskHandler<?, ?> handler) {
-        }
-
-        @Override
-        public void onFailed(TaskHandler<?, ?> handler) {
+        public void onQueueRemove(TaskHandler<?, ?> handler) {
+            // do nothing
         }
 
         @Override
         public void onDestroy(TaskHandler<?, ?> handler) {
+            // do nothing
+        }
+
+        @Override
+        public void onCanceled(TaskHandler<?, ?> handler) {
+            // do nothing
+        }
+
+        @Override
+        public void onFailed(TaskHandler<?, ?> handler) {
+            // do nothing
+        }
+
+        @Override
+        public void onSucceed(TaskHandler<?, ?> handler) {
+            // do nothing
         }
 
     }
 
     public void onCreate(TaskHandler<?, ?> handler);
 
-    public void onCancel(TaskHandler<?, ?> handler);
+    public void onQueueInsert(TaskHandler<?, ?> handler);
 
     public void onStart(TaskHandler<?, ?> handler);
 
     public void onFinish(TaskHandler<?, ?> handler);
 
-    public void onSucceed(TaskHandler<?, ?> handler);
+    public void onQueueRemove(TaskHandler<?, ?> handler);
+
+    public void onDestroy(TaskHandler<?, ?> handler);
+
+    public void onCanceled(TaskHandler<?, ?> handler);
 
     public void onFailed(TaskHandler<?, ?> handler);
 
-    public void onDestroy(TaskHandler<?, ?> handler);
+    public void onSucceed(TaskHandler<?, ?> handler);
 
 }

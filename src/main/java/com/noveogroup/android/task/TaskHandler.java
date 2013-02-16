@@ -88,6 +88,6 @@ public interface TaskHandler<T extends Task, E extends TaskEnvironment> {
 
     public void join() throws InterruptedException;
 
-    public void join(long timeout) throws InterruptedException;
+    public boolean join(long timeout) throws InterruptedException;
 
 }
