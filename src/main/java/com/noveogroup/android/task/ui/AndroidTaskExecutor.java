@@ -70,7 +70,7 @@ public class AndroidTaskExecutor extends SimpleTaskExecutor<TaskEnvironment> {
                     }
                 }
 
-                if (handler.getStatus() == TaskHandler.Status.FAILED) {
+                if (handler.getState() == TaskHandler.State.FAILED) {
                     progressManager.error(handler.getThrowable());
                 }
             }

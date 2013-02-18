@@ -26,46 +26,73 @@
 
 package com.noveogroup.android.task;
 
-////////////////////////////////////////////////////////////////////////////////
-// Состояния задачи: CREATED, STARTED, CANCELED, SUCCEED, FAILED
-// CREATED  - задача ожидает исполнения в очереди
-// STARTED  - задача запущена и в данный момент исполняется
-// CANCELED - задача была отменена когда ожидала исполнения
-// FAILED   - исполнение задачи завершилось ошибкой (+ InterruptedException)
-// SUCCEED  - задача корректно завершилась
-////////////////////////////////////////////////////////////////////////////////
-// Этот интерфейс позволяет пользователю управлять задачей извне, а именно:
-// - получить множество-хозяин                 owner
-// - получить исполняемую задачу               task
-// - получить аргументы задачи                 args
-// - получить статус задачи                    getStatus
-// - получить ошибку                           getThrowable
-// - получить статус отмены                    isInterrupted
-// - отменить задачу                           interrupt
-// - ожидать завершения задачи                 join
-////////////////////////////////////////////////////////////////////////////////
 public interface TaskHandler<T extends Task, E extends TaskEnvironment> {
 
-    public enum Status {
+    /**
+     * Represents a task's processing state. A given task may only be in one
+     * state at a time.
+     */
+    public enum State {
 
+        /**
+         * The task has been created, but hasn't been started yet.
+         */
         CREATED,
 
+        /**
+         * The task is running now.
+         */
         STARTED,
 
+        /**
+         * The task has been canceled before method {@link Task#run(TaskEnvironment)}
+         * was entered.
+         */
         CANCELED,
 
+        /**
+         * The task was running but failed due to an exception was thrown
+         * from {@link Task#run(TaskEnvironment)}.
+         * <p/>
+         * Task is considered as failed even if {@link InterruptedException}
+         * was thrown.
+         */
         FAILED,
 
+        /**
+         * The task has been started and finished successfully.
+         */
         SUCCEED;
 
+        /**
+         * Returns {@link boolean} indicating whether the task's state is
+         * alive {@code true} or {@code false}.
+         *
+         * @return a {@code boolean} indicating if state is {@link #CREATED}
+         *         or {@link #STARTED}.
+         */
         public boolean isAlive() {
             return this == CREATED || this == STARTED;
         }
 
+        /**
+         * Returns {@link boolean} indicating whether the task's state is
+         * destroyed {@code true} or {@code false}.
+         *
+         * @return a {@code boolean} indicating if state is {@link #CANCELED},
+         *         {@link #FAILED} or {@link #SUCCEED}.
+         */
         public boolean isDestroyed() {
             return this == CANCELED || this == FAILED || this == SUCCEED;
         }
 
+        /**
+         * Returns {@link boolean} indicating whether the task's state is
+         * finished {@code true} or {@code false}.
+         *
+         * @return a {@code boolean} indicating if state is {@link #FAILED}
+         *         or {@link #SUCCEED}.
+         */
         public boolean isFinished() {
             return this == FAILED || this == SUCCEED;
         }
@@ -78,7 +105,7 @@ public interface TaskHandler<T extends Task, E extends TaskEnvironment> {
 
     public Pack args();
 
-    public Status getStatus();
+    public State getState();
 
     public Throwable getThrowable();
 

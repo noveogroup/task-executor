@@ -42,7 +42,7 @@ public abstract class AbstractTaskHandler<T extends Task<T, E>, E extends TaskEn
     private final T task;
     private volatile E env;
     private final Set<Object> tags;
-    private volatile Status status;
+    private volatile State status;
     private volatile Throwable throwable;
     private volatile boolean interrupted;
     private final TaskListener[] listeners;
@@ -53,7 +53,7 @@ public abstract class AbstractTaskHandler<T extends Task<T, E>, E extends TaskEn
         this.owner = owner;
         this.task = task;
         this.tags = Collections.unmodifiableSet(new HashSet<Object>(tags));
-        this.status = Status.CREATED;
+        this.status = State.CREATED;
         this.throwable = null;
         this.interrupted = false;
         this.listeners = new TaskListener[taskListeners.length];
@@ -85,7 +85,7 @@ public abstract class AbstractTaskHandler<T extends Task<T, E>, E extends TaskEn
     }
 
     @Override
-    public Status getStatus() {
+    public State getState() {
         synchronized (lock) {
             return status;
         }
@@ -129,7 +129,7 @@ public abstract class AbstractTaskHandler<T extends Task<T, E>, E extends TaskEn
         }
 
         synchronized (joinObject) {
-            while (!getStatus().isDestroyed()) {
+            while (!getState().isDestroyed()) {
                 if (timeout == 0) {
                     joinObject.wait();
                 } else {
@@ -235,14 +235,14 @@ public abstract class AbstractTaskHandler<T extends Task<T, E>, E extends TaskEn
 
     public void onCancel() {
         synchronized (lock) {
-            status = Status.CANCELED;
+            status = State.CANCELED;
         }
         callOnCancel();
     }
 
     public void onExecute() {
         synchronized (lock) {
-            status = Status.STARTED;
+            status = State.STARTED;
         }
 
         try {
@@ -254,12 +254,12 @@ public abstract class AbstractTaskHandler<T extends Task<T, E>, E extends TaskEn
             }
 
             synchronized (lock) {
-                status = Status.SUCCEED;
+                status = State.SUCCEED;
             }
             callOnSucceed();
         } catch (Throwable t) {
             synchronized (lock) {
-                status = Status.FAILED;
+                status = State.FAILED;
                 throwable = t;
             }
             callOnFailed();

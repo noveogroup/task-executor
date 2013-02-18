@@ -102,7 +102,7 @@ progress dialog для по-любому отмененных задач.
  * </ul>
  *
  * @see TaskListener.Default
- * @see TaskHandler.Status
+ * @see com.noveogroup.android.task.TaskHandler.State
  */
 public interface TaskListener {
 

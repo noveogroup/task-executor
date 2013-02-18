@@ -75,7 +75,7 @@ public interface TaskEnvironment<E extends TaskEnvironment> {
      * Returns a {@code boolean} indicating whether the receiver has
      * an interrupt request {@code true} or {@code false}.
      *
-     * @return a {@code boolean} indicating the interrupt status.
+     * @return a {@code boolean} indicating the interrupt flag.
      * @see #interruptSelf()
      * @see #checkInterrupted()
      * @see TaskHandler#isInterrupted()
