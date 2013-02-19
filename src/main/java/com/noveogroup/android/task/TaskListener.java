@@ -33,8 +33,6 @@ package com.noveogroup.android.task;
 то есть есть необходимость - не вызывать кучу раз листенеры и не дергать
 progress dialog для по-любому отмененных задач.
  */
-/* todo как насчет листенеров жизненного цикла менеджера ?
- */
 ////////////////////////////////////////////////////////////////////////////////
 // * Методы при создании задачи:      onCreate      - onDestroy
 // * Методы при добавлении в очередь: onQueueInsert - onQueueRemove
@@ -76,7 +74,7 @@ progress dialog для по-любому отмененных задач.
  * <p/>
  * Each task can have a set of listeners to report its state to. When it is
  * needed the corresponding callback methods (the same for each listener) are
- * called is direct of reverse order, one by one. The task won't call a next
+ * called is direct or reverse order, one by one. The task won't call a next
  * set of callbacks before the current is done.
  * <p/>
  * The callback method can take any time to execute - it only makes the task
