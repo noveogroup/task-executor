@@ -103,6 +103,10 @@ public interface TaskExecutor<E extends TaskEnvironment> {
 
     public Object lock();
 
+    public Pack newPack();
+
+    public Pack newPack(Pack pack);
+
     public TaskSet<E> queue();
 
     public TaskSet<E> queue(String... tags);
