@@ -29,14 +29,43 @@ package com.noveogroup.android.task;
 import android.os.SystemClock;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 
 public abstract class AbstractTaskExecutor<E extends TaskEnvironment> implements TaskExecutor<E> {
 
     private final Object lock = new Object();
     private final ArrayList<TaskListener> listeners = new ArrayList<TaskListener>(8);
     private volatile boolean shutdown = false;
+
+    @Override
+    public Object lock() {
+        return lock;
+    }
+
+    @Override
+    public Pack newPack() {
+        return new Pack(lock());
+    }
+
+    @Override
+    public Pack newPack(Pack pack) {
+        return new Pack(lock(), pack);
+    }
+
+    @Override
+    public abstract TaskSet<E> queue();
+
+    @Override
+    public TaskSet<E> queue(String... tags) {
+        return queue().sub(tags);
+    }
+
+    @Override
+    public TaskSet<E> queue(Collection<String> tags) {
+        return queue().sub(tags);
+    }
 
     @Override
     public void addTaskListener(TaskListener... taskListeners) {
@@ -63,6 +92,13 @@ public abstract class AbstractTaskExecutor<E extends TaskEnvironment> implements
         }
     }
 
+    /**
+     * Returns a copy of list of already added listeners and adds
+     * all of listeners from the parameter.
+     *
+     * @param addTaskListeners an array of additional listeners to add.
+     * @return a list containing all of listeners.
+     */
     protected TaskListener[] copyTaskListeners(TaskListener... addTaskListeners) {
         synchronized (lock()) {
             TaskListener[] array = new TaskListener[listeners.size() + addTaskListeners.length];
@@ -72,25 +108,56 @@ public abstract class AbstractTaskExecutor<E extends TaskEnvironment> implements
         }
     }
 
-    @Override
-    public <T extends Task> TaskHandler<T, E> execute(T task, Collection<Object> tags, TaskListener... taskListeners) {
-        return execute(task, tags, new Pack(), taskListeners);
+    /**
+     * Returns a copy of list of already added listeners and adds
+     * all of listeners from the parameter.
+     *
+     * @param addTaskListeners a list of additional listeners to add.
+     * @return a list containing all of listeners.
+     */
+    protected TaskListener[] copyTaskListeners(List<TaskListener> addTaskListeners) {
+        return copyTaskListeners(addTaskListeners.toArray(new TaskListener[addTaskListeners.size()]));
     }
 
     @Override
-    public <T extends Task> TaskHandler<T, E> execute(T task, Pack args, TaskListener... taskListeners) {
-        return execute(task, Collections.emptySet(), args, taskListeners);
+    public abstract <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, List<TaskListener> taskListeners, String... tags);
+
+    @Override
+    public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, TaskListener taskListener, String... tags) {
+        return execute(task, args, Arrays.asList(taskListener), tags);
     }
 
     @Override
-    public <T extends Task> TaskHandler<T, E> execute(T task, TaskListener... taskListeners) {
-        return execute(task, Collections.emptySet(), new Pack(), taskListeners);
+    public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, TaskListener... taskListeners) {
+        return execute(task, args, Arrays.asList(taskListeners));
     }
 
     @Override
-    public Object lock() {
-        return lock;
+    public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, String... tags) {
+        return execute(task, args, new ArrayList<TaskListener>(0), tags);
     }
+
+    @Override
+    public <T extends Task<E>> TaskHandler<T, E> execute(T task, List<TaskListener> taskListeners, String... tags) {
+        return execute(task, new Pack(), taskListeners, tags);
+    }
+
+    @Override
+    public <T extends Task<E>> TaskHandler<T, E> execute(T task, TaskListener taskListener, String... tags) {
+        return execute(task, new Pack(), Arrays.asList(taskListener), tags);
+    }
+
+    @Override
+    public <T extends Task<E>> TaskHandler<T, E> execute(T task, TaskListener... taskListeners) {
+        return execute(task, new Pack(), Arrays.asList(taskListeners));
+    }
+
+    @Override
+    public <T extends Task<E>> TaskHandler<T, E> execute(T task, String... tags) {
+        return execute(task, new Pack(), new ArrayList<TaskListener>(0), tags);
+    }
+
+    // todo review the code below
 
     @Override
     public void shutdown() {
@@ -112,6 +179,11 @@ public abstract class AbstractTaskExecutor<E extends TaskEnvironment> implements
         synchronized (lock) {
             return shutdown && queue().size() <= 0;
         }
+    }
+
+    @Override
+    public void awaitTermination() throws InterruptedException {
+        awaitTermination(0);
     }
 
     @Override

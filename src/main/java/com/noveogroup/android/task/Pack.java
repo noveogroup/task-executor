@@ -47,6 +47,13 @@ public final class Pack implements Cloneable, Iterable<String> {
 
     /**
      * Constructs a new empty pack.
+     */
+    public Pack() {
+        this(new Object());
+    }
+
+    /**
+     * Constructs a new empty pack.
      *
      * @param lock synchronization object.
      */
