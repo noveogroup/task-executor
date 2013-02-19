@@ -43,6 +43,14 @@ import java.util.*;
 /* todo неудобно при создании pack указывать lock
 хотелось бы, чтобы и lock указывать не нужно было, и после запуска задач
 можно было бы пользоваться переданным объектом pack.
+
+    // можно сделать метод для обновления lock:
+    public void updateLock(Object lock) {
+        synchronized (lock()) {
+            this.lock = lock;
+        }
+    }
+
  */
 public final class Pack implements Cloneable, Iterable<String> {
 
