@@ -29,27 +29,6 @@ package com.noveogroup.android.task;
 import java.util.Collection;
 import java.util.List;
 
-////////////////////////////////////////////////////////////////////////////////
-// Синхронизационный объект отвечает за всю синхронизацию в менеджере задач.
-// Он должен быть передан в Pack. Это проверяется и Pack даже пересоздается
-// если в качестве аргументов будет передан неправильный.
-////////////////////////////////////////////////////////////////////////////////
-// Можно добавлять листенеры с помощью addTaskListener и удалять с помощью
-// removeTaskListener. Порядок добавления учитывается при исполнении, смотри
-// описание методов листенера.
-// todo как насчет листенеров жизненного цикла менеджера ?
-////////////////////////////////////////////////////////////////////////////////
-// Методы execute позволяют добавить задачу в очередь, при этом создается новый
-// TaskSet или используется существующий. Существующий используется даже если
-// он уже прерван. Но когда все задачи в TaskSet завершаеются - он исчезает тоже
-////////////////////////////////////////////////////////////////////////////////
-// С остановкой менеджера связаны методы shutdown, isShutdown, isTerminated
-// и awaitTermination.
-// Если менеджер isShutdown, то все задачи будут автоматически отменяться
-// проходя при этом корректный жизненный цикл отмены.
-////////////////////////////////////////////////////////////////////////////////
-// join на самого себя заканчивается ошибкой IllegalThreadException
-////////////////////////////////////////////////////////////////////////////////
 public interface TaskExecutor<E extends TaskEnvironment> {
 
     /**
@@ -70,6 +49,8 @@ public interface TaskExecutor<E extends TaskEnvironment> {
 
     public void removeTaskListener(TaskListener... taskListeners);
 
+    // todo check lock object and create new pack if it is needed
+    // todo describe new / existing task sets
     public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, List<TaskListener> taskListeners, String... tags);
 
     public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, TaskListener taskListener, String... tags);
@@ -86,6 +67,18 @@ public interface TaskExecutor<E extends TaskEnvironment> {
 
     public <T extends Task<E>> TaskHandler<T, E> execute(T task, String... tags);
 
+    /**
+     * Returns synchronization object of this {@link TaskExecutor}.
+     * <p/>
+     * All of access to this {@link TaskExecutor} should be synchronized using
+     * this object.
+     * <p/>
+     * The same object should be returned from method {@link Pack#lock()} by
+     * all of collections of arguments associated with tasks belonging to
+     * this {@link TaskExecutor}.
+     *
+     * @return the synchronization object.
+     */
     public Object lock();
 
     public Pack newPack();
@@ -104,6 +97,7 @@ public interface TaskExecutor<E extends TaskEnvironment> {
 
     public boolean isTerminated();
 
+    // todo throw an exception from such methods if user wants to wait himself
     public void awaitTermination() throws InterruptedException;
 
     public boolean awaitTermination(long timeout) throws InterruptedException;
