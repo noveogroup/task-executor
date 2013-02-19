@@ -27,6 +27,7 @@
 package com.noveogroup.android.task;
 
 import java.util.Collection;
+import java.util.List;
 
 ////////////////////////////////////////////////////////////////////////////////
 // В лог записываются:
@@ -84,13 +85,21 @@ public interface TaskExecutor<E extends TaskEnvironment> {
 
     public void removeTaskListener(TaskListener... taskListeners);
 
-    public <T extends Task<E>> TaskHandler<T, E> execute(T task, Collection<String> tags, Pack args, TaskListener... taskListeners);
+    public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, List<TaskListener> taskListeners, String... tags);
 
-    public <T extends Task<E>> TaskHandler<T, E> execute(T task, Collection<String> tags, TaskListener... taskListeners);
+    public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, TaskListener taskListener, String... tags);
 
     public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, TaskListener... taskListeners);
 
+    public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, String... tags);
+
+    public <T extends Task<E>> TaskHandler<T, E> execute(T task, List<TaskListener> taskListeners, String... tags);
+
+    public <T extends Task<E>> TaskHandler<T, E> execute(T task, TaskListener taskListener, String... tags);
+
     public <T extends Task<E>> TaskHandler<T, E> execute(T task, TaskListener... taskListeners);
+
+    public <T extends Task<E>> TaskHandler<T, E> execute(T task, String... tags);
 
     public Object lock();
 
