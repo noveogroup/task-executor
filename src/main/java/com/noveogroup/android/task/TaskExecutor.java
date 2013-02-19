@@ -45,6 +45,30 @@ public interface TaskExecutor<E extends TaskEnvironment> {
      */
     public static final String TAG = "com.noveogroup.android.task";
 
+    /**
+     * Returns synchronization object of this {@link TaskExecutor}.
+     * <p/>
+     * Any access to this {@link TaskExecutor} should be synchronized using
+     * this object.
+     * <p/>
+     * The same object should be returned from method {@link Pack#lock()} by
+     * all of collections of arguments associated with tasks belonging to
+     * this {@link TaskExecutor}.
+     *
+     * @return the synchronization object.
+     */
+    public Object lock();
+
+    public Pack newPack();
+
+    public Pack newPack(Pack pack);
+
+    public TaskSet<E> queue();
+
+    public TaskSet<E> queue(String... tags);
+
+    public TaskSet<E> queue(Collection<String> tags);
+
     public void addTaskListener(TaskListener... taskListeners);
 
     public void removeTaskListener(TaskListener... taskListeners);
@@ -66,30 +90,6 @@ public interface TaskExecutor<E extends TaskEnvironment> {
     public <T extends Task<E>> TaskHandler<T, E> execute(T task, TaskListener... taskListeners);
 
     public <T extends Task<E>> TaskHandler<T, E> execute(T task, String... tags);
-
-    /**
-     * Returns synchronization object of this {@link TaskExecutor}.
-     * <p/>
-     * All of access to this {@link TaskExecutor} should be synchronized using
-     * this object.
-     * <p/>
-     * The same object should be returned from method {@link Pack#lock()} by
-     * all of collections of arguments associated with tasks belonging to
-     * this {@link TaskExecutor}.
-     *
-     * @return the synchronization object.
-     */
-    public Object lock();
-
-    public Pack newPack();
-
-    public Pack newPack(Pack pack);
-
-    public TaskSet<E> queue();
-
-    public TaskSet<E> queue(String... tags);
-
-    public TaskSet<E> queue(Collection<String> tags);
 
     public void shutdown();
 
