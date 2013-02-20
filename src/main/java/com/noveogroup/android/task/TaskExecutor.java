@@ -95,11 +95,4 @@ public interface TaskExecutor<E extends TaskEnvironment> {
 
     public boolean isShutdown();
 
-    public boolean isTerminated();
-
-    // todo throw an exception from such methods if user wants to wait himself
-    public void awaitTermination() throws InterruptedException;
-
-    public boolean awaitTermination(long timeout) throws InterruptedException;
-
 }

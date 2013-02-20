@@ -66,6 +66,7 @@ public interface TaskSet<E extends TaskEnvironment> extends Iterable<TaskHandler
 
     public void join() throws InterruptedException;
 
+    // todo throw an exception from such methods if user wants to wait himself
     public boolean join(long timeout) throws InterruptedException;
 
 }

@@ -26,8 +26,6 @@
 
 package com.noveogroup.android.task;
 
-import android.os.SystemClock;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -157,8 +155,6 @@ public abstract class AbstractTaskExecutor<E extends TaskEnvironment> implements
         return execute(task, new Pack(), new ArrayList<TaskListener>(0), tags);
     }
 
-    // todo review the code below
-
     @Override
     public void shutdown() {
         synchronized (lock()) {
@@ -171,62 +167,6 @@ public abstract class AbstractTaskExecutor<E extends TaskEnvironment> implements
     public boolean isShutdown() {
         synchronized (lock()) {
             return shutdown;
-        }
-    }
-
-    @Override
-    public boolean isTerminated() {
-        synchronized (lock) {
-            return shutdown && queue().size() <= 0;
-        }
-    }
-
-    @Override
-    public void awaitTermination() throws InterruptedException {
-        awaitTermination(0);
-    }
-
-    @Override
-    public boolean awaitTermination(long timeout) throws InterruptedException {
-        if (timeout < 0) {
-            throw new IllegalArgumentException();
-        }
-
-        // await shutdown
-        synchronized (lock) {
-            while (!shutdown) {
-                if (timeout == 0) {
-                    lock.wait();
-                } else {
-                    long time = SystemClock.uptimeMillis();
-                    lock.wait(timeout);
-                    timeout -= SystemClock.uptimeMillis() - time;
-
-                    if (!shutdown || timeout <= 0) {
-                        return false;
-                    }
-                }
-            }
-        }
-
-        // await all threads destroyed
-        while (true) {
-            TaskSet taskSet = queue();
-            if (taskSet.size() <= 0) {
-                return true;
-            } else {
-                if (timeout == 0) {
-                    taskSet.join();
-                } else {
-                    long time = SystemClock.uptimeMillis();
-                    taskSet.join(timeout);
-                    timeout -= SystemClock.uptimeMillis() - time;
-
-                    if (timeout <= 0) {
-                        return false;
-                    }
-                }
-            }
         }
     }
 
