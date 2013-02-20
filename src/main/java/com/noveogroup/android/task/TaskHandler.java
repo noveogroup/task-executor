@@ -101,6 +101,8 @@ public interface TaskHandler<T extends Task, E extends TaskEnvironment> {
 
     public TaskSet<E> owner();
 
+    public Object lock();
+
     public T task();
 
     public Pack args();

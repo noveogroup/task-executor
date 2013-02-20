@@ -26,40 +26,59 @@
 
 package com.noveogroup.android.task;
 
-import android.os.SystemClock;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public abstract class AbstractTaskSet<E extends TaskEnvironment> implements TaskSet<E> {
 
-    private final Set<Object> tags;
+    private final TaskExecutor<E> executor;
+    private final Set<String> tags;
 
-    public AbstractTaskSet(Set<Object> tags) {
-        this.tags = Collections.unmodifiableSet(new HashSet<Object>(tags));
+    public AbstractTaskSet(TaskExecutor<E> executor, Collection<String> tags) {
+        this.executor = executor;
+        this.tags = Collections.unmodifiableSet(new HashSet<String>(tags));
     }
 
     @Override
-    public TaskSet sub(Object... tags) {
-        return sub(Arrays.asList(tags));
+    public TaskExecutor<E> executor() {
+        return executor;
     }
 
     @Override
-    public Set<Object> tags() {
+    public Object lock() {
+        return executor().lock();
+    }
+
+    @Override
+    public Set<String> tags() {
         return tags;
     }
 
     @Override
-    public <T extends Task> TaskHandler<T, E> execute(T task, TaskListener... taskListeners) {
+    public TaskSet<E> sub(String... tags) {
+        return sub(Arrays.asList(tags));
+    }
+
+    @Override
+    public TaskSet<E> sub(Collection<String> tags) {
+        HashSet<String> tagSet = new HashSet<String>(tags());
+        tagSet.addAll(tags);
+        return executor().queue(tagSet);
+    }
+
+    @Override
+    public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, TaskListener... taskListeners) {
+        return executor().execute(task, args, Arrays.asList(taskListeners), tags());
+    }
+
+    @Override
+    public <T extends Task<E>> TaskHandler<T, E> execute(T task, TaskListener... taskListeners) {
         return execute(task, new Pack(), taskListeners);
     }
 
     @Override
     public int size() {
         int size = 0;
-        for (TaskHandler taskHandler : this) {
+        for (TaskHandler ignored : this) {
             size++;
         }
         return size;
@@ -71,10 +90,18 @@ public abstract class AbstractTaskSet<E extends TaskEnvironment> implements Task
     }
 
     @Override
+    public Iterator<TaskHandler<? extends Task, E>> iterator() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public boolean isInterrupted() {
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
     public void interrupt() {
-        for (TaskHandler taskHandler : this) {
-            taskHandler.interrupt();
-        }
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
@@ -83,31 +110,43 @@ public abstract class AbstractTaskSet<E extends TaskEnvironment> implements Task
     }
 
     @Override
-    public void join(long timeout) throws InterruptedException {
-        if (timeout < 0) {
-            throw new IllegalArgumentException();
-        }
-
-        while (true) {
-            boolean retry = false;
-            for (TaskHandler taskHandler : this) {
-                retry = true;
-                if (timeout == 0) {
-                    taskHandler.join();
-                } else {
-                    long time = SystemClock.uptimeMillis();
-                    taskHandler.join(timeout);
-                    timeout -= SystemClock.uptimeMillis() - time;
-
-                    if (timeout <= 0) {
-                        break;
-                    }
-                }
-            }
-            if (!retry) {
-                break;
-            }
-        }
+    public boolean join(long timeout) throws InterruptedException {
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
+
+//    @Override
+//    public void interrupt() {
+//        for (TaskHandler taskHandler : this) {
+//            taskHandler.interrupt();
+//        }
+//    }
+//
+//    @Override
+//    public void join(long timeout) throws InterruptedException {
+//        if (timeout < 0) {
+//            throw new IllegalArgumentException();
+//        }
+//
+//        while (true) {
+//            boolean retry = false;
+//            for (TaskHandler taskHandler : this) {
+//                retry = true;
+//                if (timeout == 0) {
+//                    taskHandler.join();
+//                } else {
+//                    long time = SystemClock.uptimeMillis();
+//                    taskHandler.join(timeout);
+//                    timeout -= SystemClock.uptimeMillis() - time;
+//
+//                    if (timeout <= 0) {
+//                        break;
+//                    }
+//                }
+//            }
+//            if (!retry) {
+//                break;
+//            }
+//        }
+//    }
 
 }

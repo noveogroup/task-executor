@@ -34,6 +34,8 @@ public interface TaskSet<E extends TaskEnvironment> extends Iterable<TaskHandler
 
     public TaskExecutor<E> executor();
 
+    public Object lock();
+
     /**
      * Returns an unmodifiable set of task's tags.
      * <p/>

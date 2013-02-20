@@ -63,8 +63,6 @@ public interface TaskExecutor<E extends TaskEnvironment> {
 
     public Pack newPack(Pack pack);
 
-    public TaskSet<E> queue();
-
     public TaskSet<E> queue(String... tags);
 
     public TaskSet<E> queue(Collection<String> tags);
@@ -75,6 +73,8 @@ public interface TaskExecutor<E extends TaskEnvironment> {
 
     // todo check lock object and create new pack if it is needed
     // todo describe new / existing task sets
+    public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, List<TaskListener> taskListeners, Collection<String> tags);
+
     public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, List<TaskListener> taskListeners, String... tags);
 
     public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, TaskListener taskListener, String... tags);

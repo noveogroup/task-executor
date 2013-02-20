@@ -53,17 +53,12 @@ public abstract class AbstractTaskExecutor<E extends TaskEnvironment> implements
     }
 
     @Override
-    public abstract TaskSet<E> queue();
-
-    @Override
     public TaskSet<E> queue(String... tags) {
-        return queue().sub(tags);
+        return queue(Arrays.asList(tags));
     }
 
     @Override
-    public TaskSet<E> queue(Collection<String> tags) {
-        return queue().sub(tags);
-    }
+    public abstract TaskSet<E> queue(Collection<String> tags);
 
     @Override
     public void addTaskListener(TaskListener... taskListeners) {
@@ -118,41 +113,46 @@ public abstract class AbstractTaskExecutor<E extends TaskEnvironment> implements
     }
 
     @Override
-    public abstract <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, List<TaskListener> taskListeners, String... tags);
+    public abstract <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, List<TaskListener> taskListeners, Collection<String> tags);
+
+    @Override
+    public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, List<TaskListener> taskListeners, String... tags) {
+        return execute(task, args, taskListeners, Arrays.asList(tags));
+    }
 
     @Override
     public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, TaskListener taskListener, String... tags) {
-        return execute(task, args, Arrays.asList(taskListener), tags);
+        return execute(task, args, Arrays.asList(taskListener), Arrays.asList(tags));
     }
 
     @Override
     public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, TaskListener... taskListeners) {
-        return execute(task, args, Arrays.asList(taskListeners));
+        return execute(task, args, Arrays.asList(taskListeners), new ArrayList<String>(0));
     }
 
     @Override
     public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, String... tags) {
-        return execute(task, args, new ArrayList<TaskListener>(0), tags);
+        return execute(task, args, new ArrayList<TaskListener>(0), Arrays.asList(tags));
     }
 
     @Override
     public <T extends Task<E>> TaskHandler<T, E> execute(T task, List<TaskListener> taskListeners, String... tags) {
-        return execute(task, new Pack(), taskListeners, tags);
+        return execute(task, new Pack(), taskListeners, Arrays.asList(tags));
     }
 
     @Override
     public <T extends Task<E>> TaskHandler<T, E> execute(T task, TaskListener taskListener, String... tags) {
-        return execute(task, new Pack(), Arrays.asList(taskListener), tags);
+        return execute(task, new Pack(), Arrays.asList(taskListener), Arrays.asList(tags));
     }
 
     @Override
     public <T extends Task<E>> TaskHandler<T, E> execute(T task, TaskListener... taskListeners) {
-        return execute(task, new Pack(), Arrays.asList(taskListeners));
+        return execute(task, new Pack(), Arrays.asList(taskListeners), new ArrayList<String>(0));
     }
 
     @Override
     public <T extends Task<E>> TaskHandler<T, E> execute(T task, String... tags) {
-        return execute(task, new Pack(), new ArrayList<TaskListener>(0), tags);
+        return execute(task, new Pack(), new ArrayList<TaskListener>(0), Arrays.asList(tags));
     }
 
     @Override
