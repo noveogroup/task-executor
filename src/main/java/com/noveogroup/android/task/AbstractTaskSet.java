@@ -26,6 +26,8 @@
 
 package com.noveogroup.android.task;
 
+import android.os.SystemClock;
+
 import java.util.*;
 
 public abstract class AbstractTaskSet<E extends TaskEnvironment> implements TaskSet<E> {
@@ -90,14 +92,10 @@ public abstract class AbstractTaskSet<E extends TaskEnvironment> implements Task
     }
 
     @Override
-    public Iterator<TaskHandler<? extends Task, E>> iterator() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
+    public abstract Iterator<TaskHandler<? extends Task, E>> iterator();
 
     @Override
-    public boolean isInterrupted() {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
-    }
+    public abstract boolean isInterrupted();
 
     @Override
     public void interrupt() {
@@ -111,7 +109,31 @@ public abstract class AbstractTaskSet<E extends TaskEnvironment> implements Task
 
     @Override
     public boolean join(long timeout) throws InterruptedException {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        if (timeout < 0) {
+            throw new IllegalArgumentException();
+        }
+
+        // todo review below
+        while (true) {
+            boolean retry = false;
+            for (TaskHandler taskHandler : this) {
+                retry = true;
+                if (timeout == 0) {
+                    taskHandler.join();
+                } else {
+                    long time = SystemClock.uptimeMillis();
+                    taskHandler.join(timeout);
+                    timeout -= SystemClock.uptimeMillis() - time;
+
+                    if (timeout <= 0) {
+                        break;
+                    }
+                }
+            }
+            if (!retry) {
+                break;
+            }
+        }
     }
 
 //    @Override
