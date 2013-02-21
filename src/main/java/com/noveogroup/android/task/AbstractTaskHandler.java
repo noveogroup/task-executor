@@ -31,6 +31,22 @@ import android.util.Log;
 
 import java.util.List;
 
+/**
+ * todo implement runnable tasks
+ * @param <T>
+ * @param <E>
+ * @see #interruptThread()
+ * @see #callOnCreate()
+ * @see #callOnQueueInsert()
+ * @see #callOnStart()
+ * @see #callOnFinish()
+ * @see #callOnQueueRemove()
+ * @see #callOnDestroy()
+ * @see #callOnCanceled()
+ * @see #callOnFailed()
+ * @see #callOnSucceed()
+ * @see #updateState(TaskHandler.State, Throwable)
+ */
 public abstract class AbstractTaskHandler<T extends Task, E extends TaskEnvironment> implements TaskHandler<T, E> {
 
     private final Object joinObject = new Object();
