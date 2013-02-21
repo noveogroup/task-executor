@@ -71,8 +71,6 @@ public interface TaskExecutor<E extends TaskEnvironment> {
 
     public void removeTaskListener(TaskListener... taskListeners);
 
-    // todo check lock object and create new pack if it is needed
-    // todo describe new / existing task sets
     public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, List<TaskListener> taskListeners, Collection<String> tags);
 
     public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, List<TaskListener> taskListeners, String... tags);
