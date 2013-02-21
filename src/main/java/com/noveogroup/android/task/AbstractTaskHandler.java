@@ -26,16 +26,33 @@
 
 package com.noveogroup.android.task;
 
+import android.os.SystemClock;
+import android.util.Log;
+
+import java.util.List;
+
 public abstract class AbstractTaskHandler<T extends Task, E extends TaskEnvironment> implements TaskHandler<T, E> {
 
+    private final Object joinObject = new Object();
     private final TaskSet<E> owner;
     private final T task;
     private final Pack args;
+    private final TaskListener[] listeners;
 
-    protected AbstractTaskHandler(TaskSet<E> owner, T task, Pack args) {
+    private volatile State state;
+    private volatile Throwable throwable;
+    private volatile boolean interrupted;
+
+    protected AbstractTaskHandler(TaskSet<E> owner, T task, Pack args, List<TaskListener> listeners) {
         this.owner = owner;
         this.task = task;
         this.args = args.lock() == owner.lock() ? args : new Pack(owner.lock(), args);
+        this.listeners = new TaskListener[listeners.size()];
+        listeners.toArray(this.listeners);
+
+        this.state = State.CREATED;
+        this.throwable = null;
+        this.interrupted = false;
     }
 
     @Override
@@ -60,238 +77,221 @@ public abstract class AbstractTaskHandler<T extends Task, E extends TaskEnvironm
 
     @Override
     public State getState() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        synchronized (lock()) {
+            return state;
+        }
     }
 
     @Override
     public Throwable getThrowable() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        synchronized (lock()) {
+            return throwable;
+        }
+    }
+
+    /**
+     * Updates a state of the task processing and its throwable.
+     *
+     * @param state     the state.
+     * @param throwable the throwable.
+     */
+    public void updateState(State state, Throwable throwable) {
+        synchronized (joinObject) {
+            synchronized (lock()) {
+                this.state = state;
+                this.throwable = throwable;
+            }
+
+            // notify join object
+            joinObject.notifyAll();
+        }
     }
 
     @Override
     public boolean isInterrupted() {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        synchronized (lock()) {
+            return interrupted;
+        }
     }
 
     @Override
     public void interrupt() {
-        //To change body of implemented methods use File | Settings | File Templates.
+        synchronized (lock()) {
+            this.interrupted = true;
+            interruptThread();
+        }
     }
+
+    /**
+     * Interrupts worker thread.
+     */
+    protected abstract void interruptThread();
 
     @Override
     public void join() throws InterruptedException {
-        //To change body of implemented methods use File | Settings | File Templates.
+        join(0);
     }
 
     @Override
     public boolean join(long timeout) throws InterruptedException {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        synchronized (joinObject) {
+            if (timeout < 0) {
+                throw new IllegalArgumentException();
+            }
+
+            while (!getState().isDestroyed()) {
+                if (timeout == 0) {
+                    joinObject.wait();
+                } else {
+                    long time = SystemClock.uptimeMillis();
+                    joinObject.wait(timeout);
+                    timeout -= SystemClock.uptimeMillis() - time;
+
+                    if (timeout <= 0) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
     }
 
-//    private volatile State status;
-//    private volatile Throwable throwable;
-//    private volatile boolean interrupted;
-//    private final TaskListener[] listeners;
-//    private final Object joinObject = new Object();
-//
-//    public AbstractTaskHandler(Object lock, TaskSet<E> owner, T task, Collection<Object> tags, TaskListener... taskListeners) {
-//        this.lock = lock;
-//        this.owner = owner;
-//        this.task = task;
-//        this.tags = Collections.unmodifiableSet(new HashSet<Object>(tags));
-//        this.status = State.CREATED;
-//        this.throwable = null;
-//        this.interrupted = false;
-//        this.listeners = new TaskListener[taskListeners.length];
-//        System.arraycopy(taskListeners, 0, this.listeners, 0, taskListeners.length);
-//    }
-//
-//    @Override
-//    public State getState() {
-//        synchronized (lock) {
-//            return status;
-//        }
-//    }
-//
-//    @Override
-//    public Throwable getThrowable() {
-//        synchronized (lock) {
-//            return throwable;
-//        }
-//    }
-//
-//    @Override
-//    public boolean isInterrupted() {
-//        synchronized (lock) {
-//            return interrupted;
-//        }
-//    }
-//
-//    @Override
-//    public void interrupt() {
-//        synchronized (lock) {
-//            interrupted = true;
-//        }
-//        doInterrupt();
-//    }
-//
-//    protected void doInterrupt() {
-//        // todo not implemented anywhere
-//    }
-//
-//    @Override
-//    public void join() throws InterruptedException {
-//        join(0);
-//    }
-//
-//    @Override
-//    public void join(long timeout) throws InterruptedException {
-//        if (timeout < 0) {
-//            throw new IllegalArgumentException();
-//        }
-//
-//        synchronized (joinObject) {
-//            while (!getState().isDestroyed()) {
-//                if (timeout == 0) {
-//                    joinObject.wait();
-//                } else {
-//                    long time = SystemClock.uptimeMillis();
-//                    joinObject.wait(timeout);
-//                    timeout -= SystemClock.uptimeMillis() - time;
-//
-//                    if (timeout <= 0) {
-//                        break;
-//                    }
-//                }
-//            }
-//        }
-//    }
-//
-//    private void uncaughtListenerException(TaskListener listener, Throwable throwable) {
-//        Log.e(TaskExecutor.TAG, "listener " + listener + " failed", throwable);
-//        Thread.getDefaultUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), throwable);
-//    }
-//
-//    private void callOnCreate() {
-//        for (TaskListener listener : listeners) {
-//            try {
-//                listener.onCreate(this);
-//            } catch (Throwable throwable) {
-//                uncaughtListenerException(listener, throwable);
-//            }
-//        }
-//    }
-//
-//    private void callOnCancel() {
-//        for (int i = listeners.length - 1; i >= 0; i--) {
-//            TaskListener listener = listeners[i];
-//            try {
-//                listener.onCancel(this);
-//            } catch (Throwable throwable) {
-//                uncaughtListenerException(listener, throwable);
-//            }
-//        }
-//    }
-//
-//    private void callOnStart() {
-//        for (TaskListener listener : listeners) {
-//            try {
-//                listener.onStart(this);
-//            } catch (Throwable throwable) {
-//                uncaughtListenerException(listener, throwable);
-//            }
-//        }
-//    }
-//
-//    private void callOnFinish() {
-//        for (int i = listeners.length - 1; i >= 0; i--) {
-//            TaskListener listener = listeners[i];
-//            try {
-//                listener.onFinish(this);
-//            } catch (Throwable throwable) {
-//                uncaughtListenerException(listener, throwable);
-//            }
-//        }
-//    }
-//
-//    private void callOnSucceed() {
-//        for (int i = listeners.length - 1; i >= 0; i--) {
-//            TaskListener listener = listeners[i];
-//            try {
-//                listener.onSucceed(this);
-//            } catch (Throwable throwable) {
-//                uncaughtListenerException(listener, throwable);
-//            }
-//        }
-//    }
-//
-//    private void callOnFailed() {
-//        for (int i = listeners.length - 1; i >= 0; i--) {
-//            TaskListener listener = listeners[i];
-//            try {
-//                listener.onFailed(this);
-//            } catch (Throwable throwable) {
-//                uncaughtListenerException(listener, throwable);
-//            }
-//        }
-//    }
-//
-//    private void callOnDestroy() {
-//        for (int i = listeners.length - 1; i >= 0; i--) {
-//            TaskListener listener = listeners[i];
-//            try {
-//                listener.onDestroy(this);
-//            } catch (Throwable throwable) {
-//                uncaughtListenerException(listener, throwable);
-//            }
-//        }
-//    }
-//
-//    public void onQueueInsert() {
-//        callOnCreate();
-//    }
-//
-//    public void onQueueRemove() {
-//        callOnDestroy();
-//    }
-//
-//    public void onCancel() {
-//        synchronized (lock) {
-//            status = State.CANCELED;
-//        }
-//        callOnCancel();
-//    }
-//
-//    public void onExecute() {
-//        synchronized (lock) {
-//            status = State.STARTED;
-//        }
-//
-//        try {
-//            try {
-//                callOnStart();
-//                task().run(this, env);
-//            } finally {
-//                callOnFinish();
-//            }
-//
-//            synchronized (lock) {
-//                status = State.SUCCEED;
-//            }
-//            callOnSucceed();
-//        } catch (Throwable t) {
-//            synchronized (lock) {
-//                status = State.FAILED;
-//                throwable = t;
-//            }
-//            callOnFailed();
-//        }
-//    }
-//
-//    public void notifyJoinObject() {
-//        synchronized (joinObject) {
-//            joinObject.notifyAll();
-//        }
-//    }
+    private void uncaughtListenerException(TaskListener listener, Throwable throwable) {
+        Log.e(TaskExecutor.TAG, "listener " + listener + " failed", throwable);
+        Thread.getDefaultUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), throwable);
+    }
+
+    /**
+     * Calls {@link TaskListener#onCreate(TaskHandler)} for all listeners of
+     * the task in proper order and handle any possible exceptions with care.
+     */
+    public void callOnCreate() {
+        for (TaskListener listener : listeners) { // in direct order
+            try {
+                listener.onCreate(this);
+            } catch (Throwable throwable) {
+                uncaughtListenerException(listener, throwable);
+            }
+        }
+    }
+
+    /**
+     * Calls {@link TaskListener#onQueueInsert(TaskHandler)} for all listeners of
+     * the task in proper order and handle any possible exceptions with care.
+     */
+    public void callOnQueueInsert() {
+        for (TaskListener listener : listeners) { // in direct order
+            try {
+                listener.onQueueInsert(this);
+            } catch (Throwable throwable) {
+                uncaughtListenerException(listener, throwable);
+            }
+        }
+    }
+
+    /**
+     * Calls {@link TaskListener#onStart(TaskHandler)} for all listeners of
+     * the task in proper order and handle any possible exceptions with care.
+     */
+    public void callOnStart() {
+        for (TaskListener listener : listeners) { // in direct order
+            try {
+                listener.onStart(this);
+            } catch (Throwable throwable) {
+                uncaughtListenerException(listener, throwable);
+            }
+        }
+    }
+
+    /**
+     * Calls {@link TaskListener#onFinish(TaskHandler)} for all listeners of
+     * the task in proper order and handle any possible exceptions with care.
+     */
+    public void callOnFinish() {
+        for (int i = listeners.length - 1; i >= 0; i--) { // in reverse order
+            TaskListener listener = listeners[i];
+            try {
+                listener.onFinish(this);
+            } catch (Throwable throwable) {
+                uncaughtListenerException(listener, throwable);
+            }
+        }
+    }
+
+    /**
+     * Calls {@link TaskListener#onQueueRemove(TaskHandler)} for all listeners of
+     * the task in proper order and handle any possible exceptions with care.
+     */
+    public void callOnQueueRemove() {
+        for (int i = listeners.length - 1; i >= 0; i--) { // in reverse order
+            TaskListener listener = listeners[i];
+            try {
+                listener.onQueueRemove(this);
+            } catch (Throwable throwable) {
+                uncaughtListenerException(listener, throwable);
+            }
+        }
+    }
+
+    /**
+     * Calls {@link TaskListener#onDestroy(TaskHandler)} for all listeners of
+     * the task in proper order and handle any possible exceptions with care.
+     */
+    public void callOnDestroy() {
+        for (int i = listeners.length - 1; i >= 0; i--) { // in reverse order
+            TaskListener listener = listeners[i];
+            try {
+                listener.onDestroy(this);
+            } catch (Throwable throwable) {
+                uncaughtListenerException(listener, throwable);
+            }
+        }
+    }
+
+    /**
+     * Calls {@link TaskListener#onCanceled(TaskHandler)} for all listeners of
+     * the task in proper order and handle any possible exceptions with care.
+     */
+    public void callOnCanceled() {
+        for (int i = listeners.length - 1; i >= 0; i--) { // in reverse order
+            TaskListener listener = listeners[i];
+            try {
+                listener.onCanceled(this);
+            } catch (Throwable throwable) {
+                uncaughtListenerException(listener, throwable);
+            }
+        }
+    }
+
+    /**
+     * Calls {@link TaskListener#onFailed(TaskHandler)} for all listeners of
+     * the task in proper order and handle any possible exceptions with care.
+     */
+    public void callOnFailed() {
+        for (int i = listeners.length - 1; i >= 0; i--) { // in reverse order
+            TaskListener listener = listeners[i];
+            try {
+                listener.onFailed(this);
+            } catch (Throwable throwable) {
+                uncaughtListenerException(listener, throwable);
+            }
+        }
+    }
+
+    /**
+     * Calls {@link TaskListener#onSucceed(TaskHandler)} for all listeners of
+     * the task in proper order and handle any possible exceptions with care.
+     */
+    public void callOnSucceed() {
+        for (int i = listeners.length - 1; i >= 0; i--) { // in reverse order
+            TaskListener listener = listeners[i];
+            try {
+                listener.onSucceed(this);
+            } catch (Throwable throwable) {
+                uncaughtListenerException(listener, throwable);
+            }
+        }
+    }
 
 }
