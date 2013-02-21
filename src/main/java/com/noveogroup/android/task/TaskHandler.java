@@ -26,6 +26,7 @@
 
 package com.noveogroup.android.task;
 
+// todo try <T extends Task<TaskE>, TaskE extends TaskEnvironment, E extends TaskE>
 public interface TaskHandler<T extends Task, E extends TaskEnvironment> {
 
     /**
