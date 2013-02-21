@@ -37,6 +37,13 @@ package com.noveogroup.android.task;
 public interface TaskEnvironment<E extends TaskEnvironment> {
 
     /**
+     * Returns synchronization object of {@link TaskExecutor}.
+     *
+     * @return the synchronization object.
+     */
+    public Object lock();
+
+    /**
      * Returns an object manages both input and output arguments of task
      * corresponding to this task environment.
      * <p/>
@@ -48,6 +55,7 @@ public interface TaskEnvironment<E extends TaskEnvironment> {
      * @see Pack
      * @see Pack#lock()
      * @see TaskExecutor#lock()
+     * @see #lock()
      */
     public Pack args();
 
