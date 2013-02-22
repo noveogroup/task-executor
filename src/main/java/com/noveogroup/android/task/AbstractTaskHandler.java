@@ -58,6 +58,15 @@ public abstract class AbstractTaskHandler<T extends Task, E extends TaskEnvironm
     private volatile Throwable throwable;
     private volatile boolean interrupted;
 
+    /**
+     * Creates new instance of {@link AbstractTaskHandler}.
+     *
+     * @param executorService {@link ExecutorService} providing as working threads.
+     * @param task            {@link Task} interface to execute.
+     * @param owner           owner {@link TaskSet}.
+     * @param args            arguments container.
+     * @param listeners       a list of {@link TaskListener}.
+     */
     public AbstractTaskHandler(ExecutorService executorService, T task, TaskSet<E> owner, Pack args, List<TaskListener> listeners) {
         this.executorService = executorService;
         this.taskFuture = null;

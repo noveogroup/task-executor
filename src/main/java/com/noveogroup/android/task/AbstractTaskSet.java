@@ -30,6 +30,7 @@ import android.os.SystemClock;
 
 import java.util.*;
 
+// todo implement
 public abstract class AbstractTaskSet<E extends TaskEnvironment> implements TaskSet<E> {
 
     private final TaskExecutor<E> executor;

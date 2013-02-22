@@ -26,11 +26,26 @@
 
 package com.noveogroup.android.task;
 
-public abstract class AbstractTaskEnvironment<E extends TaskEnvironment> implements TaskEnvironment<E> {
+/**
+ * {@link DefaultTaskEnvironment} is an default implementation of
+ * the {@link TaskEnvironment} interface. A subclass may implement
+ * an additional functionality.
+ *
+ * @param <E> task environment type.
+ */
+public class DefaultTaskEnvironment<E extends TaskEnvironment> implements TaskEnvironment<E> {
 
+    /**
+     * {@link TaskHandler} object to delegate functionality.
+     */
     protected final TaskHandler<?, E> handler;
 
-    public AbstractTaskEnvironment(TaskHandler<?, E> handler) {
+    /**
+     * Creates new instenace of {@link AbstractTaskExecutor}.
+     *
+     * @param handler {@link TaskHandler} object to delegate functionality.
+     */
+    public DefaultTaskEnvironment(TaskHandler<?, E> handler) {
         this.handler = handler;
     }
 
