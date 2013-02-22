@@ -33,11 +33,21 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+/**
+ * {@link AbstractTaskHandler} is an abstract implementation of
+ * the {@link TaskHandler} interface. A subclass must implement the abstract
+ * methods {@link #addToQueue()}, {@link #removeFromQueue()} and
+ * {@link #createTaskEnvironment()}.
+ *
+ * @param <T> task type.
+ * @param <E> task environment type.
+ */
 public abstract class AbstractTaskHandler<T extends Task, E extends TaskEnvironment> implements TaskHandler<T, E> {
 
     private final Object joinObject = new Object();
     private final ExecutorService executorService;
     private volatile Future<Throwable> taskFuture;
+    private volatile boolean taskFutureCanBeInterrupted;
 
     private final TaskSet<E> owner;
     private final T task;
@@ -51,6 +61,7 @@ public abstract class AbstractTaskHandler<T extends Task, E extends TaskEnvironm
     public AbstractTaskHandler(ExecutorService executorService, T task, TaskSet<E> owner, Pack args, List<TaskListener> listeners) {
         this.executorService = executorService;
         this.taskFuture = null;
+        this.taskFutureCanBeInterrupted = false;
 
         this.owner = owner;
         this.task = task;
@@ -76,8 +87,16 @@ public abstract class AbstractTaskHandler<T extends Task, E extends TaskEnvironm
      */
     protected abstract E createTaskEnvironment();
 
+    /**
+     * Task handler will call this method when it is needed to be added to
+     * task queue.
+     */
     protected abstract void addToQueue();
 
+    /**
+     * Task handler will call this method when it is needed to be removed from
+     * task queue.
+     */
     protected abstract void removeFromQueue();
 
     private void createTask() {
@@ -154,12 +173,26 @@ public abstract class AbstractTaskHandler<T extends Task, E extends TaskEnvironm
             }
 
             // execute task
-            // todo do it through taskFuture
             Throwable t = null;
             try {
+                synchronized (lock()) {
+                    // allow interruption
+                    taskFutureCanBeInterrupted = true;
+
+                    // check if the task has already been interrupted
+                    if (isInterrupted()) {
+                        throw new InterruptedException();
+                    }
+                }
+                // run task
                 task.run(env);
             } catch (Throwable throwable) {
                 t = throwable;
+            } finally {
+                synchronized (lock()) {
+                    // deny interruption
+                    taskFutureCanBeInterrupted = false;
+                }
             }
 
             // change task state and remove task from queue
@@ -240,8 +273,8 @@ public abstract class AbstractTaskHandler<T extends Task, E extends TaskEnvironm
                     removeFromQueue();
                     break;
                 case STARTED:
-                    // try to interrupt working thread
-                    if (taskFuture != null) {
+                    // try to interrupt working thread if it exists and interruption is allowed
+                    if (taskFuture != null && taskFutureCanBeInterrupted) {
                         taskFuture.cancel(true);
                     }
                     break;
