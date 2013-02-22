@@ -38,21 +38,22 @@ import java.util.concurrent.Future;
 public abstract class AbstractTaskHandler<T extends Task, E extends TaskEnvironment> implements TaskHandler<T, E> {
 
     private final Object joinObject = new Object();
-    private final TaskSet<E> owner;
+    private final ExecutorService executorService;
+    private volatile Future<Throwable> taskFuture = null;
+
     private final T task;
     private final E env;
-    private final Pack args;
     private final TaskListener[] listeners;
 
     private volatile State state;
     private volatile Throwable throwable;
     private volatile boolean interrupted;
 
-    public AbstractTaskHandler(TaskSet<E> owner, T task, E env, Pack args, List<TaskListener> listeners) {
-        this.owner = owner;
+    public AbstractTaskHandler(ExecutorService executorService, T task, E env, List<TaskListener> listeners) {
+        this.executorService = executorService;
+
         this.task = task;
         this.env = env;
-        this.args = args.lock() == owner.lock() ? args : new Pack(owner.lock(), args);
         this.listeners = new TaskListener[listeners.size()];
         listeners.toArray(this.listeners);
 
@@ -61,14 +62,127 @@ public abstract class AbstractTaskHandler<T extends Task, E extends TaskEnvironm
         this.interrupted = false;
     }
 
+    protected abstract void addToQueue();
+
+    protected abstract void removeFromQueue();
+
+    public void start() {
+        synchronized (lock()) {
+            if (owner().isInterrupted()) {
+                interrupted = true;
+                state = State.CANCELED;
+                throwable = null;
+            } else {
+                interrupted = false;
+                state = State.CREATED;
+                throwable = null;
+                addToQueue();
+            }
+
+            executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    if (isInterrupted()) {
+                        callOnCreate();
+                        callOnCanceled();
+                        callOnDestroy();
+
+                        // notify join object
+                        synchronized (joinObject) {
+                            joinObject.notifyAll();
+                        }
+                    } else {
+                        callOnCreate();
+                        callOnQueueInsert();
+
+                        executorService.submit(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (isInterrupted()) {
+                                    callOnCanceled();
+                                    callOnQueueRemove();
+                                    callOnDestroy();
+
+                                    // notify join object
+                                    synchronized (joinObject) {
+                                        joinObject.notifyAll();
+                                    }
+                                } else {
+                                    synchronized (lock()) {
+                                        state = State.STARTED;
+                                        throwable = null;
+                                    }
+
+                                    callOnStart();
+
+                                    synchronized (lock()) {
+                                        taskFuture = executorService.submit(new Callable<Throwable>() {
+                                            @Override
+                                            public Throwable call() throws Exception {
+                                                try {
+                                                    task.run(env); // todo try to fix it
+                                                    return null;
+                                                } catch (Throwable throwable) {
+                                                    return throwable;
+                                                }
+                                            }
+                                        });
+
+                                        if (isInterrupted()) {
+                                            taskFuture.cancel(true);
+                                        }
+                                    }
+
+                                    Throwable t;
+                                    try {
+                                        t = taskFuture.get();
+                                    } catch (InterruptedException e) {
+                                        t = e;
+                                    } catch (ExecutionException e) {
+                                        t = e.getCause();
+                                    }
+
+                                    synchronized (lock()) {
+                                        if (t == null) {
+                                            state = State.SUCCEED;
+                                            throwable = null;
+                                        } else {
+                                            state = State.FAILED;
+                                            throwable = t;
+                                        }
+                                        removeFromQueue();
+                                    }
+
+                                    callOnFinish();
+                                    if (t == null) {
+                                        callOnSucceed();
+                                    } else {
+                                        callOnFailed();
+                                    }
+                                    callOnQueueRemove();
+                                    callOnDestroy();
+
+                                    // notify join object
+                                    synchronized (joinObject) {
+                                        joinObject.notifyAll();
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        }
+    }
+
     @Override
     public TaskSet<E> owner() {
-        return owner;
+        return env.owner(); // todo try to fix it
     }
 
     @Override
     public Object lock() {
-        return owner().lock();
+        return env.lock();
     }
 
     @Override
@@ -78,7 +192,7 @@ public abstract class AbstractTaskHandler<T extends Task, E extends TaskEnvironm
 
     @Override
     public Pack args() {
-        return args;
+        return env.args();
     }
 
     @Override
@@ -105,15 +219,22 @@ public abstract class AbstractTaskHandler<T extends Task, E extends TaskEnvironm
     @Override
     public void interrupt() {
         synchronized (lock()) {
-            this.interrupted = true;
-            interruptThread();
+            interrupted = true;
+
+            switch (state) {
+                case CREATED:
+                    state = State.CANCELED;
+                    throwable = null;
+                    removeFromQueue();
+                    break;
+                case STARTED:
+                    if (taskFuture != null) {
+                        taskFuture.cancel(true);
+                    }
+                    break;
+            }
         }
     }
-
-    /**
-     * Interrupts worker thread.
-     */
-    protected abstract void interruptThread();
 
     @Override
     public void join() throws InterruptedException {
@@ -243,146 +364,6 @@ public abstract class AbstractTaskHandler<T extends Task, E extends TaskEnvironm
             } catch (Throwable throwable) {
                 uncaughtListenerException(listener, throwable);
             }
-        }
-    }
-
-
-    //////////////////////////////////////////////////////////////////
-    // todo code below is useless and just a test
-    //////////////////////////////////////////////////////////////////
-
-    protected abstract void insertToQueue();
-
-    protected abstract void removeFromQueue();
-
-    protected abstract boolean isOwnerInterrupted();
-
-    private final ExecutorService executorService = null;
-    private volatile Future<Throwable> taskFuture = null;
-
-    public void ___start() {
-        synchronized (lock()) {
-            if (isOwnerInterrupted()) {
-                interrupted = true;
-                state = State.CANCELED;
-                throwable = null;
-            } else {
-                interrupted = false;
-                state = State.CREATED;
-                throwable = null;
-                insertToQueue();
-            }
-
-            executorService.submit(new Runnable() {
-                @Override
-                public void run() {
-                    if (isInterrupted()) {
-                        callOnCreate();
-                        callOnCanceled();
-                        callOnDestroy();
-
-                        // notify join object
-                        synchronized (joinObject) {
-                            joinObject.notifyAll();
-                        }
-                    } else {
-                        callOnCreate();
-                        callOnQueueInsert();
-
-                        executorService.submit(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (isInterrupted()) {
-                                    callOnCanceled();
-                                    callOnQueueRemove();
-                                    callOnDestroy();
-
-                                    // notify join object
-                                    synchronized (joinObject) {
-                                        joinObject.notifyAll();
-                                    }
-                                } else {
-                                    executeTask();
-                                }
-                            }
-                        });
-                    }
-                }
-            });
-        }
-    }
-
-    public void ___interrupt() {
-        synchronized (lock()) {
-            interrupted = true;
-
-            switch (state) {
-                case CREATED:
-                    state = State.CANCELED;
-                    throwable = null;
-                    removeFromQueue();
-                    break;
-                case STARTED:
-                    taskFuture.cancel(true);
-                    break;
-            }
-        }
-    }
-
-    private void executeTask() {
-        synchronized (lock()) {
-            state = State.STARTED;
-            throwable = null;
-        }
-
-        callOnStart();
-
-        synchronized (lock()) {
-            taskFuture = executorService.submit(new Callable<Throwable>() {
-                @Override
-                public Throwable call() throws Exception {
-                    try {
-                        task.run(env);
-                        return null;
-                    } catch (Throwable throwable) {
-                        return throwable;
-                    }
-                }
-            });
-        }
-
-        Throwable t = null;
-        try {
-            t = taskFuture.get();
-        } catch (InterruptedException e) {
-            t = e;
-        } catch (ExecutionException e) {
-            t = e.getCause();
-        }
-
-        synchronized (lock()) {
-            if (t == null) {
-                state = State.SUCCEED;
-                throwable = null;
-            } else {
-                state = State.FAILED;
-                throwable = t;
-            }
-            removeFromQueue();
-        }
-
-        callOnFinish();
-        if (t == null) {
-            callOnSucceed();
-        } else {
-            callOnFailed();
-        }
-        callOnQueueRemove();
-        callOnDestroy();
-
-        // notify join object
-        synchronized (joinObject) {
-            joinObject.notifyAll();
         }
     }
 
