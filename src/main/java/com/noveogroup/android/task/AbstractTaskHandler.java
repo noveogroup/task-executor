@@ -30,8 +30,6 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -39,34 +37,50 @@ public abstract class AbstractTaskHandler<T extends Task, E extends TaskEnvironm
 
     private final Object joinObject = new Object();
     private final ExecutorService executorService;
-    private volatile Future<Throwable> taskFuture = null;
+    private volatile Future<Throwable> taskFuture;
 
+    private final TaskSet<E> owner;
     private final T task;
-    private final E env;
+    private final Pack args;
     private final TaskListener[] listeners;
 
     private volatile State state;
     private volatile Throwable throwable;
     private volatile boolean interrupted;
 
-    public AbstractTaskHandler(ExecutorService executorService, T task, E env, List<TaskListener> listeners) {
+    public AbstractTaskHandler(ExecutorService executorService, T task, TaskSet<E> owner, Pack args, List<TaskListener> listeners) {
         this.executorService = executorService;
+        this.taskFuture = null;
 
+        this.owner = owner;
         this.task = task;
-        this.env = env;
+        this.args = args.lock() == owner.lock() ? args : new Pack(owner.lock(), args);
         this.listeners = new TaskListener[listeners.size()];
         listeners.toArray(this.listeners);
 
         this.state = null;
         this.throwable = null;
         this.interrupted = false;
+
+        // create task
+        createTask();
     }
+
+    /**
+     * Creates task environment for this task.
+     * <p/>
+     * Created environment must use methods of this handler to implement
+     * its base functionality.
+     *
+     * @return a {@link TaskEnvironment} object.
+     */
+    protected abstract E createTaskEnvironment();
 
     protected abstract void addToQueue();
 
     protected abstract void removeFromQueue();
 
-    public void start() {
+    private void createTask() {
         synchronized (lock()) {
             if (owner().isInterrupted()) {
                 interrupted = true;
@@ -82,107 +96,104 @@ public abstract class AbstractTaskHandler<T extends Task, E extends TaskEnvironm
             executorService.submit(new Runnable() {
                 @Override
                 public void run() {
-                    if (isInterrupted()) {
-                        callOnCreate();
-                        callOnCanceled();
-                        callOnDestroy();
-
-                        // notify join object
-                        synchronized (joinObject) {
-                            joinObject.notifyAll();
-                        }
-                    } else {
-                        callOnCreate();
-                        callOnQueueInsert();
-
-                        executorService.submit(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (isInterrupted()) {
-                                    callOnCanceled();
-                                    callOnQueueRemove();
-                                    callOnDestroy();
-
-                                    // notify join object
-                                    synchronized (joinObject) {
-                                        joinObject.notifyAll();
-                                    }
-                                } else {
-                                    synchronized (lock()) {
-                                        state = State.STARTED;
-                                        throwable = null;
-                                    }
-
-                                    callOnStart();
-
-                                    synchronized (lock()) {
-                                        taskFuture = executorService.submit(new Callable<Throwable>() {
-                                            @Override
-                                            public Throwable call() throws Exception {
-                                                try {
-                                                    task.run(env); // todo try to fix it
-                                                    return null;
-                                                } catch (Throwable throwable) {
-                                                    return throwable;
-                                                }
-                                            }
-                                        });
-
-                                        if (isInterrupted()) {
-                                            taskFuture.cancel(true);
-                                        }
-                                    }
-
-                                    Throwable t;
-                                    try {
-                                        t = taskFuture.get();
-                                    } catch (InterruptedException e) {
-                                        t = e;
-                                    } catch (ExecutionException e) {
-                                        t = e.getCause();
-                                    }
-
-                                    synchronized (lock()) {
-                                        if (t == null) {
-                                            state = State.SUCCEED;
-                                            throwable = null;
-                                        } else {
-                                            state = State.FAILED;
-                                            throwable = t;
-                                        }
-                                        removeFromQueue();
-                                    }
-
-                                    callOnFinish();
-                                    if (t == null) {
-                                        callOnSucceed();
-                                    } else {
-                                        callOnFailed();
-                                    }
-                                    callOnQueueRemove();
-                                    callOnDestroy();
-
-                                    // notify join object
-                                    synchronized (joinObject) {
-                                        joinObject.notifyAll();
-                                    }
-                                }
-                            }
-                        });
-                    }
+                    prepareTask();
                 }
             });
         }
     }
 
+    private void prepareTask() {
+        if (isInterrupted()) {
+            // call listeners
+            callOnCreate();
+            callOnCanceled();
+            callOnDestroy();
+
+            // notify join object
+            synchronized (joinObject) {
+                joinObject.notifyAll();
+            }
+        } else {
+            callOnCreate();
+            callOnQueueInsert();
+
+            executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    executeTask();
+                }
+            });
+        }
+    }
+
+    private void executeTask() {
+        if (isInterrupted()) {
+            // call listeners
+            callOnCanceled();
+            callOnQueueRemove();
+            callOnDestroy();
+
+            // notify join object
+            synchronized (joinObject) {
+                joinObject.notifyAll();
+            }
+        } else {
+            // change state
+            synchronized (lock()) {
+                state = State.STARTED;
+                throwable = null;
+            }
+
+            // call listeners
+            callOnStart();
+
+            // create task environment
+            E env;
+            synchronized (lock()) {
+                env = createTaskEnvironment();
+            }
+
+            // execute task
+            // todo do it through taskFuture
+            Throwable t = null;
+            try {
+                task.run(env);
+            } catch (Throwable throwable) {
+                t = throwable;
+            }
+
+            // change task state and remove task from queue
+            synchronized (lock()) {
+                state = t == null ? State.SUCCEED : State.FAILED;
+                throwable = t;
+                removeFromQueue();
+            }
+
+            // call listeners
+            callOnFinish();
+            if (t == null) {
+                callOnSucceed();
+            } else {
+                callOnFailed();
+            }
+            callOnQueueRemove();
+            callOnDestroy();
+
+            // notify join object
+            synchronized (joinObject) {
+                joinObject.notifyAll();
+            }
+        }
+    }
+
     @Override
     public TaskSet<E> owner() {
-        return env.owner(); // todo try to fix it
+        return owner;
     }
 
     @Override
     public Object lock() {
-        return env.lock();
+        return owner.lock();
     }
 
     @Override
@@ -192,7 +203,7 @@ public abstract class AbstractTaskHandler<T extends Task, E extends TaskEnvironm
 
     @Override
     public Pack args() {
-        return env.args();
+        return args;
     }
 
     @Override
@@ -223,14 +234,19 @@ public abstract class AbstractTaskHandler<T extends Task, E extends TaskEnvironm
 
             switch (state) {
                 case CREATED:
+                    // remove from queue and set state to CANCELED
                     state = State.CANCELED;
                     throwable = null;
                     removeFromQueue();
                     break;
                 case STARTED:
+                    // try to interrupt working thread
                     if (taskFuture != null) {
                         taskFuture.cancel(true);
                     }
+                    break;
+                default:
+                    // in other states there are no need to do anything else
                     break;
             }
         }
