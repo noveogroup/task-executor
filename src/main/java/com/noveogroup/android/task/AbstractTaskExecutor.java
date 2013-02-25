@@ -97,27 +97,16 @@ abstract class AbstractTaskExecutor<E extends TaskEnvironment> implements TaskEx
      * Returns a copy of list of already added listeners and adds
      * all of listeners from the parameter.
      *
-     * @param addTaskListeners an array of additional listeners to add.
-     * @return a list containing all of listeners.
-     */
-    protected TaskListener[] copyTaskListeners(TaskListener... addTaskListeners) {
-        synchronized (lock()) {
-            TaskListener[] array = new TaskListener[listeners.size() + addTaskListeners.length];
-            listeners.toArray(array);
-            System.arraycopy(addTaskListeners, 0, array, listeners.size(), addTaskListeners.length);
-            return array;
-        }
-    }
-
-    /**
-     * Returns a copy of list of already added listeners and adds
-     * all of listeners from the parameter.
-     *
      * @param addTaskListeners a list of additional listeners to add.
      * @return a list containing all of listeners.
      */
-    protected TaskListener[] copyTaskListeners(List<TaskListener> addTaskListeners) {
-        return copyTaskListeners(addTaskListeners.toArray(new TaskListener[addTaskListeners.size()]));
+    protected List<TaskListener> copyTaskListeners(List<TaskListener> addTaskListeners) {
+        synchronized (lock()) {
+            List<TaskListener> list = new ArrayList<TaskListener>(listeners.size() + addTaskListeners.size());
+            list.addAll(listeners);
+            list.addAll(addTaskListeners);
+            return list;
+        }
     }
 
     @Override
