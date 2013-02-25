@@ -44,7 +44,6 @@ import java.util.*;
  * when handler is no longer needed.
  */
 // todo review & rename
-// todo add AdvancedHandler to task environment
 public class AdvancedHandler {
 
     /**
