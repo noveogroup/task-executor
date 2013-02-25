@@ -33,6 +33,10 @@
                 android:name=".TaskFailureExampleActivity"
                 android:label="@string/task_failure_example_activity"/>
 
+        <activity
+                android:name=".TaskPerformanceExampleActivity"
+                android:label="@string/task_performance_example_activity"/>
+
     </application>
 
 </manifest>

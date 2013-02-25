@@ -25,7 +25,8 @@ public class MainActivity extends ListActivity {
     private static final List<Class<? extends ExampleActivity>> activities = Collections.unmodifiableList(Arrays.asList(
             SimpleTaskExampleActivity.class,
             TaskSequenceExampleActivity.class,
-            TaskFailureExampleActivity.class
+            TaskFailureExampleActivity.class,
+            TaskPerformanceExampleActivity.class
     ));
 
     private static String getActivityName(Context context, Class<? extends Activity> activityClass) {
