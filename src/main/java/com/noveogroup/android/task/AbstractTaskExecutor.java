@@ -39,7 +39,7 @@ import java.util.List;
  *
  * @param <E> task environment type.
  */
-public abstract class AbstractTaskExecutor<E extends TaskEnvironment> implements TaskExecutor<E> {
+abstract class AbstractTaskExecutor<E extends TaskEnvironment> implements TaskExecutor<E> {
 
     private final Object lock = new Object();
     private final ArrayList<TaskListener> listeners = new ArrayList<TaskListener>(8);

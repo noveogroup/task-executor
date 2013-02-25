@@ -42,7 +42,7 @@ import java.util.concurrent.Future;
  * @param <T> task type.
  * @param <E> task environment type.
  */
-public abstract class AbstractTaskHandler<T extends Task, E extends TaskEnvironment> implements TaskHandler<T, E> {
+abstract class AbstractTaskHandler<T extends Task, E extends TaskEnvironment> implements TaskHandler<T, E> {
 
     private final Object joinObject = new Object();
     private final ExecutorService executorService;

@@ -38,7 +38,7 @@ import java.util.*;
  *
  * @param <E> task environment type.
  */
-public abstract class AbstractTaskSet<E extends TaskEnvironment> implements TaskSet<E> {
+abstract class AbstractTaskSet<E extends TaskEnvironment> implements TaskSet<E> {
 
     private final TaskExecutor<E> executor;
     private final Set<String> tags;

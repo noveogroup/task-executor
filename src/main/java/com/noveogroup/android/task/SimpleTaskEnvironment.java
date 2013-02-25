@@ -27,13 +27,13 @@
 package com.noveogroup.android.task;
 
 /**
- * {@link DefaultTaskEnvironment} is an default implementation of
+ * {@link SimpleTaskEnvironment} is an default implementation of
  * the {@link TaskEnvironment} interface. A subclass may implement
  * an additional functionality.
  *
  * @param <E> task environment type.
  */
-public class DefaultTaskEnvironment<E extends TaskEnvironment> implements TaskEnvironment<E> {
+public class SimpleTaskEnvironment<E extends TaskEnvironment> implements TaskEnvironment<E> {
 
     /**
      * {@link TaskHandler} object to delegate functionality.
@@ -45,7 +45,7 @@ public class DefaultTaskEnvironment<E extends TaskEnvironment> implements TaskEn
      *
      * @param handler {@link TaskHandler} object to delegate functionality.
      */
-    public DefaultTaskEnvironment(TaskHandler<?, E> handler) {
+    public SimpleTaskEnvironment(TaskHandler<?, E> handler) {
         this.handler = handler;
     }
 
