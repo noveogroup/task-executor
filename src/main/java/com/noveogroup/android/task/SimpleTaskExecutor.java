@@ -32,7 +32,7 @@ import java.util.concurrent.ExecutorService;
 /**
  * {@link SimpleTaskEnvironment} is an default implementation of
  * the {@link TaskExecutor} interface. A subclass  must implement the abstract
- * method {@link #createTaskEnvironment(TaskHandler, Pack)}.
+ * method {@link #createTaskEnvironment(TaskHandler)}.
  *
  * @param <E> task environment type.
  */
@@ -106,11 +106,10 @@ public abstract class SimpleTaskExecutor<E extends TaskEnvironment> extends Abst
      * its base functionality.
      *
      * @param taskHandler corresponding {@link TaskHandler} object.
-     * @param args        container of arguments.
      * @param <T>         type of task.
      * @return a {@link TaskEnvironment} object.
      */
-    protected abstract <T extends Task> E createTaskEnvironment(TaskHandler<T, E> taskHandler, Pack args);
+    protected abstract <T extends Task> E createTaskEnvironment(TaskHandler<T, E> taskHandler);
 
     private void cleanExecutor() {
         synchronized (lock()) {
@@ -216,7 +215,7 @@ public abstract class SimpleTaskExecutor<E extends TaskEnvironment> extends Abst
         return new AbstractTaskHandler<T, E>(executorService, task, queue(tags), args, copyTaskListeners(taskListeners)) {
             @Override
             protected E createTaskEnvironment() {
-                return SimpleTaskExecutor.this.createTaskEnvironment(this, args());
+                return SimpleTaskExecutor.this.createTaskEnvironment(this);
             }
 
             @Override

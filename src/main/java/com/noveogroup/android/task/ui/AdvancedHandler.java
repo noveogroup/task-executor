@@ -43,6 +43,7 @@ import java.util.Set;
  * Joining callbacks can cause a blocking. To ensure all threads will be resumed call {@link #removeCallbacks()}
  * when handler is no longer needed.
  */
+// todo review & rename
 public class AdvancedHandler {
 
     private static class WaitCallback implements Runnable {

@@ -29,17 +29,20 @@ package com.noveogroup.android.task.ui;
 import android.content.Context;
 import com.noveogroup.android.task.*;
 
+import java.util.concurrent.Executors;
+
 ////////////////////////////////////////////////////////////////////////////////
 // todo сделать аналог AsyncTask, сделать стандартное решение с диалогами
 // todo как через один менеджер гонять задачи для UI и для фона
 // todo интегрироваться с Context
 ////////////////////////////////////////////////////////////////////////////////
-public class AndroidTaskExecutor extends SimpleTaskExecutor<TaskEnvironment> {
+public class AndroidTaskExecutor extends SimpleTaskExecutor<SimpleTaskEnvironment> {
 
     private final Context context;
     private ProgressManager progressManager;
 
     public AndroidTaskExecutor(Context context) {
+        super(Executors.newFixedThreadPool(7));
         this.context = context;
     }
 
@@ -51,23 +54,17 @@ public class AndroidTaskExecutor extends SimpleTaskExecutor<TaskEnvironment> {
             }
         };
         addTaskListener(new TaskListener.Default() {
-            private int count = 0;
-
             @Override
             public void onCreate(TaskHandler handler) {
-                if (count++ == 0) {
-                    if (!queue().isEmpty()) {
-                        progressManager.show();
-                    }
+                if (!queue().isEmpty()) {
+                    progressManager.show();
                 }
             }
 
             @Override
             public void onDestroy(TaskHandler handler) {
-                if (--count == 0) {
-                    if (queue().isEmpty()) {
-                        progressManager.hide();
-                    }
+                if (queue().isEmpty()) {
+                    progressManager.hide();
                 }
 
                 if (handler.getState() == TaskHandler.State.FAILED) {
@@ -83,8 +80,8 @@ public class AndroidTaskExecutor extends SimpleTaskExecutor<TaskEnvironment> {
     }
 
     @Override
-    protected <T extends Task> TaskEnvironment createTaskEnvironment(TaskHandler<T, TaskEnvironment> taskHandler, Pack args) {
-        return new TaskEnvironment<T, TaskEnvironment>(taskHandler, args);
+    protected <T extends Task> SimpleTaskEnvironment createTaskEnvironment(TaskHandler<T, SimpleTaskEnvironment> taskHandler) {
+        return new SimpleTaskEnvironment<SimpleTaskEnvironment>(taskHandler);
     }
 
 }

@@ -40,6 +40,8 @@ import android.widget.Toast;
 //  - показать error dialog
 //  - показать error toast
 //  - показать завершенность задачи в процентах, в полоске, в цифрах
+// todo implement it
+// todo make it customizable
 public class ProgressManager {
 
     private final Context context;

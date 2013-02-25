@@ -33,6 +33,7 @@ import java.util.*;
  *
  * @param <V> a type of the values.
  */
+// todo review & move into handler class
 class AssociationSet<V> {
 
     private final Set<V> values = new HashSet<V>();

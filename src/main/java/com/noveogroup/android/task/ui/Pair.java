@@ -33,6 +33,7 @@ package com.noveogroup.android.task.ui;
  * @param <V1> a type of the first value.
  * @param <V2> a type of the second value.
  */
+// todo review & move into handler class
 class Pair<V1, V2> {
 
     public final V1 value1;
