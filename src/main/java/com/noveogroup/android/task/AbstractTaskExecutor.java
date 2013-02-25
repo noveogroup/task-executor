@@ -123,11 +123,6 @@ abstract class AbstractTaskExecutor<E extends TaskEnvironment> implements TaskEx
     }
 
     @Override
-    public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, TaskListener... taskListeners) {
-        return execute(task, args, Arrays.asList(taskListeners), new ArrayList<String>(0));
-    }
-
-    @Override
     public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, String... tags) {
         return execute(task, args, new ArrayList<TaskListener>(0), Arrays.asList(tags));
     }
@@ -140,11 +135,6 @@ abstract class AbstractTaskExecutor<E extends TaskEnvironment> implements TaskEx
     @Override
     public <T extends Task<E>> TaskHandler<T, E> execute(T task, TaskListener taskListener, String... tags) {
         return execute(task, new Pack(), Arrays.asList(taskListener), Arrays.asList(tags));
-    }
-
-    @Override
-    public <T extends Task<E>> TaskHandler<T, E> execute(T task, TaskListener... taskListeners) {
-        return execute(task, new Pack(), Arrays.asList(taskListeners), new ArrayList<String>(0));
     }
 
     @Override

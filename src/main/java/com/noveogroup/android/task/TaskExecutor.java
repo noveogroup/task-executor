@@ -77,15 +77,11 @@ public interface TaskExecutor<E extends TaskEnvironment> {
 
     public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, TaskListener taskListener, String... tags);
 
-    public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, TaskListener... taskListeners);
-
     public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, String... tags);
 
     public <T extends Task<E>> TaskHandler<T, E> execute(T task, List<TaskListener> taskListeners, String... tags);
 
     public <T extends Task<E>> TaskHandler<T, E> execute(T task, TaskListener taskListener, String... tags);
-
-    public <T extends Task<E>> TaskHandler<T, E> execute(T task, TaskListener... taskListeners);
 
     public <T extends Task<E>> TaskHandler<T, E> execute(T task, String... tags);
 
