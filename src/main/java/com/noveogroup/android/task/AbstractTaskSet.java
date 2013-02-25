@@ -30,7 +30,14 @@ import android.os.SystemClock;
 
 import java.util.*;
 
-// todo implement
+/**
+ * {@link AbstractTaskSet} is an abstract implementation of
+ * the {@link TaskSet} interface. A subclass must implement the abstract
+ * methods {@link #iterator()}, {@link #interrupt()} and
+ * {@link #isInterrupted()}.
+ *
+ * @param <E> task environment type.
+ */
 public abstract class AbstractTaskSet<E extends TaskEnvironment> implements TaskSet<E> {
 
     private final TaskExecutor<E> executor;
@@ -99,9 +106,7 @@ public abstract class AbstractTaskSet<E extends TaskEnvironment> implements Task
     public abstract boolean isInterrupted();
 
     @Override
-    public void interrupt() {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
+    public abstract void interrupt();
 
     @Override
     public void join() throws InterruptedException {
@@ -114,11 +119,13 @@ public abstract class AbstractTaskSet<E extends TaskEnvironment> implements Task
             throw new IllegalArgumentException();
         }
 
-        // todo review below
         while (true) {
-            boolean retry = false;
-            for (TaskHandler taskHandler : this) {
-                retry = true;
+            Iterator<TaskHandler<? extends Task, E>> iterator = this.iterator();
+            if (!iterator.hasNext()) {
+                return true;
+            }
+            while (iterator.hasNext()) {
+                TaskHandler taskHandler = iterator.next();
                 if (timeout == 0) {
                     taskHandler.join();
                 } else {
@@ -127,49 +134,11 @@ public abstract class AbstractTaskSet<E extends TaskEnvironment> implements Task
                     timeout -= SystemClock.uptimeMillis() - time;
 
                     if (timeout <= 0) {
-                        break;
+                        return false;
                     }
                 }
             }
-            if (!retry) {
-                break;
-            }
         }
     }
-
-//    @Override
-//    public void interrupt() {
-//        for (TaskHandler taskHandler : this) {
-//            taskHandler.interrupt();
-//        }
-//    }
-//
-//    @Override
-//    public void join(long timeout) throws InterruptedException {
-//        if (timeout < 0) {
-//            throw new IllegalArgumentException();
-//        }
-//
-//        while (true) {
-//            boolean retry = false;
-//            for (TaskHandler taskHandler : this) {
-//                retry = true;
-//                if (timeout == 0) {
-//                    taskHandler.join();
-//                } else {
-//                    long time = SystemClock.uptimeMillis();
-//                    taskHandler.join(timeout);
-//                    timeout -= SystemClock.uptimeMillis() - time;
-//
-//                    if (timeout <= 0) {
-//                        break;
-//                    }
-//                }
-//            }
-//            if (!retry) {
-//                break;
-//            }
-//        }
-//    }
 
 }

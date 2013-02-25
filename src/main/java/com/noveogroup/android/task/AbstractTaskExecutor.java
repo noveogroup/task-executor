@@ -31,7 +31,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-// todo implement
+/**
+ * {@link AbstractTaskExecutor} is an abstract implementation of
+ * the {@link TaskExecutor} interface. A subclass must implement the abstract
+ * methods {@link #execute(Task, Pack, java.util.List, java.util.Collection)} and
+ * {@link #queue(java.util.Collection)}}.
+ *
+ * @param <E> task environment type.
+ */
 public abstract class AbstractTaskExecutor<E extends TaskEnvironment> implements TaskExecutor<E> {
 
     private final Object lock = new Object();
