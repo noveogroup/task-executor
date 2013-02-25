@@ -42,7 +42,7 @@ import java.util.concurrent.Future;
  * @param <T> task type.
  * @param <E> task environment type.
  */
-abstract class AbstractTaskHandler<T extends Task, E extends TaskEnvironment> implements TaskHandler<T, E> {
+abstract class AbstractTaskHandler<T extends Task<? super E>, E extends TaskEnvironment> implements TaskHandler<T, E> {
 
     private final Object joinObject = new Object();
     private final ExecutorService executorService;
@@ -194,7 +194,7 @@ abstract class AbstractTaskHandler<T extends Task, E extends TaskEnvironment> im
                     }
                 }
                 // run task
-                task.run(env); // todo try to fix warning
+                task.run(env);
             } catch (Throwable throwable) {
                 t = throwable;
             } finally {
