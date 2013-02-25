@@ -110,15 +110,15 @@ abstract class AbstractTaskHandler<T extends Task, E extends TaskEnvironment> im
 
     private void createTask() {
         synchronized (lock()) {
+            interrupted = false;
+            state = State.CREATED;
+            throwable = null;
+            addToQueue();
+
             if (owner().isInterrupted()) {
                 interrupted = true;
                 state = State.CANCELED;
                 throwable = null;
-            } else {
-                interrupted = false;
-                state = State.CREATED;
-                throwable = null;
-                addToQueue();
             }
 
             executorService.submit(new Runnable() {
