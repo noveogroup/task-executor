@@ -14,6 +14,7 @@ public class SimpleTaskExampleActivity extends ExampleActivity {
     protected void onResume() {
         super.onResume();
         executor.onResume();
+        executor.addTaskListener(new LogTaskListener());
     }
 
     @Override

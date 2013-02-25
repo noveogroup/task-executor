@@ -5,12 +5,64 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.util.Log;
 import android.webkit.WebView;
+import com.noveogroup.android.task.TaskExecutor;
+import com.noveogroup.android.task.TaskHandler;
+import com.noveogroup.android.task.TaskListener;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 public abstract class ExampleActivity extends Activity {
+
+    public static class LogTaskListener implements TaskListener {
+
+        @Override
+        public void onCreate(TaskHandler<?, ?> handler) {
+            Log.i(TaskExecutor.TAG, "TaskListener::onCreate      " + handler.hashCode());
+        }
+
+        @Override
+        public void onQueueInsert(TaskHandler<?, ?> handler) {
+            Log.i(TaskExecutor.TAG, "TaskListener::onQueueInsert " + handler.hashCode());
+        }
+
+        @Override
+        public void onStart(TaskHandler<?, ?> handler) {
+            Log.i(TaskExecutor.TAG, "TaskListener::onStart       " + handler.hashCode());
+        }
+
+        @Override
+        public void onFinish(TaskHandler<?, ?> handler) {
+            Log.i(TaskExecutor.TAG, "TaskListener::onFinish      " + handler.hashCode());
+        }
+
+        @Override
+        public void onQueueRemove(TaskHandler<?, ?> handler) {
+            Log.i(TaskExecutor.TAG, "TaskListener::onQueueRemove " + handler.hashCode());
+        }
+
+        @Override
+        public void onDestroy(TaskHandler<?, ?> handler) {
+            Log.i(TaskExecutor.TAG, "TaskListener::onDestroy     " + handler.hashCode());
+        }
+
+        @Override
+        public void onCanceled(TaskHandler<?, ?> handler) {
+            Log.i(TaskExecutor.TAG, "TaskListener::onCanceled    " + handler.hashCode());
+        }
+
+        @Override
+        public void onFailed(TaskHandler<?, ?> handler) {
+            Log.i(TaskExecutor.TAG, "TaskListener::onFailed      " + handler.hashCode());
+        }
+
+        @Override
+        public void onSucceed(TaskHandler<?, ?> handler) {
+            Log.i(TaskExecutor.TAG, "TaskListener::onSucceed     " + handler.hashCode());
+        }
+
+    }
 
     private static String loadHtmlFor(Context context, Class<? extends ExampleActivity> activityClass) {
         Resources resources = context.getResources();

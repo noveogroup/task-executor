@@ -16,6 +16,7 @@ public class TaskFailureExampleActivity extends ExampleActivity {
     protected void onResume() {
         super.onResume();
         executor.onResume();
+        executor.addTaskListener(new LogTaskListener());
     }
 
     @Override
