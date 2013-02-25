@@ -43,6 +43,7 @@ public interface TaskExecutor<E extends TaskEnvironment> {
      * <li><b>with DEBUG log level:</b> Important operations with {@link TaskSet}</li>
      * </ul>
      */
+    // todo implement logs in abstract classes
     public static final String TAG = "com.noveogroup.android.task";
 
     /**
