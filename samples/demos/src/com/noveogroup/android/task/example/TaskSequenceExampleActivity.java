@@ -35,12 +35,12 @@ public class TaskSequenceExampleActivity extends ExampleActivity {
             public void onClick(View v) {
                 executor.execute(new Task() {
                     @Override
-                    public void run(TaskHandler handler, TaskEnvironment env) throws Throwable {
+                    public void run(TaskEnvironment env) throws Throwable {
                         Utils.download(1500);
                         executor.execute(
                                 new Task() {
                                     @Override
-                                    public void run(TaskHandler handler, TaskEnvironment env) throws Throwable {
+                                    public void run(TaskEnvironment env) throws Throwable {
                                         Utils.download(1500);
                                     }
                                 },
@@ -49,7 +49,7 @@ public class TaskSequenceExampleActivity extends ExampleActivity {
                                     public void onFinish(TaskHandler<?, ?> handler) {
                                         executor.execute(new Task() {
                                             @Override
-                                            public void run(TaskHandler handler, TaskEnvironment env) throws Throwable {
+                                            public void run(TaskEnvironment env) throws Throwable {
                                                 Utils.download(1500);
                                             }
                                         });

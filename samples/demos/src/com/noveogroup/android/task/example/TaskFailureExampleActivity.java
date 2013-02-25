@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.View;
 import com.noveogroup.android.task.Task;
 import com.noveogroup.android.task.TaskEnvironment;
-import com.noveogroup.android.task.TaskHandler;
 import com.noveogroup.android.task.ui.AndroidTaskExecutor;
 
 import java.io.IOException;
@@ -36,7 +35,7 @@ public class TaskFailureExampleActivity extends ExampleActivity {
             public void onClick(View v) {
                 executor.execute(new Task() {
                     @Override
-                    public void run(TaskHandler handler, TaskEnvironment env) throws Throwable {
+                    public void run(TaskEnvironment env) throws Throwable {
                         Utils.download(3000);
                         throw new IOException("bla bla bla failure");
                     }
