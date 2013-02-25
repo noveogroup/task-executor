@@ -51,9 +51,9 @@ public interface TaskSet<E extends TaskEnvironment> extends Iterable<TaskHandler
 
     public TaskSet<E> sub(Collection<String> tags);
 
-    public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, TaskListener... taskListeners);
+    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, Pack args, TaskListener... taskListeners);
 
-    public <T extends Task<E>> TaskHandler<T, E> execute(T task, TaskListener... taskListeners);
+    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, TaskListener... taskListeners);
 
     public int size();
 

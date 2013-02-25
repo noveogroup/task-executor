@@ -211,7 +211,7 @@ public abstract class SimpleTaskExecutor<E extends TaskEnvironment> extends Abst
     }
 
     @Override
-    public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, List<TaskListener> taskListeners, Collection<String> tags) {
+    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, Pack args, List<TaskListener> taskListeners, Collection<String> tags) {
         return new AbstractTaskHandler<T, E>(executorService, task, queue(tags), args, copyTaskListeners(taskListeners)) {
             @Override
             protected E createTaskEnvironment() {

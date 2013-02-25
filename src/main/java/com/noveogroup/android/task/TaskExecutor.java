@@ -71,19 +71,19 @@ public interface TaskExecutor<E extends TaskEnvironment> {
 
     public void removeTaskListener(TaskListener... taskListeners);
 
-    public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, List<TaskListener> taskListeners, Collection<String> tags);
+    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, Pack args, List<TaskListener> taskListeners, Collection<String> tags);
 
-    public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, List<TaskListener> taskListeners, String... tags);
+    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, Pack args, List<TaskListener> taskListeners, String... tags);
 
-    public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, TaskListener taskListener, String... tags);
+    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, Pack args, TaskListener taskListener, String... tags);
 
-    public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, String... tags);
+    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, Pack args, String... tags);
 
-    public <T extends Task<E>> TaskHandler<T, E> execute(T task, List<TaskListener> taskListeners, String... tags);
+    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, List<TaskListener> taskListeners, String... tags);
 
-    public <T extends Task<E>> TaskHandler<T, E> execute(T task, TaskListener taskListener, String... tags);
+    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, TaskListener taskListener, String... tags);
 
-    public <T extends Task<E>> TaskHandler<T, E> execute(T task, String... tags);
+    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, String... tags);
 
     public void shutdown();
 

@@ -34,7 +34,7 @@ public class TaskFailureExampleActivity extends ExampleActivity {
         findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                executor.execute(new Task() {
+                executor.execute(new Task<TaskEnvironment>() {
                     @Override
                     public void run(TaskEnvironment env) throws Throwable {
                         Utils.download(3000);

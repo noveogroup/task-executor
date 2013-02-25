@@ -76,12 +76,12 @@ abstract class AbstractTaskSet<E extends TaskEnvironment> implements TaskSet<E> 
     }
 
     @Override
-    public <T extends Task<E>> TaskHandler<T, E> execute(T task, Pack args, TaskListener... taskListeners) {
+    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, Pack args, TaskListener... taskListeners) {
         return executor().execute(task, args, Arrays.asList(taskListeners), tags());
     }
 
     @Override
-    public <T extends Task<E>> TaskHandler<T, E> execute(T task, TaskListener... taskListeners) {
+    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, TaskListener... taskListeners) {
         return execute(task, new Pack(), taskListeners);
     }
 

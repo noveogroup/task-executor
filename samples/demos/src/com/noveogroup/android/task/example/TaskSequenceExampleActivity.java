@@ -1,7 +1,6 @@
 package com.noveogroup.android.task.example;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import com.noveogroup.android.task.*;
 import com.noveogroup.android.task.ui.AndroidTaskExecutor;
@@ -32,21 +31,21 @@ public class TaskSequenceExampleActivity extends ExampleActivity {
         findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                executor.execute(new Task() {
+                executor.execute(new Task<TaskEnvironment>() {
                     @Override
                     public void run(TaskEnvironment env) throws Throwable {
                         Utils.download(1500);
                         executor.execute(
-                                new Task() {
+                                new Task<SimpleTaskEnvironment>() {
                                     @Override
-                                    public void run(TaskEnvironment env) throws Throwable {
+                                    public void run(SimpleTaskEnvironment env) throws Throwable {
                                         Utils.download(1500);
                                     }
                                 },
                                 new TaskListener.Default() {
                                     @Override
                                     public void onFinish(TaskHandler<?, ?> handler) {
-                                        executor.execute(new Task() {
+                                        executor.execute(new Task<TaskEnvironment>() {
                                             @Override
                                             public void run(TaskEnvironment env) throws Throwable {
                                                 Utils.download(1500);
