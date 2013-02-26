@@ -26,9 +26,7 @@
 
 package com.noveogroup.android.task;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -39,6 +37,52 @@ import java.util.concurrent.ExecutorService;
  * @param <E> task environment type.
  */
 public abstract class SimpleTaskExecutor<E extends TaskEnvironment> extends AbstractTaskExecutor<E> {
+
+    private static class AssociationSet<V> {
+
+        private final Map<V, Set<String>> values = new HashMap<V, Set<String>>();
+        private final Set<Set<String>> interruptedTags = new HashSet<Set<String>>();
+
+        public void add(V value, Collection<String> tags) {
+            values.put(value, new HashSet<String>(tags));
+        }
+
+        public void remove(V value) {
+            values.remove(value);
+        }
+
+        // todo optimize it
+        public Set<V> getAssociated(Collection<String> tags) {
+            Set<V> set = new HashSet<V>();
+            for (Map.Entry<V, Set<String>> entry : values.entrySet()) {
+                if (entry.getValue().containsAll(tags)) {
+                    set.add(entry.getKey());
+                }
+            }
+            return Collections.unmodifiableSet(set);
+        }
+
+        // todo optimize it
+        public boolean isInterrupted(Collection<String> tags) {
+            boolean isInterrupted = false;
+            for (Iterator<Set<String>> iterator = interruptedTags.iterator(); iterator.hasNext(); ) {
+                Set<String> set = iterator.next();
+                if (tags.containsAll(set)) {
+                    if (getAssociated(set).isEmpty()) {
+                        iterator.remove();
+                    } else {
+                        isInterrupted = true;
+                    }
+                }
+            }
+            return isInterrupted;
+        }
+
+        public void interrupt(Collection<String> tags) {
+            interruptedTags.add(new HashSet<String>(tags));
+        }
+
+    }
 
     private final ExecutorService executorService;
     private final AssociationSet<TaskHandler<? extends Task, E>> queue = new AssociationSet<TaskHandler<? extends Task, E>>();
