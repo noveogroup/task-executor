@@ -35,7 +35,7 @@ import java.util.concurrent.Executors;
 // todo сделать аналог AsyncTask, сделать стандартное решение с диалогами
 // todo как через один менеджер гонять задачи для UI и для фона
 // todo интегрироваться с Context
-// todo add AdvancedHandler to task environment
+// todo add UIHandler to task environment
 ////////////////////////////////////////////////////////////////////////////////
 public class AndroidTaskExecutor extends SimpleTaskExecutor<SimpleTaskEnvironment> {
 

@@ -45,7 +45,7 @@ import android.widget.Toast;
 public class ProgressManager {
 
     private final Context context;
-    private final AdvancedHandler handler;
+    private final UIHandler handler;
     private final Object lock = new Object();
     private boolean visible = false;
     private ProgressDialog progressDialog = null;
@@ -77,7 +77,7 @@ public class ProgressManager {
 
     public ProgressManager(Context context) {
         this.context = context;
-        this.handler = new AdvancedHandler(context);
+        this.handler = new UIHandler(context);
     }
 
     public void show() {
@@ -85,7 +85,7 @@ public class ProgressManager {
             if (destroyed) return;
             if (!visible) {
                 visible = true;
-                handler.postSingleton(syncCallback);
+                handler.postSingle(syncCallback);
             }
         }
     }
@@ -95,7 +95,7 @@ public class ProgressManager {
             if (destroyed) return;
             if (visible) {
                 visible = false;
-                handler.postSingleton(syncCallback);
+                handler.postSingle(syncCallback);
             }
         }
     }
