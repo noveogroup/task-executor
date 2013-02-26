@@ -36,8 +36,10 @@ import java.util.*;
  * {@link UIHandler} provides you an interface to process {@link Runnable}
  * callbacks using usual {@link Handler}.
  * <p/>
- * Scheduling callbacks is accomplished with the {@link #post(Runnable)} and
- * {@link #postDelayed(Runnable, long)} methods.
+ * Scheduling callbacks is accomplished with the {@link #post(Runnable)},
+ * {@link #postDelayed(Runnable, long)}, {@link #postSingle(Runnable)},
+ * {@link #postSingleDelayed(Runnable, long)} and {@link #postSync(Runnable)}
+ * methods.
  * <p/>
  * Joining callbacks can cause a blocking. To ensure all threads will be resumed call {@link #removeCallbacks()}
  * when handler is no longer needed.
@@ -173,6 +175,8 @@ public class UIHandler {
      * Causes the callback to be added to the queue.
      *
      * @param callback the callback that will be executed.
+     * @return Returns true if the {@link Runnable} was successfully placed
+     *         in to the queue. Returns false otherwise.
      */
     public boolean post(Runnable callback) {
         return new Callback(callback).post();
@@ -184,6 +188,8 @@ public class UIHandler {
      * @param callback the callback that will be executed.
      * @param delay    the delay (in milliseconds) until the callback will be
      *                 executed.
+     * @return Returns true if the {@link Runnable} was successfully placed
+     *         in to the queue. Returns false otherwise.
      */
     public boolean postDelayed(Runnable callback, long delay) {
         return new Callback(callback).postDelayed(delay);
@@ -256,6 +262,60 @@ public class UIHandler {
      */
     public void removeCallbacks() {
         removeCallbacks(getCallbacks());
+    }
+
+    /**
+     * Similar to {@link #post(Runnable)} but removes callbacks first before
+     * adding to queue.
+     *
+     * @param callback the callback that will be executed.
+     * @return Returns true if the {@link Runnable} was successfully placed
+     *         in to the queue. Returns false otherwise.
+     */
+    public boolean postSingle(Runnable callback) {
+        synchronized (lock) {
+            removeCallbacks(callback);
+            return post(callback);
+        }
+    }
+
+    /**
+     * Similar to {@link #postDelayed(Runnable, long)} but removes callbacks
+     * first before adding to queue.
+     *
+     * @param callback the callback that will be executed.
+     * @param delay    the delay (in milliseconds) until the callback
+     *                 will be executed.
+     * @return Returns true if the {@link Runnable} was successfully placed
+     *         in to the queue. Returns false otherwise.
+     */
+    public boolean postSingleDelayed(Runnable callback, long delay) {
+        synchronized (lock) {
+            removeCallbacks(callback);
+            return postDelayed(callback, delay);
+        }
+    }
+
+    /**
+     * Similar to {@link #postSingle(Runnable)} but joins the callbacks
+     * after adding to queue.
+     *
+     * @param callback the callback that will be executed.
+     * @return Returns true if the {@link Runnable} was successfully placed
+     *         in to the queue. Returns false otherwise.
+     */
+    public boolean postSync(Runnable callback) throws InterruptedException {
+        Callback waitCallback;
+        synchronized (lock) {
+            removeCallbacks(callback);
+            waitCallback = new Callback(callback);
+            if (!waitCallback.post()) {
+                return false;
+            }
+        }
+
+        waitCallback.join();
+        return true;
     }
 
 }
