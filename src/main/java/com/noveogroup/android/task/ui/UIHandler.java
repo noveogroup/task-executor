@@ -48,37 +48,37 @@ public class UIHandler {
 
     private final Object lock = new Object();
     private final Handler handler;
-    private final Set<Callback> set = new HashSet<Callback>();
-    private final Map<Runnable, Set<Callback>> map = new HashMap<Runnable, Set<Callback>>();
+    private final Set<WaitCallback> set = new HashSet<WaitCallback>();
+    private final Map<Runnable, Set<WaitCallback>> map = new HashMap<Runnable, Set<WaitCallback>>();
 
-    private class Callback implements Runnable {
+    private class WaitCallback implements Runnable {
 
         private final Runnable callback;
         private final Object waitObject = new Object();
         private volatile boolean finished = false;
 
-        public Callback(Runnable callback) {
+        public WaitCallback(Runnable callback) {
             this.callback = callback;
         }
 
         private void addCallback() {
             set.add(this);
 
-            Set<Callback> callbacks = map.get(callback);
-            if (callbacks == null) {
-                callbacks = new HashSet<Callback>();
-                map.put(callback, callbacks);
+            Set<WaitCallback> waitCallbacks = map.get(callback);
+            if (waitCallbacks == null) {
+                waitCallbacks = new HashSet<WaitCallback>();
+                map.put(callback, waitCallbacks);
             }
-            callbacks.add(this);
+            waitCallbacks.add(this);
         }
 
         private void removeCallback() {
             set.remove(this);
 
-            Set<Callback> callbacks = map.get(callback);
-            if (callbacks != null) {
-                callbacks.remove(this);
-                if (callbacks.isEmpty()) {
+            Set<WaitCallback> waitCallbacks = map.get(callback);
+            if (waitCallbacks != null) {
+                waitCallbacks.remove(this);
+                if (waitCallbacks.isEmpty()) {
                     map.remove(callback);
                 }
             }
@@ -179,7 +179,7 @@ public class UIHandler {
      *         in to the queue. Returns false otherwise.
      */
     public boolean post(Runnable callback) {
-        return new Callback(callback).post();
+        return new WaitCallback(callback).post();
     }
 
     /**
@@ -192,35 +192,35 @@ public class UIHandler {
      *         in to the queue. Returns false otherwise.
      */
     public boolean postDelayed(Runnable callback, long delay) {
-        return new Callback(callback).postDelayed(delay);
+        return new WaitCallback(callback).postDelayed(delay);
     }
 
-    private void joinCallbacks(Set<Callback> callbacks) throws InterruptedException {
+    private void joinCallbacks(Set<WaitCallback> waitCallbacks) throws InterruptedException {
         if (Thread.currentThread() == handler.getLooper().getThread()) {
             throw new RuntimeException("current thread blocks the callback");
         }
 
-        for (Callback callback : callbacks) {
-            callback.join();
+        for (WaitCallback waitCallback : waitCallbacks) {
+            waitCallback.join();
         }
     }
 
-    private void removeCallbacks(Set<Callback> callbacks) {
-        for (Callback callback : callbacks) {
-            callback.release();
+    private void removeCallbacks(Set<WaitCallback> waitCallbacks) {
+        for (WaitCallback waitCallback : waitCallbacks) {
+            waitCallback.release();
         }
     }
 
-    private Set<Callback> getCallbacks(Runnable callback) {
+    private Set<WaitCallback> getCallbacks(Runnable callback) {
         synchronized (lock) {
-            Set<Callback> callbacks = map.get(callback);
-            return callbacks == null ? Collections.<Callback>emptySet() : new HashSet<Callback>(callbacks);
+            Set<WaitCallback> waitCallbacks = map.get(callback);
+            return waitCallbacks == null ? Collections.<WaitCallback>emptySet() : new HashSet<WaitCallback>(waitCallbacks);
         }
     }
 
-    private Set<Callback> getCallbacks() {
+    private Set<WaitCallback> getCallbacks() {
         synchronized (lock) {
-            return new HashSet<Callback>(set);
+            return new HashSet<WaitCallback>(set);
         }
     }
 
@@ -305,10 +305,10 @@ public class UIHandler {
      *         in to the queue. Returns false otherwise.
      */
     public boolean postSync(Runnable callback) throws InterruptedException {
-        Callback waitCallback;
+        WaitCallback waitCallback;
         synchronized (lock) {
             removeCallbacks(callback);
-            waitCallback = new Callback(callback);
+            waitCallback = new WaitCallback(callback);
             if (!waitCallback.post()) {
                 return false;
             }
