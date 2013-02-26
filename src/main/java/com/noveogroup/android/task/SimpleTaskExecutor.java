@@ -26,7 +26,9 @@
 
 package com.noveogroup.android.task;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -39,7 +41,6 @@ import java.util.concurrent.ExecutorService;
 public abstract class SimpleTaskExecutor<E extends TaskEnvironment> extends AbstractTaskExecutor<E> {
 
     private final ExecutorService executorService;
-    private final Set<Set<String>> interruptedTags = new HashSet<Set<String>>();
     private final AssociationSet<TaskHandler<? extends Task, E>> queue = new AssociationSet<TaskHandler<? extends Task, E>>();
 
     public SimpleTaskExecutor(ExecutorService executorService) {
@@ -75,18 +76,7 @@ public abstract class SimpleTaskExecutor<E extends TaskEnvironment> extends Abst
                         if (SimpleTaskExecutor.this.isShutdown()) {
                             return true;
                         } else {
-                            // clean interrupted tags set
-                            for (Iterator<Set<String>> iterator = interruptedTags.iterator(); iterator.hasNext(); ) {
-                                Set<String> set = iterator.next();
-                                if (tags().containsAll(set)) {
-                                    if (queue(set).isEmpty()) {
-                                        iterator.remove();
-                                    } else {
-                                        return true;
-                                    }
-                                }
-                            }
-                            return false;
+                            return queue.isInterrupted(tags());
                         }
                     }
                 }
@@ -94,8 +84,8 @@ public abstract class SimpleTaskExecutor<E extends TaskEnvironment> extends Abst
                 @Override
                 public void interrupt() {
                     synchronized (lock()) {
-                        interruptedTags.add(tags());
-                        for (TaskHandler<?, E> handler : queue(tags())) {
+                        queue.interrupt(tags());
+                        for (TaskHandler<?, E> handler : queue.getAssociated(tags())) {
                             handler.interrupt();
                         }
                     }
