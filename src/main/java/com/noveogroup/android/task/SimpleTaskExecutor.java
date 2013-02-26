@@ -38,62 +38,9 @@ import java.util.concurrent.ExecutorService;
  */
 public abstract class SimpleTaskExecutor<E extends TaskEnvironment> extends AbstractTaskExecutor<E> {
 
-    private class SimpleTaskSet extends AbstractTaskSet<E> {
-
-        private final List<TaskHandler<? extends Task, E>> tasks = new ArrayList<TaskHandler<? extends Task, E>>();
-        private volatile List<TaskHandler<? extends Task, E>> copyTasks = null;
-
-        public SimpleTaskSet(Collection<String> tags) {
-            super(SimpleTaskExecutor.this, tags);
-        }
-
-        public void add(TaskHandler<? extends Task, E> handler) {
-            synchronized (lock()) {
-                tasks.add(handler);
-                copyTasks = null;
-            }
-        }
-
-        public void addAll(SimpleTaskSet taskSet) {
-            synchronized (lock()) {
-                tasks.addAll(taskSet.tasks);
-                copyTasks = null;
-            }
-        }
-
-        public void remove(TaskHandler<? extends Task, E> handler) {
-            synchronized (lock()) {
-                tasks.remove(handler);
-                copyTasks = null;
-            }
-        }
-
-        @Override
-        public Iterator<TaskHandler<? extends Task, E>> iterator() {
-            synchronized (lock()) {
-                if (copyTasks == null) {
-                    copyTasks = new ArrayList<TaskHandler<? extends Task, E>>(tasks);
-                }
-                return copyTasks.iterator();
-            }
-        }
-
-        @Override
-        public boolean isInterrupted() {
-            return SimpleTaskExecutor.this.isTaskSetInterrupted(tags());
-        }
-
-        @Override
-        public void interrupt() {
-            SimpleTaskExecutor.this.interruptTaskSet(tags());
-        }
-
-    }
-
     private final ExecutorService executorService;
     private final Set<Set<String>> interruptedTags = new HashSet<Set<String>>();
-    private final Map<Set<String>, SimpleTaskSet> queue = new HashMap<Set<String>, SimpleTaskSet>();
-    private volatile int cleanCounter = 0;
+    private final AssociationSet<TaskHandler<? extends Task, E>> queue = new AssociationSet<TaskHandler<? extends Task, E>>();
 
     public SimpleTaskExecutor(ExecutorService executorService) {
         this.executorService = executorService;
@@ -111,102 +58,49 @@ public abstract class SimpleTaskExecutor<E extends TaskEnvironment> extends Abst
      */
     protected abstract <T extends Task> E createTaskEnvironment(TaskHandler<T, E> taskHandler);
 
-    private void cleanExecutor() {
-        synchronized (lock()) {
-            // increase counter, check if cleaning is really needed
-            if (cleanCounter++ < 100) {
-                return;
-            }
-
-            // clean interrupted tags set
-            for (Iterator<Set<String>> iterator = interruptedTags.iterator(); iterator.hasNext(); ) {
-                Set<String> set = iterator.next();
-                if (queue(set).isEmpty()) {
-                    iterator.remove();
-                }
-            }
-
-            // clean task set map
-            for (Iterator<Map.Entry<Set<String>, SimpleTaskSet>> iterator = queue.entrySet().iterator(); iterator.hasNext(); ) {
-                Map.Entry<Set<String>, SimpleTaskSet> entry = iterator.next();
-                if (entry.getValue().isEmpty()) {
-                    iterator.remove();
-                }
-            }
-        }
-    }
-
-    private boolean isTaskSetInterrupted(Set<String> tags) {
-        synchronized (lock()) {
-            if (SimpleTaskExecutor.this.isShutdown()) {
-                return true;
-            } else {
-                cleanExecutor();
-
-                for (Iterator<Set<String>> iterator = interruptedTags.iterator(); iterator.hasNext(); ) {
-                    Set<String> set = iterator.next();
-                    if (tags.containsAll(set)) {
-                        if (queue(set).isEmpty()) {
-                            iterator.remove();
-                        } else {
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            }
-        }
-    }
-
-    private void interruptTaskSet(Set<String> tags) {
-        synchronized (lock()) {
-            interruptedTags.add(tags);
-            for (TaskHandler<?, E> handler : queue(tags)) {
-                handler.interrupt();
-            }
-        }
-    }
-
     @Override
     public TaskSet<E> queue(Collection<String> tags) {
         synchronized (lock()) {
-            // get or create task set
-            HashSet<String> copyTags = new HashSet<String>(tags);
-            SimpleTaskSet subTaskSet = queue.get(copyTags);
-            if (subTaskSet == null) {
-                subTaskSet = new SimpleTaskSet(copyTags);
-                queue.put(copyTags, subTaskSet);
-
-                // add sub-tasks to this set
-                for (SimpleTaskSet taskSet : queue.values()) {
-                    if (taskSet.tags().containsAll(subTaskSet.tags())) {
-                        subTaskSet.addAll(taskSet);
+            return new AbstractTaskSet<E>(this, tags) {
+                @Override
+                public Iterator<TaskHandler<? extends Task, E>> iterator() {
+                    synchronized (lock()) {
+                        return queue.getAssociated(tags()).iterator();
                     }
                 }
-            }
-            return subTaskSet;
-        }
-    }
 
-    private void addToQueue(TaskHandler<?, E> handler) {
-        synchronized (lock()) {
-            for (SimpleTaskSet taskSet : queue.values()) {
-                if (handler.owner().tags().containsAll(taskSet.tags())) {
-                    taskSet.add(handler);
+                @Override
+                public boolean isInterrupted() {
+                    synchronized (lock()) {
+                        if (SimpleTaskExecutor.this.isShutdown()) {
+                            return true;
+                        } else {
+                            // clean interrupted tags set
+                            for (Iterator<Set<String>> iterator = interruptedTags.iterator(); iterator.hasNext(); ) {
+                                Set<String> set = iterator.next();
+                                if (tags().containsAll(set)) {
+                                    if (queue(set).isEmpty()) {
+                                        iterator.remove();
+                                    } else {
+                                        return true;
+                                    }
+                                }
+                            }
+                            return false;
+                        }
+                    }
                 }
-            }
-        }
-    }
 
-    private void removeFromQueue(TaskHandler<?, E> handler) {
-        synchronized (lock()) {
-            cleanExecutor();
-
-            for (SimpleTaskSet taskSet : queue.values()) {
-                if (handler.owner().tags().containsAll(taskSet.tags())) {
-                    taskSet.remove(handler);
+                @Override
+                public void interrupt() {
+                    synchronized (lock()) {
+                        interruptedTags.add(tags());
+                        for (TaskHandler<?, E> handler : queue(tags())) {
+                            handler.interrupt();
+                        }
+                    }
                 }
-            }
+            };
         }
     }
 
@@ -220,12 +114,16 @@ public abstract class SimpleTaskExecutor<E extends TaskEnvironment> extends Abst
 
             @Override
             protected void addToQueue() {
-                SimpleTaskExecutor.this.addToQueue(this);
+                synchronized (lock()) {
+                    queue.add(this, owner().tags());
+                }
             }
 
             @Override
             protected void removeFromQueue() {
-                SimpleTaskExecutor.this.removeFromQueue(this);
+                synchronized (lock()) {
+                    queue.remove(this);
+                }
             }
         };
     }
