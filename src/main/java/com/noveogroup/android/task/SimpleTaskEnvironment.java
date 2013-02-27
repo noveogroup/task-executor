@@ -41,7 +41,7 @@ public class SimpleTaskEnvironment<E extends TaskEnvironment> implements TaskEnv
     protected final TaskHandler<?, E> handler;
 
     /**
-     * Creates new instenace of {@link AbstractTaskExecutor}.
+     * Creates new instenace of {@link SimpleTaskEnvironment}.
      *
      * @param handler {@link TaskHandler} object to delegate functionality.
      */
