@@ -37,7 +37,7 @@ import java.util.concurrent.Executors;
 // todo интегрироваться с Context
 // todo add UIHandler to task environment
 ////////////////////////////////////////////////////////////////////////////////
-public class AndroidTaskExecutor extends SimpleTaskExecutor<SimpleTaskEnvironment> {
+public class AndroidTaskExecutor extends SimpleTaskExecutor<AndroidTaskEnvironment> {
 
     private final Context context;
     private ProgressManager progressManager;
@@ -81,8 +81,8 @@ public class AndroidTaskExecutor extends SimpleTaskExecutor<SimpleTaskEnvironmen
     }
 
     @Override
-    protected <T extends Task> SimpleTaskEnvironment createTaskEnvironment(TaskHandler<T, SimpleTaskEnvironment> taskHandler) {
-        return new SimpleTaskEnvironment<SimpleTaskEnvironment>(taskHandler);
+    protected <T extends Task> AndroidTaskEnvironment createTaskEnvironment(TaskHandler<T, AndroidTaskEnvironment> taskHandler) {
+        return new AndroidTaskEnvironment(taskHandler, null);
     }
 
 }
