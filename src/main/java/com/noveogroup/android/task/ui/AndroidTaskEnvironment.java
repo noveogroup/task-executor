@@ -33,6 +33,7 @@ import com.noveogroup.android.task.TaskHandler;
 public class AndroidTaskEnvironment extends SimpleTaskEnvironment<AndroidTaskEnvironment> {
 
     private final Context context;
+    private final UIHandler uiHandler;
 
     /**
      * Creates new instenace of {@link AndroidTaskEnvironment}.
@@ -43,10 +44,15 @@ public class AndroidTaskEnvironment extends SimpleTaskEnvironment<AndroidTaskEnv
     public AndroidTaskEnvironment(TaskHandler<?, AndroidTaskEnvironment> handler, Context context) {
         super(handler);
         this.context = context;
+        this.uiHandler = new UIHandler(context);
     }
 
     public Context getContext() {
         return context;
+    }
+
+    public UIHandler getHandler() {
+        return uiHandler;
     }
 
 }
