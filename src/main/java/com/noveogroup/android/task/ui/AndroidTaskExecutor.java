@@ -82,7 +82,7 @@ public class AndroidTaskExecutor extends SimpleTaskExecutor<AndroidTaskEnvironme
 
     @Override
     protected <T extends Task> AndroidTaskEnvironment createTaskEnvironment(TaskHandler<T, AndroidTaskEnvironment> taskHandler) {
-        return new AndroidTaskEnvironment(taskHandler, null);
+        return new AndroidTaskEnvironment(taskHandler, context);
     }
 
 }
