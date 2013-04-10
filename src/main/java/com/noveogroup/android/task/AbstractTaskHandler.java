@@ -113,13 +113,14 @@ abstract class AbstractTaskHandler<T extends Task<? super E>, E extends TaskEnvi
             interrupted = false;
             state = State.CREATED;
             throwable = null;
-            addToQueue();
 
             if (owner().isInterrupted()) {
                 interrupted = true;
                 state = State.CANCELED;
                 throwable = null;
             }
+
+            addToQueue();
 
             executorService.submit(new Runnable() {
                 @Override
