@@ -30,7 +30,14 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 public class NewUIHandler {
 
@@ -92,13 +99,6 @@ public class NewUIHandler {
 
     }
 
-    private static Set<String> union(Collection<String> set1, Collection<String> set2) {
-        HashSet<String> set = new HashSet<String>(set1.size() + set2.size());
-        set.addAll(set1);
-        set.addAll(set2);
-        return Collections.unmodifiableSet(set);
-    }
-
     private final Object lock;
     private final Handler handler;
     private final AssociationSet<WaitCallback> associationSet;
@@ -106,23 +106,7 @@ public class NewUIHandler {
 
     private final NewUIHandler root;
     private final Set<String> tags;
-
-    private NewUIHandler(Object lock, Handler handler,
-                         AssociationSet<WaitCallback> associationSet, Map<Runnable, Set<WaitCallback>> callbacks,
-                         NewUIHandler root, Set<String> tags) {
-        this.lock = lock;
-        this.handler = handler;
-        this.associationSet = associationSet;
-        this.callbacks = callbacks;
-        this.root = root;
-        this.tags = tags;
-    }
-
-    public NewUIHandler(Handler handler) {
-        this(new Object(), handler,
-                new AssociationSet<WaitCallback>(), new HashMap<Runnable, Set<WaitCallback>>(),
-                null, Collections.<String>emptySet());
-    }
+    private final WeakHashMap<Set<String>, NewUIHandler> subCache;
 
     public NewUIHandler() {
         this(new Handler());
@@ -136,8 +120,47 @@ public class NewUIHandler {
         this(new Handler(context.getMainLooper()));
     }
 
+    public NewUIHandler(Handler handler) {
+        this.lock = new Object();
+        this.handler = handler;
+        this.associationSet = new AssociationSet<WaitCallback>();
+        this.callbacks = new HashMap<Runnable, Set<WaitCallback>>();
+
+        this.root = this;
+        this.tags = Collections.emptySet();
+        this.subCache = new WeakHashMap<Set<String>, NewUIHandler>();
+    }
+
+    private NewUIHandler(NewUIHandler root, Set<String> tags) {
+        this.lock = root.lock;
+        this.handler = root.handler;
+        this.associationSet = root.associationSet;
+        this.callbacks = root.callbacks;
+
+        this.tags = tags;
+        this.root = root;
+        this.subCache = root.subCache;
+    }
+
     public NewUIHandler sub(String... tags) {
-        return new NewUIHandler(lock, handler, null, null, this, union(this.tags, Arrays.asList(tags)));
+        return sub(Arrays.asList(tags));
+    }
+
+    public NewUIHandler sub(Collection<String> tags) {
+        Set<String> tagSet = Collections.unmodifiableSet(new HashSet<String>(tags));
+
+        synchronized (lock) {
+            NewUIHandler uiHandler = subCache.get(tagSet);
+            if (uiHandler == null) {
+                uiHandler = new NewUIHandler(this, tagSet);
+                subCache.put(tagSet, uiHandler);
+            }
+            return uiHandler;
+        }
+    }
+
+    public Set<String> tags() {
+        return tags;
     }
 
     private WaitCallback createWaitCallback(final Runnable callback) {
@@ -156,112 +179,69 @@ public class NewUIHandler {
         };
     }
 
-    public void post(Runnable callback, String... tags) {
-        post(callback, Arrays.asList(tags));
+    private void addWaitCallback(Runnable callback, WaitCallback waitCallback) {
+        associationSet.add(waitCallback, tags);
+        Set<WaitCallback> waitCallbacks = callbacks.get(callback);
+        if (waitCallbacks == null) {
+            waitCallbacks = new HashSet<WaitCallback>();
+        }
+        waitCallbacks.add(waitCallback);
     }
 
-    public void post(Runnable callback, Collection<String> tags) {
-        if (root != null) {
-            root.post(callback, union(this.tags, tags));
-        } else {
-            synchronized (lock) {
-                WaitCallback waitCallback = createWaitCallback(callback);
-                if (handler.post(waitCallback)) {
-                    associationSet.add(waitCallback, union(this.tags, tags));
-                    Set<WaitCallback> waitCallbacks = callbacks.get(callback);
-                    if (waitCallbacks == null) {
-                        waitCallbacks = new HashSet<WaitCallback>();
-                    }
-                    waitCallbacks.add(waitCallback);
-                } else {
-                    throw new RuntimeException("cannot post callback to the handler");
-                }
+    public void post(Runnable callback) {
+        WaitCallback waitCallback = createWaitCallback(callback);
+
+        synchronized (lock) {
+            if (handler.post(waitCallback)) {
+                addWaitCallback(callback, waitCallback);
+            } else {
+                throw new RuntimeException("cannot post callback to the handler");
             }
         }
     }
 
-    public void post(long delay, Runnable callback, String... tags) {
-        post(delay, callback, Arrays.asList(tags));
-    }
+    public void post(long delay, Runnable callback) {
+        WaitCallback waitCallback = createWaitCallback(callback);
 
-    public void post(long delay, Runnable callback, Collection<String> tags) {
-        if (root != null) {
-            root.post(delay, callback, union(this.tags, tags));
-        } else {
-            synchronized (lock) {
-                WaitCallback waitCallback = createWaitCallback(callback);
-                if (handler.postDelayed(waitCallback, delay)) {
-                    associationSet.add(waitCallback, union(this.tags, tags));
-                    Set<WaitCallback> waitCallbacks = callbacks.get(callback);
-                    if (waitCallbacks == null) {
-                        waitCallbacks = new HashSet<WaitCallback>();
-                    }
-                    waitCallbacks.add(waitCallback);
-                } else {
-                    throw new RuntimeException("cannot post callback to the handler");
-                }
+        synchronized (lock) {
+            if (handler.postDelayed(waitCallback, delay)) {
+                addWaitCallback(callback, waitCallback);
+            } else {
+                throw new RuntimeException("cannot post callback to the handler");
             }
         }
     }
 
-    public void sync(Runnable callback, String... tags) throws InterruptedException {
-        sync(callback, Arrays.asList(tags));
+    public void single(Runnable callback) {
+        // todo
     }
 
-    public void sync(Runnable callback, Collection<String> tags) throws InterruptedException {
-        if (root != null) {
-            root.sync(callback, union(this.tags, tags));
-        } else {
-            // todo
-        }
+    public void single(long delay, Runnable callback) {
+        // todo
     }
 
-    public void join(Runnable callback, String... tags) throws InterruptedException {
-        join(callback, Arrays.asList(tags));
+    public void sync(Runnable callback) throws InterruptedException {
+        // todo
     }
 
-    public void join(Runnable callback, Collection<String> tags) throws InterruptedException {
-        if (root != null) {
-            root.join(callback, union(this.tags, tags));
-        } else {
-            // todo
-        }
+    public void sync(long delay, Runnable callback) throws InterruptedException {
+        // todo
     }
 
-    public void join(String... tags) throws InterruptedException {
-        join(Arrays.asList(tags));
+    public void join(Runnable callback) throws InterruptedException {
+        // todo
     }
 
-    public void join(Collection<String> tags) throws InterruptedException {
-        if (root != null) {
-            root.join(union(this.tags, tags));
-        } else {
-            // todo
-        }
+    public void join() throws InterruptedException {
+        // todo
     }
 
-    public void remove(Runnable callback, String... tags) {
-        remove(callback, Arrays.asList(tags));
+    public void remove(Runnable callback) {
+        // todo
     }
 
-    public void remove(Runnable callback, Collection<String> tags) {
-        if (root != null) {
-            root.remove(callback, union(this.tags, tags));
-        } else {
-            // todo
-        }
-    }
-
-    public void remove(String... tags) {
-        remove(Arrays.asList(tags));
-    }
-
-    public void remove(Collection<String> tags) {
-        if (root != null) {
-            root.remove(union(this.tags, tags));
-        } else {
-            // todo
-        }
+    public void remove() {
+        // todo
     }
 
 }
