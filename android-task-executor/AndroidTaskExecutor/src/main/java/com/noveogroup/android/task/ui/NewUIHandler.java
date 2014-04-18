@@ -170,22 +170,36 @@ public class NewUIHandler {
                 try {
                     callback.run();
                 } finally {
-                    synchronized (lock) {
-                        associationSet.remove(this);
-                        callbacks.remove(callback);
-                    }
+                    removeWaitCallback(callback, this);
                 }
             }
         };
     }
 
     private void addWaitCallback(Runnable callback, WaitCallback waitCallback) {
-        associationSet.add(waitCallback, tags);
-        Set<WaitCallback> waitCallbacks = callbacks.get(callback);
-        if (waitCallbacks == null) {
-            waitCallbacks = new HashSet<WaitCallback>();
+        synchronized (lock) {
+            associationSet.add(waitCallback, tags);
+
+            Set<WaitCallback> waitCallbacks = callbacks.get(callback);
+            if (waitCallbacks == null) {
+                waitCallbacks = new HashSet<WaitCallback>();
+            }
+            waitCallbacks.add(waitCallback);
         }
-        waitCallbacks.add(waitCallback);
+    }
+
+    private void removeWaitCallback(Runnable callback, WaitCallback waitCallback) {
+        synchronized (lock) {
+            associationSet.remove(waitCallback);
+
+            Set<WaitCallback> waitCallbacks = callbacks.get(callback);
+            if (waitCallbacks != null) {
+                waitCallbacks.remove(waitCallback);
+                if (waitCallbacks.isEmpty()) {
+                    callbacks.remove(callback);
+                }
+            }
+        }
     }
 
     public void post(Runnable callback) {
