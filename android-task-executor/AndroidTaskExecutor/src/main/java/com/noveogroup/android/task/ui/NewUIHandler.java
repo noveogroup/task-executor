@@ -163,6 +163,12 @@ public class NewUIHandler {
         return tags;
     }
 
+    private void checkJoinAbility() {
+        if (Thread.currentThread() == handler.getLooper().getThread()) {
+            throw new RuntimeException("current thread is a looper thread and cannot wait itself");
+        }
+    }
+
     private WaitCallback createWaitCallback(final Runnable callback) {
         return new WaitCallback() {
             @Override
@@ -202,28 +208,38 @@ public class NewUIHandler {
         }
     }
 
-    public void post(Runnable callback) {
+    private WaitCallback postCallback(Runnable callback) {
         WaitCallback waitCallback = createWaitCallback(callback);
 
         synchronized (lock) {
             if (handler.post(waitCallback)) {
                 addWaitCallback(callback, waitCallback);
+                return waitCallback;
             } else {
                 throw new RuntimeException("cannot post callback to the handler");
             }
         }
     }
 
-    public void post(long delay, Runnable callback) {
+    private WaitCallback postCallback(long delay, Runnable callback) {
         WaitCallback waitCallback = createWaitCallback(callback);
 
         synchronized (lock) {
             if (handler.postDelayed(waitCallback, delay)) {
                 addWaitCallback(callback, waitCallback);
+                return waitCallback;
             } else {
                 throw new RuntimeException("cannot post callback to the handler");
             }
         }
+    }
+
+    public void post(Runnable callback) {
+        postCallback(callback);
+    }
+
+    public void post(long delay, Runnable callback) {
+        postCallback(delay, callback);
     }
 
     public void single(Runnable callback) {
@@ -235,11 +251,13 @@ public class NewUIHandler {
     }
 
     public void sync(Runnable callback) throws InterruptedException {
-        // todo
+        checkJoinAbility();
+        postCallback(callback).join();
     }
 
     public void sync(long delay, Runnable callback) throws InterruptedException {
-        // todo
+        checkJoinAbility();
+        postCallback(delay, callback).join();
     }
 
     public void join(Runnable callback) throws InterruptedException {
