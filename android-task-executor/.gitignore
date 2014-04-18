@@ -1,14 +1,10 @@
-# Eclipse
-.classpath
-.project
-.settings
+# Android
+local.properties
 
-# IntelliJ IDEA
+# Gradle
+.gradle
+build
+
+# IntelliJ Idea
 .idea
 *.iml
-*.ipr
-*.iws
-
-# Maven
-target
-pom.xml.*
