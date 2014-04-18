@@ -45,6 +45,10 @@ public class NewUIHandler {
 
         private final Map<V, Set<String>> values = new HashMap<V, Set<String>>();
 
+        public void clear() {
+            values.clear();
+        }
+
         public void add(V value, Collection<String> tags) {
             values.put(value, new HashSet<String>(tags));
         }
@@ -269,11 +273,21 @@ public class NewUIHandler {
     }
 
     public void remove(Runnable callback) {
-        // todo
+        synchronized (lock) {
+            Set<WaitCallback> waitCallbacks = callbacks.remove(callback);
+            if (waitCallbacks != null) {
+                for (WaitCallback waitCallback : waitCallbacks) {
+                    associationSet.remove(waitCallback);
+                }
+            }
+        }
     }
 
     public void remove() {
-        // todo
+        synchronized (lock) {
+            associationSet.clear();
+            callbacks.clear();
+        }
     }
 
 }
