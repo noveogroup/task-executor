@@ -247,11 +247,17 @@ public class NewUIHandler {
     }
 
     public void single(Runnable callback) {
-        // todo
+        synchronized (lock) {
+            remove(callback);
+            post(callback);
+        }
     }
 
     public void single(long delay, Runnable callback) {
-        // todo
+        synchronized (lock) {
+            remove(callback);
+            post(delay, callback);
+        }
     }
 
     public void sync(Runnable callback) throws InterruptedException {
