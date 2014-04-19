@@ -174,6 +174,9 @@ public class NewUIHandler {
     }
 
     private WaitCallback createWaitCallback(final Runnable callback) {
+        if (callback == null) {
+            throw new NullPointerException("callback is null");
+        }
         return new WaitCallback() {
             @Override
             protected void runCallback() {
