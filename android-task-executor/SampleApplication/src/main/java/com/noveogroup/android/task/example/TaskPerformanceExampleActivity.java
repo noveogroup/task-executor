@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
+
 import com.noveogroup.android.task.SimpleTaskEnvironment;
 import com.noveogroup.android.task.Task;
 import com.noveogroup.android.task.TaskExecutor;

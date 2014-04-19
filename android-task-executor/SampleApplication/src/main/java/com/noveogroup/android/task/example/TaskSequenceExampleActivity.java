@@ -2,7 +2,12 @@ package com.noveogroup.android.task.example;
 
 import android.os.Bundle;
 import android.view.View;
-import com.noveogroup.android.task.*;
+
+import com.noveogroup.android.task.SimpleTaskEnvironment;
+import com.noveogroup.android.task.Task;
+import com.noveogroup.android.task.TaskEnvironment;
+import com.noveogroup.android.task.TaskHandler;
+import com.noveogroup.android.task.TaskListener;
 import com.noveogroup.android.task.ui.AndroidTaskExecutor;
 
 public class TaskSequenceExampleActivity extends ExampleActivity {
