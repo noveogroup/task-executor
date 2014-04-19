@@ -39,6 +39,20 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
+/**
+ * {@link NewUIHandler} provides you an interface to process {@link Runnable}
+ * callbacks using usual Android {@link Handler}.
+ * <p/>
+ * Scheduling callbacks is accomplished with the {@link #post(Runnable)},
+ * {@link #post(long, Runnable)} and {@link #sync(Runnable)} methods.
+ * <p/>
+ * Scheduled callbacks may be waited using {@link #join()} and
+ * {@link #join(Runnable)} methods or removed using {@link #remove()} or
+ * {@link #remove(Runnable)} methods.
+ * <p/>
+ * It is a good practice to call {@link #remove()} when {@link NewUIHandler}
+ * is no longer needed.
+ */
 public class NewUIHandler {
 
     private static class AssociationSet<V> {
@@ -112,18 +126,40 @@ public class NewUIHandler {
     private final Set<String> tags;
     private final WeakHashMap<Set<String>, NewUIHandler> subCache;
 
+    /**
+     * Default constructor associates this handler with the queue for
+     * the current thread. If there isn't one, this handler won't be able
+     * to receive messages.
+     */
     public NewUIHandler() {
         this(new Handler());
     }
 
+    /**
+     * Constructor uses the provided queue and its handler instead of
+     * the default one.
+     *
+     * @param looper the custom queue.
+     */
     public NewUIHandler(Looper looper) {
         this(new Handler(looper));
     }
 
+    /**
+     * Constructor uses main looper of the provided context to initialize
+     * the handler.
+     *
+     * @param context the context.
+     */
     public NewUIHandler(Context context) {
         this(new Handler(context.getMainLooper()));
     }
 
+    /**
+     * Constructor uses the specified handler to delegate callbacks to.
+     *
+     * @param handler the delegate handler.
+     */
     public NewUIHandler(Handler handler) {
         this.lock = new Object();
         this.handler = handler;
@@ -146,10 +182,26 @@ public class NewUIHandler {
         this.subCache = root.subCache;
     }
 
+    /**
+     * Returns sub-handler associated with the specified set of tags.
+     * <p/>
+     * The callbacks of the sub-handler are owned by parent handler too.
+     *
+     * @param tags the set of tags.
+     * @return the sub-handler.
+     */
     public NewUIHandler sub(String... tags) {
         return sub(Arrays.asList(tags));
     }
 
+    /**
+     * Returns sub-handler associated with the specified set of tags.
+     * <p/>
+     * The callbacks of the sub-handler are owned by parent handler too.
+     *
+     * @param tags the set of tags.
+     * @return the sub-handler.
+     */
     public NewUIHandler sub(Collection<String> tags) {
         Set<String> tagSet = Collections.unmodifiableSet(new HashSet<String>(tags));
 
@@ -163,6 +215,11 @@ public class NewUIHandler {
         }
     }
 
+    /**
+     * Returns a set of tags associated with this handler.
+     *
+     * @return the set of tags.
+     */
     public Set<String> tags() {
         return tags;
     }
@@ -241,14 +298,33 @@ public class NewUIHandler {
         }
     }
 
+    /**
+     * Causes the callback to be added to the queue.
+     *
+     * @param callback the callback that will be executed.
+     */
     public void post(Runnable callback) {
         postCallback(callback);
     }
 
+    /**
+     * Causes the callback to be added to the queue.
+     *
+     * @param callback the callback that will be executed.
+     * @param delay    the delay (in milliseconds) until the callback will be
+     *                 executed.
+     */
     public void post(long delay, Runnable callback) {
         postCallback(delay, callback);
     }
 
+
+    /**
+     * Adds the callback to the queue using {@link #post(Runnable)} and
+     * wait for it after that.
+     *
+     * @param callback the callback that will be executed.
+     */
     public void sync(Runnable callback) throws InterruptedException {
         checkJoinAbility();
         postCallback(callback).join();
@@ -275,6 +351,13 @@ public class NewUIHandler {
         }
     }
 
+    /**
+     * Joins the specified callback. If the callback will be removed before
+     * finish this method successfully ends.
+     *
+     * @param callback the callback to join to.
+     * @throws InterruptedException if any thread interrupted the current one.
+     */
     public void join(Runnable callback) throws InterruptedException {
         checkJoinAbility();
         for (WaitCallback waitCallback : getWaitCallbacks(callback)) {
@@ -282,6 +365,12 @@ public class NewUIHandler {
         }
     }
 
+    /**
+     * Joins all callbacks of the handler. If the callbacks will be removed
+     * before finish this method successfully ends.
+     *
+     * @throws InterruptedException if any thread interrupted the current one.
+     */
     public void join() throws InterruptedException {
         checkJoinAbility();
         for (WaitCallback waitCallback : getWaitCallbacks()) {
@@ -289,6 +378,13 @@ public class NewUIHandler {
         }
     }
 
+    /**
+     * Removes any pending posts of the specified callback that are in
+     * the message queue. All waiting threads joining to this callback
+     * will be notified and resumed.
+     *
+     * @param callback the callback to remove.
+     */
     public void remove(Runnable callback) {
         synchronized (lock) {
             Set<WaitCallback> waitCallbacks = callbacks.remove(callback);
@@ -301,6 +397,10 @@ public class NewUIHandler {
         }
     }
 
+    /**
+     * Removes any callbacks from the queue. All waiting threads joining
+     * to callbacks of this handler will be notified and resumed.
+     */
     public void remove() {
         synchronized (lock) {
             for (Runnable callback : callbacks.keySet()) {
