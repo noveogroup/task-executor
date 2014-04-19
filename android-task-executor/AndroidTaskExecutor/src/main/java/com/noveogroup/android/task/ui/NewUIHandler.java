@@ -314,6 +314,7 @@ public class NewUIHandler {
             if (waitCallbacks != null) {
                 for (WaitCallback waitCallback : waitCallbacks) {
                     associationSet.remove(waitCallback);
+                    waitCallback.release();
                 }
             }
         }
@@ -321,8 +322,9 @@ public class NewUIHandler {
 
     public void remove() {
         synchronized (lock) {
-            associationSet.clear();
-            callbacks.clear();
+            for (Runnable callback : callbacks.keySet()) {
+                remove(callback);
+            }
         }
     }
 
