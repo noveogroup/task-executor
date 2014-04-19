@@ -223,6 +223,15 @@ public class NewUIHandler {
     }
 
     /**
+     * Returns a root handler.
+     *
+     * @return the root handler.
+     */
+    public NewUIHandler root() {
+        return root;
+    }
+
+    /**
      * Returns a set of tags associated with this handler.
      *
      * @return the set of tags.
