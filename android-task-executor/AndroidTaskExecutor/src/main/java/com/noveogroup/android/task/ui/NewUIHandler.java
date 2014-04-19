@@ -215,7 +215,7 @@ public class NewUIHandler {
         synchronized (lock) {
             NewUIHandler uiHandler = subCache.get(tagSet);
             if (uiHandler == null) {
-                uiHandler = new NewUIHandler(this, tagSet);
+                uiHandler = new NewUIHandler(root, tagSet);
                 subCache.put(tagSet, uiHandler);
             }
             return uiHandler;
