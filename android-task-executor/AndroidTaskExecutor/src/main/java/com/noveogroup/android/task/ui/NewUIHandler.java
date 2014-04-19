@@ -182,6 +182,13 @@ public class NewUIHandler {
         this.subCache = root.subCache;
     }
 
+    private static Set<String> union(Collection<String> set1, Collection<String> set2) {
+        HashSet<String> set = new HashSet<String>(set1.size() + set2.size());
+        set.addAll(set1);
+        set.addAll(set2);
+        return Collections.unmodifiableSet(set);
+    }
+
     /**
      * Returns sub-handler associated with the specified set of tags.
      * <p/>
@@ -203,7 +210,7 @@ public class NewUIHandler {
      * @return the sub-handler.
      */
     public NewUIHandler sub(Collection<String> tags) {
-        Set<String> tagSet = Collections.unmodifiableSet(new HashSet<String>(tags));
+        Set<String> tagSet = union(this.tags, tags);
 
         synchronized (lock) {
             NewUIHandler uiHandler = subCache.get(tagSet);
