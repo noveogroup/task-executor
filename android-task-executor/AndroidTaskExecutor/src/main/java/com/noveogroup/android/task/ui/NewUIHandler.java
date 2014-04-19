@@ -249,28 +249,9 @@ public class NewUIHandler {
         postCallback(delay, callback);
     }
 
-    public void single(Runnable callback) {
-        synchronized (lock) {
-            remove(callback);
-            post(callback);
-        }
-    }
-
-    public void single(long delay, Runnable callback) {
-        synchronized (lock) {
-            remove(callback);
-            post(delay, callback);
-        }
-    }
-
     public void sync(Runnable callback) throws InterruptedException {
         checkJoinAbility();
         postCallback(callback).join();
-    }
-
-    public void sync(long delay, Runnable callback) throws InterruptedException {
-        checkJoinAbility();
-        postCallback(delay, callback).join();
     }
 
     private Set<WaitCallback> getWaitCallbacks(Runnable callback) {
