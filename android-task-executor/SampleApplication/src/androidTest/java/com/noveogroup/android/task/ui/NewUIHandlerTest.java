@@ -71,20 +71,20 @@ public class NewUIHandlerTest extends AndroidTestCase {
         run(new Runnable() {
             @Override
             public void run() {
-                final StringBuffer builder = new StringBuffer();
+                final StringBuffer buffer = new StringBuffer();
 
-                NewUIHandler uiHandler = new NewUIHandler(getContext());
+                final NewUIHandler uiHandler = new NewUIHandler(getContext());
 
                 uiHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        builder.append("callback");
+                        buffer.append("callback");
                     }
                 });
 
                 sleep(DT);
 
-                Assert.assertEquals("callback", builder.toString());
+                Assert.assertEquals("callback", buffer.toString());
             }
         });
     }
@@ -93,20 +93,20 @@ public class NewUIHandlerTest extends AndroidTestCase {
         run(new Runnable() {
             @Override
             public void run() {
-                final StringBuffer builder = new StringBuffer();
+                final StringBuffer buffer = new StringBuffer();
 
-                NewUIHandler uiHandler = new NewUIHandler(getContext());
+                final NewUIHandler uiHandler = new NewUIHandler(getContext());
 
                 uiHandler.post(10 * DT, new Runnable() {
                     @Override
                     public void run() {
-                        builder.append("callback");
+                        buffer.append("callback");
                     }
                 });
 
                 sleep(DT);
 
-                Assert.assertEquals("", builder.toString());
+                Assert.assertEquals("", buffer.toString());
             }
         });
     }
@@ -115,34 +115,34 @@ public class NewUIHandlerTest extends AndroidTestCase {
         run(new Runnable() {
             @Override
             public void run() {
-                final StringBuffer builder = new StringBuffer();
+                final StringBuffer buffer = new StringBuffer();
 
-                NewUIHandler uiHandler = new NewUIHandler(getContext());
+                final NewUIHandler uiHandler = new NewUIHandler(getContext());
 
                 uiHandler.sub("A").post(10 * DT, new Runnable() {
                     @Override
                     public void run() {
-                        builder.append("[callback-A]");
+                        buffer.append("[callback-A]");
                     }
                 });
 
                 uiHandler.sub("B").post(DT, new Runnable() {
                     @Override
                     public void run() {
-                        builder.append("[callback-B]");
+                        buffer.append("[callback-B]");
                     }
                 });
 
                 uiHandler.sub("C").post(new Runnable() {
                     @Override
                     public void run() {
-                        builder.append("[callback-C]");
+                        buffer.append("[callback-C]");
                     }
                 });
 
                 sleep(5 * DT);
 
-                Assert.assertEquals("[callback-C][callback-B]", builder.toString());
+                Assert.assertEquals("[callback-C][callback-B]", buffer.toString());
             }
         });
     }
@@ -152,23 +152,23 @@ public class NewUIHandlerTest extends AndroidTestCase {
             @Override
             public void run() {
                 try {
-                    final StringBuffer builder = new StringBuffer();
+                    final StringBuffer buffer = new StringBuffer();
 
-                    NewUIHandler uiHandler = new NewUIHandler(getContext());
+                    final NewUIHandler uiHandler = new NewUIHandler(getContext());
 
                     uiHandler.post(new Runnable() {
                         @Override
                         public void run() {
                             sleep(DT);
-                            builder.append("[callback]");
+                            buffer.append("[callback]");
                         }
                     });
 
-                    builder.append("[method1]");
+                    buffer.append("[method1]");
                     uiHandler.join();
-                    builder.append("[method2]");
+                    buffer.append("[method2]");
 
-                    Assert.assertEquals("[method1][callback][method2]", builder.toString());
+                    Assert.assertEquals("[method1][callback][method2]", buffer.toString());
                 } catch (InterruptedException ignored) {
                 }
             }
@@ -180,23 +180,23 @@ public class NewUIHandlerTest extends AndroidTestCase {
             @Override
             public void run() {
                 try {
-                    final StringBuffer builder = new StringBuffer();
+                    final StringBuffer buffer = new StringBuffer();
 
-                    NewUIHandler uiHandler = new NewUIHandler(getContext());
+                    final NewUIHandler uiHandler = new NewUIHandler(getContext());
 
                     uiHandler.sub("A").post(new Runnable() {
                         @Override
                         public void run() {
                             sleep(DT);
-                            builder.append("[callback]");
+                            buffer.append("[callback]");
                         }
                     });
 
-                    builder.append("[method1]");
+                    buffer.append("[method1]");
                     uiHandler.join();
-                    builder.append("[method2]");
+                    buffer.append("[method2]");
 
-                    Assert.assertEquals("[method1][callback][method2]", builder.toString());
+                    Assert.assertEquals("[method1][callback][method2]", buffer.toString());
                 } catch (InterruptedException ignored) {
                 }
             }
@@ -208,23 +208,23 @@ public class NewUIHandlerTest extends AndroidTestCase {
             @Override
             public void run() {
                 try {
-                    final StringBuffer builder = new StringBuffer();
+                    final StringBuffer buffer = new StringBuffer();
 
-                    NewUIHandler uiHandler = new NewUIHandler(getContext());
+                    final NewUIHandler uiHandler = new NewUIHandler(getContext());
 
                     uiHandler.sub("A").post(new Runnable() {
                         @Override
                         public void run() {
                             sleep(DT);
-                            builder.append("[callback]");
+                            buffer.append("[callback]");
                         }
                     });
 
-                    builder.append("[method1]");
+                    buffer.append("[method1]");
                     uiHandler.sub("B").join();
-                    builder.append("[method2]");
+                    buffer.append("[method2]");
 
-                    Assert.assertEquals("[method1][method2]", builder.toString());
+                    Assert.assertEquals("[method1][method2]", buffer.toString());
                 } catch (InterruptedException ignored) {
                 }
             }
@@ -238,21 +238,21 @@ public class NewUIHandlerTest extends AndroidTestCase {
         run(new Runnable() {
             @Override
             public void run() {
-                final StringBuffer builder = new StringBuffer();
+                final StringBuffer buffer = new StringBuffer();
 
-                NewUIHandler uiHandler = new NewUIHandler(getContext());
+                final NewUIHandler uiHandler = new NewUIHandler(getContext());
 
                 uiHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         sleep(DT);
-                        builder.append("[callback]");
+                        buffer.append("[callback]");
                     }
                 });
 
                 uiHandler.remove();
 
-                Assert.assertEquals("", builder.toString());
+                Assert.assertEquals("", buffer.toString());
             }
         });
     }
@@ -261,15 +261,15 @@ public class NewUIHandlerTest extends AndroidTestCase {
         run(new Runnable() {
             @Override
             public void run() {
-                final StringBuffer builder = new StringBuffer();
+                final StringBuffer buffer = new StringBuffer();
 
-                NewUIHandler uiHandler = new NewUIHandler(getContext());
+                final NewUIHandler uiHandler = new NewUIHandler(getContext());
 
                 uiHandler.sub("A").post(5 * DT, new Runnable() {
                     @Override
                     public void run() {
                         sleep(DT);
-                        builder.append("[callbackA]");
+                        buffer.append("[callbackA]");
                     }
                 });
 
@@ -277,7 +277,7 @@ public class NewUIHandlerTest extends AndroidTestCase {
                     @Override
                     public void run() {
                         sleep(DT);
-                        builder.append("[callbackB]");
+                        buffer.append("[callbackB]");
                     }
                 });
 
@@ -285,7 +285,7 @@ public class NewUIHandlerTest extends AndroidTestCase {
 
                 sleep(10 * DT);
 
-                Assert.assertEquals("[callbackB]", builder.toString());
+                Assert.assertEquals("[callbackB]", buffer.toString());
             }
         });
     }
@@ -294,14 +294,14 @@ public class NewUIHandlerTest extends AndroidTestCase {
         run(new Runnable() {
             @Override
             public void run() {
-                final StringBuffer builder = new StringBuffer();
+                final StringBuffer buffer = new StringBuffer();
 
                 final NewUIHandler uiHandler = new NewUIHandler(getContext());
 
                 uiHandler.post(DT, new Runnable() {
                     @Override
                     public void run() {
-                        builder.append("[callback]");
+                        buffer.append("[callback]");
                     }
                 });
 
@@ -310,7 +310,7 @@ public class NewUIHandlerTest extends AndroidTestCase {
                     public void run() {
                         try {
                             uiHandler.join();
-                            builder.append("[thread]");
+                            buffer.append("[thread]");
                         } catch (InterruptedException ignored) {
                         }
                     }
@@ -320,7 +320,7 @@ public class NewUIHandlerTest extends AndroidTestCase {
 
                 sleep(10 * DT);
 
-                Assert.assertEquals("[thread]", builder.toString());
+                Assert.assertEquals("[thread]", buffer.toString());
             }
         });
     }
