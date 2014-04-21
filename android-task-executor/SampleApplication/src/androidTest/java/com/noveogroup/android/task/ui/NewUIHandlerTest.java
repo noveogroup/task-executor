@@ -89,7 +89,7 @@ public class NewUIHandlerTest extends AndroidTestCase {
         });
     }
 
-    public void testPostWithDelay1() {
+    public void testPostWithDelay() {
         run(new Runnable() {
             @Override
             public void run() {
@@ -100,49 +100,27 @@ public class NewUIHandlerTest extends AndroidTestCase {
                 uiHandler.post(10 * DT, new Runnable() {
                     @Override
                     public void run() {
-                        buffer.append("callback");
+                        buffer.append("[callbackA]");
                     }
                 });
 
-                sleep(DT);
-
-                Assert.assertEquals("", buffer.toString());
-            }
-        });
-    }
-
-    public void testPostWithDelay2() {
-        run(new Runnable() {
-            @Override
-            public void run() {
-                final StringBuffer buffer = new StringBuffer();
-
-                final NewUIHandler uiHandler = new NewUIHandler(getContext());
-
-                uiHandler.sub("A").post(10 * DT, new Runnable() {
+                uiHandler.post(DT, new Runnable() {
                     @Override
                     public void run() {
-                        buffer.append("[callback-A]");
+                        buffer.append("[callbackB]");
                     }
                 });
 
-                uiHandler.sub("B").post(DT, new Runnable() {
+                uiHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        buffer.append("[callback-B]");
-                    }
-                });
-
-                uiHandler.sub("C").post(new Runnable() {
-                    @Override
-                    public void run() {
-                        buffer.append("[callback-C]");
+                        buffer.append("[callbackC]");
                     }
                 });
 
                 sleep(5 * DT);
 
-                Assert.assertEquals("[callback-C][callback-B]", buffer.toString());
+                Assert.assertEquals("[callbackC][callbackB]", buffer.toString());
             }
         });
     }
@@ -175,7 +153,7 @@ public class NewUIHandlerTest extends AndroidTestCase {
         });
     }
 
-    public void testJoinWithTags1() {
+    public void testJoinWithTags() {
         run(new Runnable() {
             @Override
             public void run() {
@@ -184,39 +162,19 @@ public class NewUIHandlerTest extends AndroidTestCase {
 
                     final NewUIHandler uiHandler = new NewUIHandler(getContext());
 
-                    uiHandler.sub("A").post(new Runnable() {
+                    uiHandler.sub("A").post(DT, new Runnable() {
                         @Override
                         public void run() {
                             sleep(DT);
-                            buffer.append("[callback]");
+                            buffer.append("[callbackA]");
                         }
                     });
 
-                    buffer.append("[method1]");
-                    uiHandler.join();
-                    buffer.append("[method2]");
-
-                    Assert.assertEquals("[method1][callback][method2]", buffer.toString());
-                } catch (InterruptedException ignored) {
-                }
-            }
-        });
-    }
-
-    public void testJoinWithTags2() {
-        run(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    final StringBuffer buffer = new StringBuffer();
-
-                    final NewUIHandler uiHandler = new NewUIHandler(getContext());
-
-                    uiHandler.sub("A").post(new Runnable() {
+                    uiHandler.sub("B").post(new Runnable() {
                         @Override
                         public void run() {
                             sleep(DT);
-                            buffer.append("[callback]");
+                            buffer.append("[callbackB]");
                         }
                     });
 
@@ -224,7 +182,7 @@ public class NewUIHandlerTest extends AndroidTestCase {
                     uiHandler.sub("B").join();
                     buffer.append("[method2]");
 
-                    Assert.assertEquals("[method1][method2]", buffer.toString());
+                    Assert.assertEquals("[method1][callbackB][method2]", buffer.toString());
                 } catch (InterruptedException ignored) {
                 }
             }
