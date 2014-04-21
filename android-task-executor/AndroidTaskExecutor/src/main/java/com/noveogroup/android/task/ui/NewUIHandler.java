@@ -81,7 +81,7 @@ public class NewUIHandler {
 
     private static class WaitCallback implements Runnable {
 
-        private final Object lock = new Object();
+        private final Object waitObject = new Object();
         private boolean finished = false;
 
         protected void runCallback() {
@@ -97,17 +97,17 @@ public class NewUIHandler {
         }
 
         public final void join() throws InterruptedException {
-            synchronized (lock) {
+            synchronized (waitObject) {
                 while (!finished) {
-                    lock.wait();
+                    waitObject.wait();
                 }
             }
         }
 
         public final void release() {
-            synchronized (lock) {
+            synchronized (waitObject) {
                 finished = true;
-                lock.notifyAll();
+                waitObject.notifyAll();
             }
         }
 
