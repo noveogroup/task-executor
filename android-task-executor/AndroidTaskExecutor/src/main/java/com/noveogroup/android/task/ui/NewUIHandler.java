@@ -59,10 +59,6 @@ public class NewUIHandler {
 
         private final Map<V, Set<String>> values = new HashMap<V, Set<String>>();
 
-        public void clear() {
-            values.clear();
-        }
-
         public void add(V value, Collection<String> tags) {
             values.put(value, new HashSet<String>(tags));
         }
