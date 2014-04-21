@@ -55,26 +55,87 @@ import java.util.WeakHashMap;
  */
 public class NewUIHandler {
 
-    private static class AssociationSet<V> {
+    private static class AssociationMap<K, V> {
 
-        private final Map<V, Set<String>> values = new HashMap<V, Set<String>>();
+        private final Object lockObject;
+        private final Map<K, Set<V>> values = new HashMap<K, Set<V>>();
+        private final Map<V, Set<String>> associations = new HashMap<V, Set<String>>();
 
-        public void add(V value, Collection<String> tags) {
-            values.put(value, new HashSet<String>(tags));
+        public AssociationMap(Object lockObject) {
+            this.lockObject = lockObject;
         }
 
-        public void remove(V value) {
-            values.remove(value);
+        public void add(K key, V value, Collection<String> tags) {
+            synchronized (lockObject) {
+                Set<V> set = values.get(key);
+                if (set == null) {
+                    set = new HashSet<V>();
+                }
+                set.add(value);
+
+                associations.put(value, new HashSet<String>(tags));
+            }
+        }
+
+        public void remove(K key, V value) {
+            synchronized (lockObject) {
+                Set<V> set = values.get(key);
+                if (set != null) {
+                    set.remove(value);
+                    if (set.isEmpty()) {
+                        values.remove(key);
+                    }
+                }
+
+                associations.remove(value);
+            }
+        }
+
+        public Set<V> getAssociated(K key, Collection<String> tags) {
+            synchronized (lockObject) {
+                Set<V> associated = new HashSet<V>();
+
+                Set<V> set = values.get(key);
+                if (set != null) {
+                    for (V value : set) {
+                        if (associations.get(value).containsAll(tags)) {
+                            associated.add(value);
+                        }
+                    }
+                }
+
+                return Collections.unmodifiableSet(associated);
+            }
         }
 
         public Set<V> getAssociated(Collection<String> tags) {
-            Set<V> set = new HashSet<V>();
-            for (Map.Entry<V, Set<String>> entry : values.entrySet()) {
-                if (entry.getValue().containsAll(tags)) {
-                    set.add(entry.getKey());
+            synchronized (lockObject) {
+                Set<V> associated = new HashSet<V>();
+                for (K key : values.keySet()) {
+                    associated.addAll(getAssociated(key, tags));
                 }
+                return Collections.unmodifiableSet(associated);
             }
-            return Collections.unmodifiableSet(set);
+        }
+
+        public Set<V> removeAssociated(K key, Collection<String> tags) {
+            synchronized (lockObject) {
+                Set<V> associated = getAssociated(key, tags);
+                for (V value : associated) {
+                    remove(key, value);
+                }
+                return associated;
+            }
+        }
+
+        public Set<V> removeAssociated(Collection<String> tags) {
+            synchronized (lockObject) {
+                Set<V> associated = new HashSet<V>();
+                for (K key : values.keySet()) {
+                    associated.addAll(removeAssociated(key, tags));
+                }
+                return Collections.unmodifiableSet(associated);
+            }
         }
 
     }
@@ -115,8 +176,7 @@ public class NewUIHandler {
 
     private final Object lock;
     private final Handler handler;
-    private final AssociationSet<WaitCallback> associationSet;
-    private final Map<Runnable, Set<WaitCallback>> callbacks;
+    private final AssociationMap<Runnable, WaitCallback> associationMap;
 
     private final NewUIHandler root;
     private final Set<String> tags;
@@ -159,8 +219,7 @@ public class NewUIHandler {
     public NewUIHandler(Handler handler) {
         this.lock = new Object();
         this.handler = handler;
-        this.associationSet = new AssociationSet<WaitCallback>();
-        this.callbacks = new HashMap<Runnable, Set<WaitCallback>>();
+        this.associationMap = new AssociationMap<Runnable, WaitCallback>(lock);
 
         this.root = this;
         this.tags = Collections.emptySet();
@@ -170,8 +229,7 @@ public class NewUIHandler {
     private NewUIHandler(NewUIHandler root, Set<String> tags) {
         this.lock = root.lock;
         this.handler = root.handler;
-        this.associationSet = root.associationSet;
-        this.callbacks = root.callbacks;
+        this.associationMap = root.associationMap;
 
         this.tags = tags;
         this.root = root;
@@ -252,36 +310,10 @@ public class NewUIHandler {
                 try {
                     callback.run();
                 } finally {
-                    removeWaitCallback(callback, this);
+                    associationMap.remove(callback, this);
                 }
             }
         };
-    }
-
-    private void addWaitCallback(Runnable callback, WaitCallback waitCallback) {
-        synchronized (lock) {
-            associationSet.add(waitCallback, tags);
-
-            Set<WaitCallback> waitCallbacks = callbacks.get(callback);
-            if (waitCallbacks == null) {
-                waitCallbacks = new HashSet<WaitCallback>();
-            }
-            waitCallbacks.add(waitCallback);
-        }
-    }
-
-    private void removeWaitCallback(Runnable callback, WaitCallback waitCallback) {
-        synchronized (lock) {
-            associationSet.remove(waitCallback);
-
-            Set<WaitCallback> waitCallbacks = callbacks.get(callback);
-            if (waitCallbacks != null) {
-                waitCallbacks.remove(waitCallback);
-                if (waitCallbacks.isEmpty()) {
-                    callbacks.remove(callback);
-                }
-            }
-        }
     }
 
     private WaitCallback postCallback(Runnable callback) {
@@ -289,7 +321,7 @@ public class NewUIHandler {
 
         synchronized (lock) {
             if (handler.post(waitCallback)) {
-                addWaitCallback(callback, waitCallback);
+                associationMap.add(callback, waitCallback, tags);
                 return waitCallback;
             } else {
                 throw new RuntimeException("cannot post callback to the handler");
@@ -302,7 +334,7 @@ public class NewUIHandler {
 
         synchronized (lock) {
             if (handler.postDelayed(waitCallback, delay)) {
-                addWaitCallback(callback, waitCallback);
+                associationMap.add(callback, waitCallback, tags);
                 return waitCallback;
             } else {
                 throw new RuntimeException("cannot post callback to the handler");
@@ -342,27 +374,6 @@ public class NewUIHandler {
         postCallback(callback).join();
     }
 
-    private Set<WaitCallback> getWaitCallbacks(Runnable callback) {
-        synchronized (lock) {
-            Set<WaitCallback> waitCallbacks = callbacks.get(callback);
-            if (waitCallbacks == null) {
-                return Collections.emptySet();
-            } else {
-                return new HashSet<WaitCallback>(waitCallbacks);
-            }
-        }
-    }
-
-    private Set<WaitCallback> getWaitCallbacks() {
-        synchronized (lock) {
-            Set<WaitCallback> waitCallbacks = new HashSet<WaitCallback>();
-            for (Runnable callback : callbacks.keySet()) {
-                waitCallbacks.addAll(getWaitCallbacks(callback));
-            }
-            return waitCallbacks;
-        }
-    }
-
     /**
      * Joins the specified callback. If the callback will be removed before
      * finish this method successfully ends.
@@ -372,7 +383,7 @@ public class NewUIHandler {
      */
     public void join(Runnable callback) throws InterruptedException {
         checkJoinAbility();
-        for (WaitCallback waitCallback : getWaitCallbacks(callback)) {
+        for (WaitCallback waitCallback : associationMap.getAssociated(callback, tags)) {
             waitCallback.join();
         }
     }
@@ -385,7 +396,7 @@ public class NewUIHandler {
      */
     public void join() throws InterruptedException {
         checkJoinAbility();
-        for (WaitCallback waitCallback : getWaitCallbacks()) {
+        for (WaitCallback waitCallback : associationMap.getAssociated(tags)) {
             waitCallback.join();
         }
     }
@@ -398,14 +409,8 @@ public class NewUIHandler {
      * @param callback the callback to remove.
      */
     public void remove(Runnable callback) {
-        synchronized (lock) {
-            Set<WaitCallback> waitCallbacks = callbacks.remove(callback);
-            if (waitCallbacks != null) {
-                for (WaitCallback waitCallback : waitCallbacks) {
-                    associationSet.remove(waitCallback);
-                    waitCallback.release();
-                }
-            }
+        for (WaitCallback waitCallback : associationMap.removeAssociated(callback, tags)) {
+            waitCallback.release();
         }
     }
 
@@ -414,10 +419,8 @@ public class NewUIHandler {
      * to callbacks of this handler will be notified and resumed.
      */
     public void remove() {
-        synchronized (lock) {
-            for (Runnable callback : callbacks.keySet()) {
-                remove(callback);
-            }
+        for (WaitCallback waitCallback : associationMap.removeAssociated(tags)) {
+            waitCallback.release();
         }
     }
 
