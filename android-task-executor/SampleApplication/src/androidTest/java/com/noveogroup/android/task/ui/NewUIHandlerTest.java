@@ -71,7 +71,7 @@ public class NewUIHandlerTest extends AndroidTestCase {
         run(new Runnable() {
             @Override
             public void run() {
-                final StringBuilder builder = new StringBuilder();
+                final StringBuffer builder = new StringBuffer();
 
                 NewUIHandler uiHandler = new NewUIHandler(getContext());
 
@@ -93,7 +93,7 @@ public class NewUIHandlerTest extends AndroidTestCase {
         run(new Runnable() {
             @Override
             public void run() {
-                final StringBuilder builder = new StringBuilder();
+                final StringBuffer builder = new StringBuffer();
 
                 NewUIHandler uiHandler = new NewUIHandler(getContext());
 
@@ -115,7 +115,7 @@ public class NewUIHandlerTest extends AndroidTestCase {
         run(new Runnable() {
             @Override
             public void run() {
-                final StringBuilder builder = new StringBuilder();
+                final StringBuffer builder = new StringBuffer();
 
                 NewUIHandler uiHandler = new NewUIHandler(getContext());
 
