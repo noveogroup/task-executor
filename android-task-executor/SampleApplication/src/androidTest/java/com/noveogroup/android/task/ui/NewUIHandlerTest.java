@@ -147,4 +147,88 @@ public class NewUIHandlerTest extends AndroidTestCase {
         });
     }
 
+    public void testJoin1() {
+        run(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final StringBuffer builder = new StringBuffer();
+
+                    NewUIHandler uiHandler = new NewUIHandler(getContext());
+
+                    uiHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            sleep(DT);
+                            builder.append("[callback]");
+                        }
+                    });
+
+                    builder.append("[method1]");
+                    uiHandler.join();
+                    builder.append("[method2]");
+
+                    Assert.assertEquals("[method1][callback][method2]", builder.toString());
+                } catch (InterruptedException ignored) {
+                }
+            }
+        });
+    }
+
+    public void testJoin2() {
+        run(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final StringBuffer builder = new StringBuffer();
+
+                    NewUIHandler uiHandler = new NewUIHandler(getContext());
+
+                    uiHandler.sub("A").post(new Runnable() {
+                        @Override
+                        public void run() {
+                            sleep(DT);
+                            builder.append("[callback]");
+                        }
+                    });
+
+                    builder.append("[method1]");
+                    uiHandler.join();
+                    builder.append("[method2]");
+
+                    Assert.assertEquals("[method1][callback][method2]", builder.toString());
+                } catch (InterruptedException ignored) {
+                }
+            }
+        });
+    }
+
+    public void testJoin3() {
+        run(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final StringBuffer builder = new StringBuffer();
+
+                    NewUIHandler uiHandler = new NewUIHandler(getContext());
+
+                    uiHandler.sub("A").post(new Runnable() {
+                        @Override
+                        public void run() {
+                            sleep(DT);
+                            builder.append("[callback]");
+                        }
+                    });
+
+                    builder.append("[method1]");
+                    uiHandler.sub("B").join();
+                    builder.append("[method2]");
+
+                    Assert.assertEquals("[method1][method2]", builder.toString());
+                } catch (InterruptedException ignored) {
+                }
+            }
+        });
+    }
+
 }
