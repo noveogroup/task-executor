@@ -70,6 +70,7 @@ public class NewUIHandler {
                 Set<V> set = values.get(key);
                 if (set == null) {
                     set = new HashSet<V>();
+                    values.put(key, set);
                 }
                 set.add(value);
 
