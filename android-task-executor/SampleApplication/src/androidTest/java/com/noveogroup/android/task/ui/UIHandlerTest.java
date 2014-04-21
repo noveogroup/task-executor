@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class NewUIHandlerTest extends AndroidTestCase {
+public class UIHandlerTest extends AndroidTestCase {
 
     private static final long DT = 10;
 
@@ -48,21 +48,21 @@ public class NewUIHandlerTest extends AndroidTestCase {
     }
 
     public void testConstructor() {
-        new NewUIHandler();
-        new NewUIHandler(getContext());
-        new NewUIHandler(Looper.myLooper());
-        new NewUIHandler(new Handler());
+        new UIHandler();
+        new UIHandler(getContext());
+        new UIHandler(Looper.myLooper());
+        new UIHandler(new Handler());
     }
 
     public void testTags() {
-        NewUIHandler uiHandler = new NewUIHandler();
+        UIHandler uiHandler = new UIHandler();
         Assert.assertEquals(set(), uiHandler.tags());
 
-        NewUIHandler subHandler = uiHandler.sub("A", "B");
+        UIHandler subHandler = uiHandler.sub("A", "B");
         Assert.assertEquals(set("A", "B"), subHandler.tags());
         Assert.assertEquals(uiHandler, subHandler.root());
 
-        NewUIHandler subSubHandler = subHandler.sub("C");
+        UIHandler subSubHandler = subHandler.sub("C");
         Assert.assertEquals(set("A", "B", "C"), subSubHandler.tags());
         Assert.assertEquals(uiHandler, subSubHandler.root());
     }
@@ -73,7 +73,7 @@ public class NewUIHandlerTest extends AndroidTestCase {
             public void run() {
                 final StringBuffer buffer = new StringBuffer();
 
-                final NewUIHandler uiHandler = new NewUIHandler(getContext());
+                final UIHandler uiHandler = new UIHandler(getContext());
 
                 uiHandler.post(new Runnable() {
                     @Override
@@ -95,7 +95,7 @@ public class NewUIHandlerTest extends AndroidTestCase {
             public void run() {
                 final StringBuffer buffer = new StringBuffer();
 
-                final NewUIHandler uiHandler = new NewUIHandler(getContext());
+                final UIHandler uiHandler = new UIHandler(getContext());
 
                 uiHandler.post(10 * DT, new Runnable() {
                     @Override
@@ -132,7 +132,7 @@ public class NewUIHandlerTest extends AndroidTestCase {
                 try {
                     final StringBuffer buffer = new StringBuffer();
 
-                    final NewUIHandler uiHandler = new NewUIHandler(getContext());
+                    final UIHandler uiHandler = new UIHandler(getContext());
 
                     uiHandler.post(new Runnable() {
                         @Override
@@ -160,7 +160,7 @@ public class NewUIHandlerTest extends AndroidTestCase {
                 try {
                     final StringBuffer buffer = new StringBuffer();
 
-                    final NewUIHandler uiHandler = new NewUIHandler(getContext());
+                    final UIHandler uiHandler = new UIHandler(getContext());
 
                     uiHandler.sub("A").post(DT, new Runnable() {
                         @Override
@@ -195,7 +195,7 @@ public class NewUIHandlerTest extends AndroidTestCase {
             public void run() {
                 final StringBuffer buffer = new StringBuffer();
 
-                final NewUIHandler uiHandler = new NewUIHandler(getContext());
+                final UIHandler uiHandler = new UIHandler(getContext());
 
                 uiHandler.post(new Runnable() {
                     @Override
@@ -218,7 +218,7 @@ public class NewUIHandlerTest extends AndroidTestCase {
             public void run() {
                 final StringBuffer buffer = new StringBuffer();
 
-                final NewUIHandler uiHandler = new NewUIHandler(getContext());
+                final UIHandler uiHandler = new UIHandler(getContext());
 
                 uiHandler.sub("A").post(5 * DT, new Runnable() {
                     @Override
@@ -251,7 +251,7 @@ public class NewUIHandlerTest extends AndroidTestCase {
             public void run() {
                 final StringBuffer buffer = new StringBuffer();
 
-                final NewUIHandler uiHandler = new NewUIHandler(getContext());
+                final UIHandler uiHandler = new UIHandler(getContext());
 
                 uiHandler.post(DT, new Runnable() {
                     @Override

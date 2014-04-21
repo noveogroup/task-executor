@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Noveo Group
+ * Copyright (c) 2014 Noveo Group
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,104 +30,135 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 /**
  * {@link UIHandler} provides you an interface to process {@link Runnable}
- * callbacks using usual {@link Handler}.
+ * callbacks using usual Android {@link Handler}.
  * <p/>
  * Scheduling callbacks is accomplished with the {@link #post(Runnable)},
- * {@link #postDelayed(Runnable, long)}, {@link #postSingle(Runnable)},
- * {@link #postSingleDelayed(Runnable, long)} and {@link #postSync(Runnable)}
- * methods.
+ * {@link #post(long, Runnable)} and {@link #sync(Runnable)} methods.
  * <p/>
- * Joining callbacks can cause a blocking. To ensure all threads will be resumed call {@link #removeCallbacks()}
- * when handler is no longer needed.
+ * Scheduled callbacks may be waited using {@link #join()} and
+ * {@link #join(Runnable)} methods or removed using {@link #remove()} or
+ * {@link #remove(Runnable)} methods.
+ * <p/>
+ * It is a good practice to call {@link #remove()} when {@link UIHandler}
+ * is no longer needed.
  */
 public class UIHandler {
 
-    private final Object lock = new Object();
-    private final Handler handler;
-    private final Set<WaitCallback> set = new HashSet<WaitCallback>();
-    private final Map<Runnable, Set<WaitCallback>> map = new HashMap<Runnable, Set<WaitCallback>>();
+    private static class AssociationMap<K, V> {
 
-    private class WaitCallback implements Runnable {
+        private final Object lockObject;
+        private final Map<K, Set<V>> values = new HashMap<K, Set<V>>();
+        private final Map<V, Set<String>> associations = new HashMap<V, Set<String>>();
 
-        private final Runnable callback;
+        public AssociationMap(Object lockObject) {
+            this.lockObject = lockObject;
+        }
+
+        public void add(K key, V value, Collection<String> tags) {
+            synchronized (lockObject) {
+                Set<V> set = values.get(key);
+                if (set == null) {
+                    set = new HashSet<V>();
+                    values.put(key, set);
+                }
+                set.add(value);
+
+                associations.put(value, new HashSet<String>(tags));
+            }
+        }
+
+        public void remove(K key, V value) {
+            synchronized (lockObject) {
+                Set<V> set = values.get(key);
+                if (set != null) {
+                    set.remove(value);
+                    if (set.isEmpty()) {
+                        values.remove(key);
+                    }
+                }
+
+                associations.remove(value);
+            }
+        }
+
+        public Set<V> getAssociated(K key, Collection<String> tags) {
+            synchronized (lockObject) {
+                Set<V> associated = new HashSet<V>();
+
+                Set<V> set = values.get(key);
+                if (set != null) {
+                    for (V value : set) {
+                        if (associations.get(value).containsAll(tags)) {
+                            associated.add(value);
+                        }
+                    }
+                }
+
+                return Collections.unmodifiableSet(associated);
+            }
+        }
+
+        public Set<V> getAssociated(Collection<String> tags) {
+            synchronized (lockObject) {
+                Set<V> associated = new HashSet<V>();
+                for (K key : values.keySet()) {
+                    associated.addAll(getAssociated(key, tags));
+                }
+                return Collections.unmodifiableSet(associated);
+            }
+        }
+
+        public Set<V> removeAssociated(K key, Collection<String> tags) {
+            synchronized (lockObject) {
+                Set<V> associated = getAssociated(key, tags);
+                for (V value : associated) {
+                    remove(key, value);
+                }
+                return associated;
+            }
+        }
+
+        public Set<V> removeAssociated(Collection<String> tags) {
+            synchronized (lockObject) {
+                Set<V> associated = new HashSet<V>();
+                for (K key : new HashSet<K>(values.keySet())) {
+                    associated.addAll(removeAssociated(key, tags));
+                }
+                return Collections.unmodifiableSet(associated);
+            }
+        }
+
+    }
+
+    private static class WaitCallback implements Runnable {
+
         private final Object waitObject = new Object();
-        private volatile boolean finished = false;
+        private boolean finished = false;
 
-        public WaitCallback(Runnable callback) {
-            this.callback = callback;
-        }
-
-        private void addCallback() {
-            set.add(this);
-
-            Set<WaitCallback> waitCallbacks = map.get(callback);
-            if (waitCallbacks == null) {
-                waitCallbacks = new HashSet<WaitCallback>();
-                map.put(callback, waitCallbacks);
-            }
-            waitCallbacks.add(this);
-        }
-
-        private void removeCallback() {
-            set.remove(this);
-
-            Set<WaitCallback> waitCallbacks = map.get(callback);
-            if (waitCallbacks != null) {
-                waitCallbacks.remove(this);
-                if (waitCallbacks.isEmpty()) {
-                    map.remove(callback);
-                }
-            }
-        }
-
-        public boolean post() {
-            synchronized (lock) {
-                if (!handler.post(this)) {
-                    return false;
-                }
-                addCallback();
-                return true;
-            }
-        }
-
-        public boolean postDelayed(long delay) {
-            synchronized (lock) {
-                if (!handler.postDelayed(this, delay)) {
-                    return false;
-                }
-                addCallback();
-                return true;
-            }
+        protected void runCallback() {
         }
 
         @Override
         public final void run() {
             try {
-                if (callback != null) {
-                    callback.run();
-                }
+                runCallback();
             } finally {
                 release();
             }
         }
 
-        public void release() {
-            synchronized (lock) {
-                handler.removeCallbacks(this);
-                removeCallback();
-
-                synchronized (waitObject) {
-                    finished = true;
-                    waitObject.notifyAll();
-                }
-            }
-        }
-
-        public void join() throws InterruptedException {
+        public final void join() throws InterruptedException {
             synchronized (waitObject) {
                 while (!finished) {
                     waitObject.wait();
@@ -135,7 +166,22 @@ public class UIHandler {
             }
         }
 
+        public final void release() {
+            synchronized (waitObject) {
+                finished = true;
+                waitObject.notifyAll();
+            }
+        }
+
     }
+
+    private final Object lock;
+    private final Handler handler;
+    private final AssociationMap<Runnable, WaitCallback> associationMap;
+
+    private final UIHandler root;
+    private final Set<String> tags;
+    private final WeakHashMap<Set<String>, UIHandler> subCache;
 
     /**
      * Default constructor associates this handler with the queue for
@@ -147,14 +193,8 @@ public class UIHandler {
     }
 
     /**
-     * Uses main looper of the context to initialize the handler.
-     */
-    public UIHandler(Context context) {
-        this(context.getMainLooper());
-    }
-
-    /**
-     * Use the provided queue instead of the default one.
+     * Constructor uses the provided queue and its handler instead of
+     * the default one.
      *
      * @param looper the custom queue.
      */
@@ -163,23 +203,153 @@ public class UIHandler {
     }
 
     /**
-     * Use the specified handler to delegate callbacks to.
+     * Constructor uses main looper of the provided context to initialize
+     * the handler.
      *
-     * @param handler the delegate.
+     * @param context the context.
+     */
+    public UIHandler(Context context) {
+        this(new Handler(context.getMainLooper()));
+    }
+
+    /**
+     * Constructor uses the specified handler to delegate callbacks to.
+     *
+     * @param handler the delegate handler.
      */
     public UIHandler(Handler handler) {
+        this.lock = new Object();
         this.handler = handler;
+        this.associationMap = new AssociationMap<Runnable, WaitCallback>(lock);
+
+        this.root = this;
+        this.tags = Collections.emptySet();
+        this.subCache = new WeakHashMap<Set<String>, UIHandler>();
+    }
+
+    private UIHandler(UIHandler root, Set<String> tags) {
+        this.lock = root.lock;
+        this.handler = root.handler;
+        this.associationMap = root.associationMap;
+
+        this.tags = tags;
+        this.root = root;
+        this.subCache = root.subCache;
+    }
+
+    private static Set<String> union(Collection<String> set1, Collection<String> set2) {
+        HashSet<String> set = new HashSet<String>(set1.size() + set2.size());
+        set.addAll(set1);
+        set.addAll(set2);
+        return Collections.unmodifiableSet(set);
+    }
+
+    /**
+     * Returns sub-handler associated with the specified set of tags.
+     * <p/>
+     * The callbacks of the sub-handler are owned by parent handler too.
+     *
+     * @param tags the set of tags.
+     * @return the sub-handler.
+     */
+    public UIHandler sub(String... tags) {
+        return sub(Arrays.asList(tags));
+    }
+
+    /**
+     * Returns sub-handler associated with the specified set of tags.
+     * <p/>
+     * The callbacks of the sub-handler are owned by parent handler too.
+     *
+     * @param tags the set of tags.
+     * @return the sub-handler.
+     */
+    public UIHandler sub(Collection<String> tags) {
+        Set<String> tagSet = union(this.tags, tags);
+
+        synchronized (lock) {
+            UIHandler uiHandler = subCache.get(tagSet);
+            if (uiHandler == null) {
+                uiHandler = new UIHandler(root, tagSet);
+                subCache.put(tagSet, uiHandler);
+            }
+            return uiHandler;
+        }
+    }
+
+    /**
+     * Returns a root handler.
+     *
+     * @return the root handler.
+     */
+    public UIHandler root() {
+        return root;
+    }
+
+    /**
+     * Returns a set of tags associated with this handler.
+     *
+     * @return the set of tags.
+     */
+    public Set<String> tags() {
+        return tags;
+    }
+
+    private void checkJoinAbility() {
+        if (Thread.currentThread() == handler.getLooper().getThread()) {
+            throw new RuntimeException("current thread is a looper thread and cannot wait itself");
+        }
+    }
+
+    private WaitCallback createWaitCallback(final Runnable callback) {
+        if (callback == null) {
+            throw new NullPointerException("callback is null");
+        }
+        return new WaitCallback() {
+            @Override
+            protected void runCallback() {
+                try {
+                    callback.run();
+                } finally {
+                    associationMap.remove(callback, this);
+                }
+            }
+        };
+    }
+
+    private WaitCallback postCallback(Runnable callback) {
+        WaitCallback waitCallback = createWaitCallback(callback);
+
+        synchronized (lock) {
+            if (handler.post(waitCallback)) {
+                associationMap.add(callback, waitCallback, tags);
+                return waitCallback;
+            } else {
+                throw new RuntimeException("cannot post callback to the handler");
+            }
+        }
+    }
+
+    private WaitCallback postCallback(long delay, Runnable callback) {
+        WaitCallback waitCallback = createWaitCallback(callback);
+
+        synchronized (lock) {
+            if (handler.postDelayed(waitCallback, delay)) {
+                associationMap.add(callback, waitCallback, tags);
+                return waitCallback;
+            } else {
+                throw new RuntimeException("cannot post callback to the handler");
+            }
+        }
     }
 
     /**
      * Causes the callback to be added to the queue.
      *
      * @param callback the callback that will be executed.
-     * @return Returns true if the {@link Runnable} was successfully placed
-     *         in to the queue. Returns false otherwise.
      */
-    public boolean post(Runnable callback) {
-        return new WaitCallback(callback).post();
+    public void post(Runnable callback) {
+        postCallback(callback);
     }
 
     /**
@@ -188,40 +358,21 @@ public class UIHandler {
      * @param callback the callback that will be executed.
      * @param delay    the delay (in milliseconds) until the callback will be
      *                 executed.
-     * @return Returns true if the {@link Runnable} was successfully placed
-     *         in to the queue. Returns false otherwise.
      */
-    public boolean postDelayed(Runnable callback, long delay) {
-        return new WaitCallback(callback).postDelayed(delay);
+    public void post(long delay, Runnable callback) {
+        postCallback(delay, callback);
     }
 
-    private void joinCallbacks(Set<WaitCallback> waitCallbacks) throws InterruptedException {
-        if (Thread.currentThread() == handler.getLooper().getThread()) {
-            throw new RuntimeException("current thread blocks the callback");
-        }
 
-        for (WaitCallback waitCallback : waitCallbacks) {
-            waitCallback.join();
-        }
-    }
-
-    private void removeCallbacks(Set<WaitCallback> waitCallbacks) {
-        for (WaitCallback waitCallback : waitCallbacks) {
-            waitCallback.release();
-        }
-    }
-
-    private Set<WaitCallback> getCallbacks(Runnable callback) {
-        synchronized (lock) {
-            Set<WaitCallback> waitCallbacks = map.get(callback);
-            return waitCallbacks == null ? Collections.<WaitCallback>emptySet() : new HashSet<WaitCallback>(waitCallbacks);
-        }
-    }
-
-    private Set<WaitCallback> getCallbacks() {
-        synchronized (lock) {
-            return new HashSet<WaitCallback>(set);
-        }
+    /**
+     * Adds the callback to the queue using {@link #post(Runnable)} and
+     * wait for it after that.
+     *
+     * @param callback the callback that will be executed.
+     */
+    public void sync(Runnable callback) throws InterruptedException {
+        checkJoinAbility();
+        postCallback(callback).join();
     }
 
     /**
@@ -231,8 +382,11 @@ public class UIHandler {
      * @param callback the callback to join to.
      * @throws InterruptedException if any thread interrupted the current one.
      */
-    public void joinCallbacks(Runnable callback) throws InterruptedException {
-        joinCallbacks(getCallbacks(callback));
+    public void join(Runnable callback) throws InterruptedException {
+        checkJoinAbility();
+        for (WaitCallback waitCallback : associationMap.getAssociated(callback, tags)) {
+            waitCallback.join();
+        }
     }
 
     /**
@@ -241,8 +395,11 @@ public class UIHandler {
      *
      * @throws InterruptedException if any thread interrupted the current one.
      */
-    public void joinCallbacks() throws InterruptedException {
-        joinCallbacks(getCallbacks());
+    public void join() throws InterruptedException {
+        checkJoinAbility();
+        for (WaitCallback waitCallback : associationMap.getAssociated(tags)) {
+            waitCallback.join();
+        }
     }
 
     /**
@@ -252,70 +409,22 @@ public class UIHandler {
      *
      * @param callback the callback to remove.
      */
-    public void removeCallbacks(Runnable callback) {
-        removeCallbacks(getCallbacks(callback));
+    public void remove(Runnable callback) {
+        for (WaitCallback waitCallback : associationMap.removeAssociated(callback, tags)) {
+            handler.removeCallbacks(waitCallback);
+            waitCallback.release();
+        }
     }
 
     /**
      * Removes any callbacks from the queue. All waiting threads joining
      * to callbacks of this handler will be notified and resumed.
      */
-    public void removeCallbacks() {
-        removeCallbacks(getCallbacks());
-    }
-
-    /**
-     * Similar to {@link #post(Runnable)} but removes callbacks first before
-     * adding to queue.
-     *
-     * @param callback the callback that will be executed.
-     * @return Returns true if the {@link Runnable} was successfully placed
-     *         in to the queue. Returns false otherwise.
-     */
-    public boolean postSingle(Runnable callback) {
-        synchronized (lock) {
-            removeCallbacks(callback);
-            return post(callback);
+    public void remove() {
+        for (WaitCallback waitCallback : associationMap.removeAssociated(tags)) {
+            handler.removeCallbacks(waitCallback);
+            waitCallback.release();
         }
-    }
-
-    /**
-     * Similar to {@link #postDelayed(Runnable, long)} but removes callbacks
-     * first before adding to queue.
-     *
-     * @param callback the callback that will be executed.
-     * @param delay    the delay (in milliseconds) until the callback
-     *                 will be executed.
-     * @return Returns true if the {@link Runnable} was successfully placed
-     *         in to the queue. Returns false otherwise.
-     */
-    public boolean postSingleDelayed(Runnable callback, long delay) {
-        synchronized (lock) {
-            removeCallbacks(callback);
-            return postDelayed(callback, delay);
-        }
-    }
-
-    /**
-     * Similar to {@link #postSingle(Runnable)} but joins the callbacks
-     * after adding to queue.
-     *
-     * @param callback the callback that will be executed.
-     * @return Returns true if the {@link Runnable} was successfully placed
-     *         in to the queue. Returns false otherwise.
-     */
-    public boolean postSync(Runnable callback) throws InterruptedException {
-        WaitCallback waitCallback;
-        synchronized (lock) {
-            removeCallbacks(callback);
-            waitCallback = new WaitCallback(callback);
-            if (!waitCallback.post()) {
-                return false;
-            }
-        }
-
-        waitCallback.join();
-        return true;
     }
 
 }

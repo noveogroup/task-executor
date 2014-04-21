@@ -85,7 +85,8 @@ public class ProgressManager {
             if (destroyed) return;
             if (!visible) {
                 visible = true;
-                handler.postSingle(syncCallback);
+                handler.remove(syncCallback);
+                handler.post(syncCallback);
             }
         }
     }
@@ -95,7 +96,8 @@ public class ProgressManager {
             if (destroyed) return;
             if (visible) {
                 visible = false;
-                handler.postSingle(syncCallback);
+                handler.remove(syncCallback);
+                handler.post(syncCallback);
             }
         }
     }
@@ -104,7 +106,7 @@ public class ProgressManager {
         synchronized (lock) {
             hide();
             destroyed = true;
-            handler.removeCallbacks();
+            handler.remove();
         }
     }
 
