@@ -5,4 +5,5 @@ sourceSets { main { compileClasspath += configurations.provided } }
 
 dependencies {
     provided 'com.google.android:android:2.1.2'
+    testCompile 'junit:junit:4.9'
 }
