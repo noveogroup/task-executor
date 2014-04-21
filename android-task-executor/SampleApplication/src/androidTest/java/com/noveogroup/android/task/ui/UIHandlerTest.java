@@ -125,6 +125,37 @@ public class UIHandlerTest extends AndroidTestCase {
         });
     }
 
+    public void testPostAfterRemove() {
+        run(new Runnable() {
+            @Override
+            public void run() {
+                final StringBuffer buffer = new StringBuffer();
+
+                final UIHandler uiHandler = new UIHandler(getContext());
+
+                uiHandler.post(DT, new Runnable() {
+                    @Override
+                    public void run() {
+                        buffer.append("[callbackA]");
+                    }
+                });
+
+                uiHandler.remove();
+
+                uiHandler.post(DT, new Runnable() {
+                    @Override
+                    public void run() {
+                        buffer.append("[callbackB]");
+                    }
+                });
+
+                sleep(5 * DT);
+
+                Assert.assertEquals("[callbackB]", buffer.toString());
+            }
+        });
+    }
+
     public void testJoin() {
         run(new Runnable() {
             @Override
