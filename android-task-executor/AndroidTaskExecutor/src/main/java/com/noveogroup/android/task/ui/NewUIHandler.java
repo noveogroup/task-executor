@@ -132,7 +132,7 @@ public class NewUIHandler {
         public Set<V> removeAssociated(Collection<String> tags) {
             synchronized (lockObject) {
                 Set<V> associated = new HashSet<V>();
-                for (K key : values.keySet()) {
+                for (K key : new HashSet<K>(values.keySet())) {
                     associated.addAll(removeAssociated(key, tags));
                 }
                 return Collections.unmodifiableSet(associated);
@@ -411,6 +411,7 @@ public class NewUIHandler {
      */
     public void remove(Runnable callback) {
         for (WaitCallback waitCallback : associationMap.removeAssociated(callback, tags)) {
+            handler.removeCallbacks(waitCallback);
             waitCallback.release();
         }
     }
@@ -421,6 +422,7 @@ public class NewUIHandler {
      */
     public void remove() {
         for (WaitCallback waitCallback : associationMap.removeAssociated(tags)) {
+            handler.removeCallbacks(waitCallback);
             waitCallback.release();
         }
     }
