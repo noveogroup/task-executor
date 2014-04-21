@@ -16,21 +16,11 @@ public class NewUIHandlerTest extends AndroidTestCase {
         return new HashSet<String>(Arrays.asList(values));
     }
 
-    private static final Runnable EMPTY_CALLBACK = new Runnable() {
-        @Override
-        public void run() {
-        }
-    };
-
     public void testConstructor() {
-        NewUIHandler uiHandler1 = new NewUIHandler();
-        uiHandler1.post(EMPTY_CALLBACK);
-        NewUIHandler uiHandler2 = new NewUIHandler(getContext());
-        uiHandler2.post(EMPTY_CALLBACK);
-        NewUIHandler uiHandler3 = new NewUIHandler(Looper.myLooper());
-        uiHandler3.post(EMPTY_CALLBACK);
-        NewUIHandler uiHandler4 = new NewUIHandler(new Handler());
-        uiHandler4.post(EMPTY_CALLBACK);
+        new NewUIHandler();
+        new NewUIHandler(getContext());
+        new NewUIHandler(Looper.myLooper());
+        new NewUIHandler(new Handler());
     }
 
     public void testTags() {
