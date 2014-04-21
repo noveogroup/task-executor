@@ -67,7 +67,7 @@ public class NewUIHandlerTest extends AndroidTestCase {
         Assert.assertEquals(uiHandler, subSubHandler.root());
     }
 
-    public void testPost1() {
+    public void testPost() {
         run(new Runnable() {
             @Override
             public void run() {
@@ -89,7 +89,7 @@ public class NewUIHandlerTest extends AndroidTestCase {
         });
     }
 
-    public void testPost2() {
+    public void testPostWithDelay1() {
         run(new Runnable() {
             @Override
             public void run() {
@@ -111,7 +111,7 @@ public class NewUIHandlerTest extends AndroidTestCase {
         });
     }
 
-    public void testPost3() {
+    public void testPostWithDelay2() {
         run(new Runnable() {
             @Override
             public void run() {
@@ -147,7 +147,7 @@ public class NewUIHandlerTest extends AndroidTestCase {
         });
     }
 
-    public void testJoin1() {
+    public void testJoin() {
         run(new Runnable() {
             @Override
             public void run() {
@@ -175,7 +175,7 @@ public class NewUIHandlerTest extends AndroidTestCase {
         });
     }
 
-    public void testJoin2() {
+    public void testJoinWithTags1() {
         run(new Runnable() {
             @Override
             public void run() {
@@ -203,7 +203,7 @@ public class NewUIHandlerTest extends AndroidTestCase {
         });
     }
 
-    public void testJoin3() {
+    public void testJoinWithTags2() {
         run(new Runnable() {
             @Override
             public void run() {
@@ -231,10 +231,7 @@ public class NewUIHandlerTest extends AndroidTestCase {
         });
     }
 
-    // todo builder -> buffer
-    // todo interrupt join
-
-    public void testRemove1() {
+    public void testRemove() {
         run(new Runnable() {
             @Override
             public void run() {
@@ -257,7 +254,7 @@ public class NewUIHandlerTest extends AndroidTestCase {
         });
     }
 
-    public void testRemove2() {
+    public void testRemoveWithTags() {
         run(new Runnable() {
             @Override
             public void run() {
@@ -290,7 +287,7 @@ public class NewUIHandlerTest extends AndroidTestCase {
         });
     }
 
-    public void testRemove3() {
+    public void testRemoveWithJoin() {
         run(new Runnable() {
             @Override
             public void run() {
