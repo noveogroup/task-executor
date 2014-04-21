@@ -231,4 +231,98 @@ public class NewUIHandlerTest extends AndroidTestCase {
         });
     }
 
+    // todo builder -> buffer
+    // todo interrupt join
+
+    public void testRemove1() {
+        run(new Runnable() {
+            @Override
+            public void run() {
+                final StringBuffer builder = new StringBuffer();
+
+                NewUIHandler uiHandler = new NewUIHandler(getContext());
+
+                uiHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        sleep(DT);
+                        builder.append("[callback]");
+                    }
+                });
+
+                uiHandler.remove();
+
+                Assert.assertEquals("", builder.toString());
+            }
+        });
+    }
+
+    public void testRemove2() {
+        run(new Runnable() {
+            @Override
+            public void run() {
+                final StringBuffer builder = new StringBuffer();
+
+                NewUIHandler uiHandler = new NewUIHandler(getContext());
+
+                uiHandler.sub("A").post(5 * DT, new Runnable() {
+                    @Override
+                    public void run() {
+                        sleep(DT);
+                        builder.append("[callbackA]");
+                    }
+                });
+
+                uiHandler.sub("B").post(5 * DT, new Runnable() {
+                    @Override
+                    public void run() {
+                        sleep(DT);
+                        builder.append("[callbackB]");
+                    }
+                });
+
+                uiHandler.sub("A").remove();
+
+                sleep(10 * DT);
+
+                Assert.assertEquals("[callbackB]", builder.toString());
+            }
+        });
+    }
+
+    public void testRemove3() {
+        run(new Runnable() {
+            @Override
+            public void run() {
+                final StringBuffer builder = new StringBuffer();
+
+                final NewUIHandler uiHandler = new NewUIHandler(getContext());
+
+                uiHandler.post(DT, new Runnable() {
+                    @Override
+                    public void run() {
+                        builder.append("[callback]");
+                    }
+                });
+
+                new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            uiHandler.join();
+                            builder.append("[thread]");
+                        } catch (InterruptedException ignored) {
+                        }
+                    }
+                }.start();
+
+                uiHandler.remove();
+
+                sleep(10 * DT);
+
+                Assert.assertEquals("[thread]", builder.toString());
+            }
+        });
+    }
+
 }
