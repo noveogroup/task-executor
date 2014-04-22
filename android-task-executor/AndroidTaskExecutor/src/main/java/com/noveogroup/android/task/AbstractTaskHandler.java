@@ -285,6 +285,10 @@ abstract class AbstractTaskHandler<T extends Task<? super E>, E extends TaskEnvi
                 case STARTED:
                     // try to interrupt working thread if it exists and interruption is allowed
                     if (taskFuture != null && taskFutureCanBeInterrupted) {
+                        if (task instanceof Interruptible) {
+                            Interruptible interruptible = (Interruptible) task;
+                            interruptible.interrupt();
+                        }
                         taskFuture.cancel(true);
                     }
                     break;
