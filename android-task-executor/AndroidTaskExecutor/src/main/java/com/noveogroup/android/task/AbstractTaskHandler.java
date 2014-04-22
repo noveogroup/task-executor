@@ -49,6 +49,7 @@ abstract class AbstractTaskHandler<T extends Task<? super E>, E extends TaskEnvi
     private volatile Future<Throwable> taskFuture;
     private volatile boolean taskFutureCanBeInterrupted;
 
+    private final TaskExecutor<E> executor;
     private final TaskSet<E> owner;
     private final T task;
     private final Pack args;
@@ -63,15 +64,17 @@ abstract class AbstractTaskHandler<T extends Task<? super E>, E extends TaskEnvi
      *
      * @param executorService {@link ExecutorService} providing as working threads.
      * @param task            {@link Task} interface to execute.
+     * @param executor        owner {@link TaskExecutor}.
      * @param owner           owner {@link TaskSet}.
      * @param args            arguments container.
      * @param listeners       a list of {@link TaskListener}.
      */
-    public AbstractTaskHandler(ExecutorService executorService, T task, TaskSet<E> owner, Pack args, List<TaskListener> listeners) {
+    public AbstractTaskHandler(ExecutorService executorService, T task, TaskExecutor<E> executor, TaskSet<E> owner, Pack args, List<TaskListener> listeners) {
         this.executorService = executorService;
         this.taskFuture = null;
         this.taskFutureCanBeInterrupted = false;
 
+        this.executor = executor;
         this.owner = owner;
         this.task = task;
         this.args = args.lock() == owner.lock() ? args : new Pack(owner.lock(), args);
@@ -227,6 +230,11 @@ abstract class AbstractTaskHandler<T extends Task<? super E>, E extends TaskEnvi
                 joinObject.notifyAll();
             }
         }
+    }
+
+    @Override
+    public TaskExecutor<E> executor() {
+        return executor;
     }
 
     @Override

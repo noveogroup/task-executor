@@ -60,6 +60,13 @@ public interface TaskEnvironment<E extends TaskEnvironment> {
     public Pack args();
 
     /**
+     * Returns a task executor that runs this task.
+     *
+     * @return owner {@link TaskExecutor}.
+     */
+    public TaskExecutor<E> executor();
+
+    /**
      * Returns a task set that owns a task corresponding to this task environment.
      *
      * @return owner {@link TaskSet}.

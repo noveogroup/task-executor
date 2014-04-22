@@ -60,6 +60,11 @@ public class SimpleTaskEnvironment<E extends TaskEnvironment> implements TaskEnv
     }
 
     @Override
+    public TaskExecutor<E> executor() {
+        return handler.executor();
+    }
+
+    @Override
     public TaskSet<E> owner() {
         return handler.owner();
     }

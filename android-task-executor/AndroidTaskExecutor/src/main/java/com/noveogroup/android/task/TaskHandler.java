@@ -99,6 +99,8 @@ public interface TaskHandler<T extends Task, E extends TaskEnvironment> {
 
     }
 
+    public TaskExecutor<E> executor();
+
     public TaskSet<E> owner();
 
     public Object lock();
