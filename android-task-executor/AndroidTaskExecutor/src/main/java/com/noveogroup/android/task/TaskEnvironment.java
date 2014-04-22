@@ -74,6 +74,13 @@ public interface TaskEnvironment<E extends TaskEnvironment> {
     public TaskSet<E> owner();
 
     /**
+     * Returns a task handler corresponding to this task environment.
+     *
+     * @return corresponding {@link TaskHandler}.
+     */
+    public TaskHandler<?, E> handler();
+
+    /**
      * Posts an interrupt request to a task corresponding to this task environment.
      * Usually this method is called from inside of {@link Task#run(TaskEnvironment)}
      * and in this case an interruption flag will be set only.

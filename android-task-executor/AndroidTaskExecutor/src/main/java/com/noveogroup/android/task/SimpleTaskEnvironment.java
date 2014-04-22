@@ -70,6 +70,11 @@ public class SimpleTaskEnvironment<E extends TaskEnvironment> implements TaskEnv
     }
 
     @Override
+    public TaskHandler<?, E> handler() {
+        return handler;
+    }
+
+    @Override
     public void interruptSelf() {
         handler.interrupt();
     }
