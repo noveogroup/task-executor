@@ -4,6 +4,7 @@ configurations { provided }
 sourceSets { main { compileClasspath += configurations.provided } }
 
 dependencies {
+    compile project(':TaskExecutor')
     provided 'com.google.android:android:2.1.2'
     testCompile 'junit:junit:4.9'
 }
