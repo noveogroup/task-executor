@@ -23,6 +23,7 @@ public class MainActivity extends ListActivity {
 
     @SuppressWarnings("unchecked")
     private static final List<Class<? extends ExampleActivity>> activities = Collections.unmodifiableList(Arrays.asList(
+            DownloadExampleActivity.class,
             SimpleTaskExampleActivity.class,
             TaskSequenceExampleActivity.class,
             TaskFailureExampleActivity.class,

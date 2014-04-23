@@ -1,0 +1,24 @@
+<html>
+<body>
+<pre>
+executor.execute(new Task<TaskEnvironment>() {                                    <br/>
+    @Override                                                                     <br/>
+    public void run(TaskEnvironment env) throws Throwable {                       <br/>
+        try {                                                                     <br/>
+            Utils.download(3000, 0.5);                                            <br/>
+        } catch (IOException e) {                                                 <br/>
+            synchronized (env.lock()) {                                           <br/>
+                int tryNumber = env.args().get("tryNumber", 0);                   <br/>
+                if (tryNumber < 3) {                                              <br/>
+                    env.args().put("tryNumber", tryNumber + 1);                   <br/>
+                    env.owner().execute(this);                                    <br/>
+                } else {                                                          <br/>
+                    throw e;                                                      <br/>
+                }                                                                 <br/>
+            }                                                                     <br/>
+        }                                                                         <br/>
+    }                                                                             <br/>
+});                                                                               <br/>
+</pre>
+</body>
+</html>

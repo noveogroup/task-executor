@@ -43,4 +43,11 @@ public final class Utils {
         }
     }
 
+    public static void download(long time, double failureProbability) throws IOException {
+        download(time);
+        if (Math.random() < failureProbability) {
+            throw new IOException("failure");
+        }
+    }
+
 }

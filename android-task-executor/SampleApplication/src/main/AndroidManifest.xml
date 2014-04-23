@@ -15,6 +15,10 @@
         </activity>
 
         <activity
+            android:name=".DownloadExampleActivity"
+            android:label="@string/download_example_activity" />
+
+        <activity
             android:name=".SimpleTaskExampleActivity"
             android:label="@string/simple_task_example_activity" />
 
