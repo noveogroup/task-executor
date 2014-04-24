@@ -26,8 +26,6 @@
 
 package com.noveogroup.android.task;
 
-import android.os.SystemClock;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -134,9 +132,9 @@ abstract class AbstractTaskSet<E extends TaskEnvironment> implements TaskSet<E> 
                 if (timeout == 0) {
                     taskHandler.join();
                 } else {
-                    long time = SystemClock.uptimeMillis();
+                    long time = System.nanoTime();
                     taskHandler.join(timeout);
-                    timeout -= SystemClock.uptimeMillis() - time;
+                    timeout -= (System.nanoTime() - time) / 1000000;
 
                     if (timeout <= 0) {
                         return false;
