@@ -69,7 +69,7 @@ public interface TaskHandler<T extends Task, E extends TaskEnvironment> {
          * alive {@code true} or {@code false}.
          *
          * @return a {@code boolean} indicating if state is {@link #CREATED}
-         *         or {@link #STARTED}.
+         * or {@link #STARTED}.
          */
         public boolean isAlive() {
             return this == CREATED || this == STARTED;
@@ -80,7 +80,7 @@ public interface TaskHandler<T extends Task, E extends TaskEnvironment> {
          * destroyed {@code true} or {@code false}.
          *
          * @return a {@code boolean} indicating if state is {@link #CANCELED},
-         *         {@link #FAILED} or {@link #SUCCEED}.
+         * {@link #FAILED} or {@link #SUCCEED}.
          */
         public boolean isDestroyed() {
             return this == CANCELED || this == FAILED || this == SUCCEED;
@@ -91,7 +91,7 @@ public interface TaskHandler<T extends Task, E extends TaskEnvironment> {
          * finished {@code true} or {@code false}.
          *
          * @return a {@code boolean} indicating if state is {@link #FAILED}
-         *         or {@link #SUCCEED}.
+         * or {@link #SUCCEED}.
          */
         public boolean isFinished() {
             return this == FAILED || this == SUCCEED;

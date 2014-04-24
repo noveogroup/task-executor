@@ -26,7 +26,11 @@
 
 package com.noveogroup.android.task;
 
-import java.util.*;
+import java.util.AbstractSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * A {@link Pack} is a data structure consisting of a set of arguments.
@@ -193,7 +197,7 @@ public final class Pack implements Cloneable, Iterable<String> {
      *
      * @param key the key.
      * @return {@code true} if this pack contains the argument corresponding to
-     *         the specified key otherwise {@code false}.
+     * the specified key otherwise {@code false}.
      */
     public boolean containsKey(String key) {
         synchronized (lock()) {
@@ -207,7 +211,7 @@ public final class Pack implements Cloneable, Iterable<String> {
      * @param key the key.
      * @param <T> desired type of the value.
      * @return the value of the argument or {@code null} if no value
-     *         corresponding to this key was found.
+     * corresponding to this key was found.
      * @see #get(String, Object)
      */
     @SuppressWarnings("unchecked")
@@ -224,7 +228,7 @@ public final class Pack implements Cloneable, Iterable<String> {
      * @param defaultValue the default value.
      * @param <T>          desired type of the value.
      * @return the value of the argument or provided default if no value
-     *         corresponding to this key was found.
+     * corresponding to this key was found.
      * @see #get(String)
      */
     @SuppressWarnings("unchecked")
