@@ -26,9 +26,6 @@
 
 package com.noveogroup.android.task;
 
-import android.os.SystemClock;
-import android.util.Log;
-
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -323,9 +320,9 @@ abstract class AbstractTaskHandler<T extends Task<? super E>, E extends TaskEnvi
                 if (timeout == 0) {
                     joinObject.wait();
                 } else {
-                    long time = SystemClock.uptimeMillis();
+                    long time = System.nanoTime();
                     joinObject.wait(timeout);
-                    timeout -= SystemClock.uptimeMillis() - time;
+                    timeout -= (System.nanoTime() - time) / 1000000;
 
                     if (timeout <= 0) {
                         return false;
@@ -338,7 +335,6 @@ abstract class AbstractTaskHandler<T extends Task<? super E>, E extends TaskEnvi
     }
 
     private void uncaughtListenerException(TaskListener listener, Throwable throwable) {
-        Log.e(TaskExecutor.TAG, "listener " + listener + " failed", throwable);
         Thread.getDefaultUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), throwable);
     }
 
