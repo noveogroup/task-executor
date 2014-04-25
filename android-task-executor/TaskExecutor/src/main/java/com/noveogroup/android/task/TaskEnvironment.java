@@ -37,6 +37,27 @@ package com.noveogroup.android.task;
 public interface TaskEnvironment<E extends TaskEnvironment> {
 
     /**
+     * Returns a task executor that runs this task.
+     *
+     * @return owner {@link TaskExecutor}.
+     */
+    public TaskExecutor<E> executor();
+
+    /**
+     * Returns a task set that owns a task corresponding to this task environment.
+     *
+     * @return owner {@link TaskSet}.
+     */
+    public TaskSet<E> owner();
+
+    /**
+     * Returns a task handler corresponding to this task environment.
+     *
+     * @return corresponding {@link TaskHandler}.
+     */
+    public TaskHandler<?, E> handler();
+
+    /**
      * Returns synchronization object of {@link TaskExecutor}.
      *
      * @return the synchronization object.
@@ -58,27 +79,6 @@ public interface TaskEnvironment<E extends TaskEnvironment> {
      * @see #lock()
      */
     public Pack args();
-
-    /**
-     * Returns a task executor that runs this task.
-     *
-     * @return owner {@link TaskExecutor}.
-     */
-    public TaskExecutor<E> executor();
-
-    /**
-     * Returns a task set that owns a task corresponding to this task environment.
-     *
-     * @return owner {@link TaskSet}.
-     */
-    public TaskSet<E> owner();
-
-    /**
-     * Returns a task handler corresponding to this task environment.
-     *
-     * @return corresponding {@link TaskHandler}.
-     */
-    public TaskHandler<?, E> handler();
 
     /**
      * Posts an interrupt request to a task corresponding to this task environment.
