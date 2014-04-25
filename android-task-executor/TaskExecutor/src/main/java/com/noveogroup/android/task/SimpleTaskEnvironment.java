@@ -50,16 +50,6 @@ public class SimpleTaskEnvironment<E extends TaskEnvironment> implements TaskEnv
     }
 
     @Override
-    public Object lock() {
-        return handler.lock();
-    }
-
-    @Override
-    public Pack args() {
-        return handler.args();
-    }
-
-    @Override
     public TaskExecutor<E> executor() {
         return handler.executor();
     }
@@ -72,6 +62,16 @@ public class SimpleTaskEnvironment<E extends TaskEnvironment> implements TaskEnv
     @Override
     public TaskHandler<?, E> handler() {
         return handler;
+    }
+
+    @Override
+    public Object lock() {
+        return handler.lock();
+    }
+
+    @Override
+    public Pack args() {
+        return handler.args();
     }
 
     @Override
