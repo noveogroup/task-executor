@@ -46,7 +46,7 @@ public class TaskPerformanceExampleActivity extends ExampleActivity {
                         executor.execute(new Task<SimpleTaskEnvironment>() {
                             @Override
                             public void run(SimpleTaskEnvironment env) throws Throwable {
-                                Log.i(TaskExecutor.TAG, "task #" + index);
+                                Log.i(TAG, "task #" + index);
                                 Utils.calculate(100);
                             }
                         });
@@ -57,7 +57,7 @@ public class TaskPerformanceExampleActivity extends ExampleActivity {
                     public void run() {
                         try {
                             executor.queue().join();
-                            Log.i(TaskExecutor.TAG, "time = " + (SystemClock.uptimeMillis() - startTime));
+                            Log.i(TAG, "time = " + (SystemClock.uptimeMillis() - startTime));
 
                             final long startTime = SystemClock.uptimeMillis();
                             ExecutorService executorService = Executors.newFixedThreadPool(7);
@@ -66,7 +66,7 @@ public class TaskPerformanceExampleActivity extends ExampleActivity {
                                 executorService.submit(new Runnable() {
                                     @Override
                                     public void run() {
-                                        Log.i(TaskExecutor.TAG, "task #" + index);
+                                        Log.i(TAG, "task #" + index);
                                         Utils.calculate(100);
                                     }
                                 });
@@ -75,9 +75,9 @@ public class TaskPerformanceExampleActivity extends ExampleActivity {
                             while (!executorService.isTerminated()) {
                                 executorService.awaitTermination(1, TimeUnit.SECONDS);
                             }
-                            Log.i(TaskExecutor.TAG, "ExecutorService time = " + (SystemClock.uptimeMillis() - startTime));
+                            Log.i(TAG, "ExecutorService time = " + (SystemClock.uptimeMillis() - startTime));
                         } catch (InterruptedException e) {
-                            Log.e(TaskExecutor.TAG, "error", e);
+                            Log.e(TAG, "error", e);
                         }
                     }
                 }.start();

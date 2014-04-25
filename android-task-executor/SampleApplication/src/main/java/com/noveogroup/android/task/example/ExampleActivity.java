@@ -6,7 +6,6 @@ import android.content.res.Resources;
 import android.util.Log;
 import android.webkit.WebView;
 
-import com.noveogroup.android.task.TaskExecutor;
 import com.noveogroup.android.task.TaskHandler;
 import com.noveogroup.android.task.TaskListener;
 
@@ -16,51 +15,53 @@ import java.io.InputStream;
 
 public abstract class ExampleActivity extends Activity {
 
+    public static final String TAG = "AndroidTaskExecutor";
+
     public static class LogTaskListener implements TaskListener {
 
         @Override
         public void onCreate(TaskHandler<?, ?> handler) {
-            Log.i(TaskExecutor.TAG, "TaskListener::onCreate      " + handler.hashCode());
+            Log.i(TAG, "TaskListener::onCreate      " + handler.hashCode());
         }
 
         @Override
         public void onQueueInsert(TaskHandler<?, ?> handler) {
-            Log.i(TaskExecutor.TAG, "TaskListener::onQueueInsert " + handler.hashCode());
+            Log.i(TAG, "TaskListener::onQueueInsert " + handler.hashCode());
         }
 
         @Override
         public void onStart(TaskHandler<?, ?> handler) {
-            Log.i(TaskExecutor.TAG, "TaskListener::onStart       " + handler.hashCode());
+            Log.i(TAG, "TaskListener::onStart       " + handler.hashCode());
         }
 
         @Override
         public void onFinish(TaskHandler<?, ?> handler) {
-            Log.i(TaskExecutor.TAG, "TaskListener::onFinish      " + handler.hashCode());
+            Log.i(TAG, "TaskListener::onFinish      " + handler.hashCode());
         }
 
         @Override
         public void onQueueRemove(TaskHandler<?, ?> handler) {
-            Log.i(TaskExecutor.TAG, "TaskListener::onQueueRemove " + handler.hashCode());
+            Log.i(TAG, "TaskListener::onQueueRemove " + handler.hashCode());
         }
 
         @Override
         public void onDestroy(TaskHandler<?, ?> handler) {
-            Log.i(TaskExecutor.TAG, "TaskListener::onDestroy     " + handler.hashCode());
+            Log.i(TAG, "TaskListener::onDestroy     " + handler.hashCode());
         }
 
         @Override
         public void onCanceled(TaskHandler<?, ?> handler) {
-            Log.i(TaskExecutor.TAG, "TaskListener::onCanceled    " + handler.hashCode());
+            Log.i(TAG, "TaskListener::onCanceled    " + handler.hashCode());
         }
 
         @Override
         public void onFailed(TaskHandler<?, ?> handler) {
-            Log.i(TaskExecutor.TAG, "TaskListener::onFailed      " + handler.hashCode());
+            Log.i(TAG, "TaskListener::onFailed      " + handler.hashCode());
         }
 
         @Override
         public void onSucceed(TaskHandler<?, ?> handler) {
-            Log.i(TaskExecutor.TAG, "TaskListener::onSucceed     " + handler.hashCode());
+            Log.i(TAG, "TaskListener::onSucceed     " + handler.hashCode());
         }
 
     }

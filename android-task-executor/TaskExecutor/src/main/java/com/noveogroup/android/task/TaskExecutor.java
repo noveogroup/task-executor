@@ -32,21 +32,6 @@ import java.util.List;
 public interface TaskExecutor<E extends TaskEnvironment> {
 
     /**
-     * A standard log tag for {@link TaskExecutor}.
-     * <p/>
-     * The following log messages are printed into the log:
-     * <ul>
-     * <li><b>with ERROR log level:</b> Exceptions occurred in callback
-     * methods of {@link TaskListener}.</li>
-     * <li><b>with VERBOSE log level:</b> Task queue modifications and
-     * {@link TaskHandler.State} updates with details.</li>
-     * <li><b>with DEBUG log level:</b> Important operations with {@link TaskSet}</li>
-     * </ul>
-     */
-    // todo implement logs in abstract classes
-    public static final String TAG = "com.noveogroup.android.task";
-
-    /**
      * Returns synchronization object of this {@link TaskExecutor}.
      * <p/>
      * Any access to this {@link TaskExecutor} should be synchronized using
