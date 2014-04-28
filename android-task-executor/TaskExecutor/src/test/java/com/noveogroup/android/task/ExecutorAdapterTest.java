@@ -12,7 +12,7 @@ public class ExecutorAdapterTest {
         SimpleTaskExecutor<SimpleTaskEnvironment> executor = new SimpleTaskExecutor<SimpleTaskEnvironment>(createExecutor()) {
             @Override
             protected <T extends Task> SimpleTaskEnvironment createTaskEnvironment(TaskHandler<T, SimpleTaskEnvironment> taskHandler) {
-                return new SimpleTaskEnvironment(taskHandler);
+                return new SimpleTaskEnvironment<SimpleTaskEnvironment>(taskHandler);
             }
         };
         return new ExecutorAdapter<SimpleTaskEnvironment>(executor);
