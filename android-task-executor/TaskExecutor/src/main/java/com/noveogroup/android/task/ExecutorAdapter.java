@@ -1,9 +1,11 @@
 package com.noveogroup.android.task;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.TimeUnit;
 
+// todo implement or delete
 public class ExecutorAdapter<E extends TaskEnvironment> extends AbstractExecutorService {
 
     private static class TaskRunnable<E extends TaskEnvironment> implements Task<E> {
@@ -26,6 +28,8 @@ public class ExecutorAdapter<E extends TaskEnvironment> extends AbstractExecutor
     }
 
     private final TaskExecutor<E> executor;
+    private boolean shutdown = false;
+    private boolean terminated = false;
 
     public ExecutorAdapter(TaskExecutor<E> executor) {
         this.executor = executor;
@@ -39,12 +43,16 @@ public class ExecutorAdapter<E extends TaskEnvironment> extends AbstractExecutor
     @Override
     public List<Runnable> shutdownNow() {
         synchronized (executor.lock()) {
+            List<Runnable> list = new ArrayList<Runnable>();
             for (TaskHandler<?, E> handler : executor.queue()) {
                 TaskRunnable task = (TaskRunnable) handler.task();
-                task.getRunnable();
+                list.add(task.getRunnable());
             }
+            executor.shutdown();
+            shutdown = true;
+            terminated = true;
+            return list;
         }
-        return null;
     }
 
     @Override
