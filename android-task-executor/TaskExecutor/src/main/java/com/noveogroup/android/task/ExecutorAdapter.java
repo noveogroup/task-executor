@@ -29,7 +29,6 @@ public class ExecutorAdapter<E extends TaskEnvironment> extends AbstractExecutor
 
     private final TaskExecutor<E> executor;
     private volatile boolean shutdown = false;
-    private boolean terminated = false;
 
     public ExecutorAdapter(TaskExecutor<E> executor) {
         this.executor = executor;
