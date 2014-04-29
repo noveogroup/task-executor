@@ -54,11 +54,12 @@ public class ExecutorAdapterTest {
 
         for (int i = 0; i < 5; i++) {
             final char index = "ABCDE".charAt(i);
+            final int time = 10 + 5 * i;
             executorService.execute(new Runnable() {
                 @Override
                 public void run() {
                     buffer.append(String.format("[%s-1]", index));
-                    Utils.doSleep(10);
+                    Utils.doSleep(time);
                     buffer.append(String.format("[%s-2]", index));
                 }
             });
@@ -84,7 +85,7 @@ public class ExecutorAdapterTest {
         } catch (RejectedExecutionException ignored) {
         }
 
-        Utils.doSleep(20);
+        Utils.doSleep(50);
 
         Assert.assertEquals("[A-1][B-1][C-1][shutdown][A-2][D-1][B-2][E-1][C-2][D-2][E-2]", buffer.toString());
     }
