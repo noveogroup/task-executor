@@ -3,6 +3,7 @@ package com.noveogroup.android.task;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.AbstractExecutorService;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
 // todo implement or delete
@@ -28,7 +29,7 @@ public class ExecutorAdapter<E extends TaskEnvironment> extends AbstractExecutor
     }
 
     private final TaskExecutor<E> executor;
-    private boolean shutdown = false;
+    private volatile boolean shutdown = false;
     private boolean terminated = false;
 
     public ExecutorAdapter(TaskExecutor<E> executor) {
@@ -37,12 +38,16 @@ public class ExecutorAdapter<E extends TaskEnvironment> extends AbstractExecutor
 
     @Override
     public void execute(Runnable command) {
-        executor.execute(new TaskRunnable<E>(command));
+        if (shutdown) {
+            throw new RejectedExecutionException("executor service is shut down");
+        } else {
+            executor.execute(new TaskRunnable<E>(command));
+        }
     }
 
     @Override
     public void shutdown() {
-        executor.shutdown();
+        this.shutdown = true;
     }
 
     @Override
@@ -62,7 +67,7 @@ public class ExecutorAdapter<E extends TaskEnvironment> extends AbstractExecutor
 
     @Override
     public boolean isShutdown() {
-        return executor.isShutdown();
+        return shutdown;
     }
 
     @Override
