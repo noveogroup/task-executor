@@ -36,6 +36,11 @@ public class ExecutorAdapter<E extends TaskEnvironment> extends AbstractExecutor
     }
 
     @Override
+    public void execute(Runnable command) {
+        executor.execute(new TaskRunnable<E>(command));
+    }
+
+    @Override
     public void shutdown() {
         executor.shutdown();
     }
@@ -72,11 +77,6 @@ public class ExecutorAdapter<E extends TaskEnvironment> extends AbstractExecutor
         queue.join(time);
 
         return false;
-    }
-
-    @Override
-    public void execute(final Runnable command) {
-        executor.execute(new TaskRunnable<E>(command));
     }
 
 }
