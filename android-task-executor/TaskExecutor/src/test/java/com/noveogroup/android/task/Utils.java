@@ -10,7 +10,7 @@ public final class Utils {
         throw new UnsupportedOperationException();
     }
 
-    private static final long DT = 10;
+    public static final long DT = 10;
 
     private static final Object lock = new Object();
     private static volatile long counter = 0;

@@ -6,7 +6,6 @@ import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
-// todo implement or delete
 public class ExecutorAdapter<E extends TaskEnvironment> extends AbstractExecutorService {
 
     private static class TaskRunnable<E extends TaskEnvironment> implements Task<E> {
@@ -81,8 +80,7 @@ public class ExecutorAdapter<E extends TaskEnvironment> extends AbstractExecutor
         long time = unit.convert(timeout, TimeUnit.MILLISECONDS);
         TaskSet<E> queue = executor.queue();
         queue.join(time);
-
-        return false;
+        return isTerminated();
     }
 
 }
