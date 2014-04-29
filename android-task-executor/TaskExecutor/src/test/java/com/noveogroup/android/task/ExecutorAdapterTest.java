@@ -34,7 +34,7 @@ public class ExecutorAdapterTest {
             }
         });
 
-        Utils.sleep(5 * Utils.DT);
+        Utils.doSleep(5);
 
         Assert.assertEquals("[runnable]", buffer.toString());
     }
@@ -58,14 +58,14 @@ public class ExecutorAdapterTest {
                 @Override
                 public void run() {
                     buffer.append(String.format("[%s-1]", index));
-                    Utils.sleep(10 * Utils.DT);
+                    Utils.doSleep(10);
                     buffer.append(String.format("[%s-2]", index));
                 }
             });
-            Utils.sleep(Utils.DT);
+            Utils.doSleep(1);
         }
 
-        Utils.sleep(Utils.DT);
+        Utils.doSleep(1);
 
         Assert.assertEquals(false, executorService.isShutdown());
 
@@ -84,7 +84,7 @@ public class ExecutorAdapterTest {
         } catch (RejectedExecutionException ignored) {
         }
 
-        Utils.sleep(20 * Utils.DT);
+        Utils.doSleep(20);
 
         Assert.assertEquals("[A-1][B-1][C-1][shutdown][A-2][D-1][B-2][E-1][C-2][D-2][E-2]", buffer.toString());
     }
@@ -109,7 +109,7 @@ public class ExecutorAdapterTest {
                 @Override
                 public void run() {
                     buffer.append(String.format("[%s-1]", index));
-                    Utils.sleep(time * Utils.DT);
+                    Utils.doSleep(time);
                     buffer.append(String.format("[%s-2]", index));
                 }
 
@@ -118,10 +118,10 @@ public class ExecutorAdapterTest {
                     return "[" + index + "]";
                 }
             });
-            Utils.sleep(Utils.DT);
+            Utils.doSleep(1);
         }
 
-        Utils.sleep(Utils.DT);
+        Utils.doSleep(1);
 
         Assert.assertEquals(false, executorService.isShutdown());
 
@@ -141,7 +141,7 @@ public class ExecutorAdapterTest {
         } catch (RejectedExecutionException ignored) {
         }
 
-        Utils.sleep(20 * Utils.DT);
+        Utils.doSleep(20);
 
         Assert.assertEquals("[A-1][B-1][C-1][shutdown][A-2][B-2][C-2]", buffer.toString());
     }

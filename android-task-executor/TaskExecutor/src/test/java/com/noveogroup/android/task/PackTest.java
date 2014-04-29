@@ -35,16 +35,16 @@ public class PackTest {
             public void run() {
                 synchronized (lock) {
                     buffer.append("[thread-A]");
-                    Utils.sleep(10 * Utils.DT);
+                    Utils.doSleep(10);
                     buffer.append("[thread-B]");
                 }
             }
         }.start();
 
-        Utils.sleep(Utils.DT);
+        Utils.doSleep(1);
         buffer.append("[copy-A]");
         Pack copyPack = new Pack(pack);
-        Utils.sleep(Utils.DT);
+        Utils.doSleep(1);
         buffer.append("[copy-B]");
 
         Assert.assertEquals(lock, copyPack.lock());
@@ -69,16 +69,16 @@ public class PackTest {
             public void run() {
                 synchronized (lock) {
                     buffer.append("[thread-A]");
-                    Utils.sleep(10 * Utils.DT);
+                    Utils.doSleep(10);
                     buffer.append("[thread-B]");
                 }
             }
         }.start();
 
-        Utils.sleep(Utils.DT);
+        Utils.doSleep(1);
         buffer.append("[copy-A]");
         Pack copyPack = new Pack(copyLock, pack);
-        Utils.sleep(Utils.DT);
+        Utils.doSleep(1);
         buffer.append("[copy-B]");
 
         Assert.assertEquals(copyLock, copyPack.lock());
