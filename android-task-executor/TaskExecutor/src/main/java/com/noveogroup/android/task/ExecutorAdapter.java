@@ -55,12 +55,13 @@ public class ExecutorAdapter<E extends TaskEnvironment> extends AbstractExecutor
         synchronized (executor.lock()) {
             List<Runnable> list = new ArrayList<Runnable>();
             for (TaskHandler<?, E> handler : executor.queue()) {
-                TaskRunnable task = (TaskRunnable) handler.task();
-                list.add(task.getRunnable());
+                if (handler.getState() != TaskHandler.State.STARTED) {
+                    TaskRunnable task = (TaskRunnable) handler.task();
+                    list.add(task.getRunnable());
+                    handler.interrupt();
+                }
             }
-            executor.shutdown();
             shutdown = true;
-            terminated = true;
             return list;
         }
     }
