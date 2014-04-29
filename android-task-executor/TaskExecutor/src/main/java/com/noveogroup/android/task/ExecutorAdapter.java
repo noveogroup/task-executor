@@ -73,7 +73,7 @@ public class ExecutorAdapter<E extends TaskEnvironment> extends AbstractExecutor
 
     @Override
     public boolean isTerminated() {
-        return false;
+        return shutdown && executor.queue().isEmpty();
     }
 
     @Override

@@ -69,11 +69,13 @@ public class ExecutorAdapterTest {
         Utils.doSleep(1);
 
         Assert.assertEquals(false, executorService.isShutdown());
+        Assert.assertEquals(false, executorService.isTerminated());
 
         executorService.shutdown();
         buffer.append("[shutdown]");
 
         Assert.assertEquals(true, executorService.isShutdown());
+        Assert.assertEquals(false, executorService.isTerminated());
 
         try {
             executorService.execute(new Runnable() {
@@ -86,6 +88,7 @@ public class ExecutorAdapterTest {
         }
 
         Utils.doSleep(50);
+        Assert.assertEquals(true, executorService.isTerminated());
 
         Assert.assertEquals("[A-1][B-1][C-1][shutdown][A-2][D-1][B-2][E-1][C-2][D-2][E-2]", buffer.toString());
     }
@@ -125,12 +128,14 @@ public class ExecutorAdapterTest {
         Utils.doSleep(1);
 
         Assert.assertEquals(false, executorService.isShutdown());
+        Assert.assertEquals(false, executorService.isTerminated());
 
         List<Runnable> list = executorService.shutdownNow();
         Assert.assertEquals(2, list.size());
         buffer.append("[shutdown]");
 
         Assert.assertEquals(true, executorService.isShutdown());
+        Assert.assertEquals(false, executorService.isTerminated());
 
         try {
             executorService.execute(new Runnable() {
@@ -143,6 +148,7 @@ public class ExecutorAdapterTest {
         }
 
         Utils.doSleep(20);
+        Assert.assertEquals(true, executorService.isTerminated());
 
         Assert.assertEquals("[A-1][B-1][C-1][shutdown][A-2][B-2][C-2]", buffer.toString());
     }
