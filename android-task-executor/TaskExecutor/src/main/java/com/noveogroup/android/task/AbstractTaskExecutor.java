@@ -34,8 +34,8 @@ import java.util.List;
 /**
  * {@link AbstractTaskExecutor} is an abstract implementation of
  * the {@link TaskExecutor} interface. A subclass must implement the abstract
- * methods {@link TaskExecutor#execute(Task, Pack, java.util.List, java.util.Collection)} and
- * {@link #queue(java.util.Collection)}}.
+ * methods {@link TaskExecutor#execute(Task, Pack, List, Collection)} and
+ * {@link #queue(Collection)}}.
  */
 abstract class AbstractTaskExecutor implements TaskExecutor {
 

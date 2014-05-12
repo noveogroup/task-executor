@@ -332,7 +332,6 @@ abstract class AbstractTaskHandler implements TaskHandler {
     }
 
     private void uncaughtListenerException(TaskListener listener, Throwable throwable) {
-        // todo call error handler
         Thread.getDefaultUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), throwable);
     }
 

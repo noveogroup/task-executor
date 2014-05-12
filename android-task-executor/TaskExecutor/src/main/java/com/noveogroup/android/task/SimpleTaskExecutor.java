@@ -49,7 +49,6 @@ public abstract class SimpleTaskExecutor extends AbstractTaskExecutor {
             values.remove(value);
         }
 
-        // todo optimize it
         public Set<V> getAssociated(Collection<String> tags) {
             Set<V> set = new HashSet<V>();
             for (Map.Entry<V, Set<String>> entry : values.entrySet()) {
@@ -60,7 +59,6 @@ public abstract class SimpleTaskExecutor extends AbstractTaskExecutor {
             return Collections.unmodifiableSet(set);
         }
 
-        // todo optimize it
         public boolean isInterrupted(Collection<String> tags) {
             boolean isInterrupted = false;
             for (Iterator<Set<String>> iterator = interruptedTags.iterator(); iterator.hasNext(); ) {
