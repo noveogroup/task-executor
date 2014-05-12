@@ -30,9 +30,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
-public interface TaskSet<E extends TaskEnvironment> extends Iterable<TaskHandler<?, E>> {
+public interface TaskSet extends Iterable<TaskHandler> {
 
-    public TaskExecutor<E> executor();
+    public TaskExecutor executor();
 
     public Object lock();
 
@@ -47,20 +47,20 @@ public interface TaskSet<E extends TaskEnvironment> extends Iterable<TaskHandler
      */
     public Set<String> tags();
 
-    public TaskSet<E> sub(String... tags);
+    public TaskSet sub(String... tags);
 
-    public TaskSet<E> sub(Collection<String> tags);
+    public TaskSet sub(Collection<String> tags);
 
-    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, Pack args, TaskListener... taskListeners);
+    public TaskHandler execute(Task task, Pack args, TaskListener... taskListeners);
 
-    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, TaskListener... taskListeners);
+    public TaskHandler execute(Task task, TaskListener... taskListeners);
 
     public int size();
 
     public boolean isEmpty();
 
     @Override
-    public Iterator<TaskHandler<? extends Task, E>> iterator();
+    public Iterator<TaskHandler> iterator();
 
     public boolean isInterrupted();
 

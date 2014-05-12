@@ -26,7 +26,7 @@
 
 package com.noveogroup.android.task;
 
-public interface TaskHandler<T extends Task, E extends TaskEnvironment> {
+public interface TaskHandler {
 
     /**
      * Represents a task's processing state. A given task may only be in one
@@ -99,13 +99,13 @@ public interface TaskHandler<T extends Task, E extends TaskEnvironment> {
 
     }
 
-    public TaskExecutor<E> executor();
+    public TaskExecutor executor();
 
-    public TaskSet<E> owner();
+    public TaskSet owner();
 
     public Object lock();
 
-    public T task();
+    public Task task();
 
     public Pack args();
 

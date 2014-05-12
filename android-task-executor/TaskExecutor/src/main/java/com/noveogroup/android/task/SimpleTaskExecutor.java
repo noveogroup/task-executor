@@ -26,24 +26,15 @@
 
 package com.noveogroup.android.task;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 
 /**
  * {@link SimpleTaskEnvironment} is an default implementation of
  * the {@link TaskExecutor} interface. A subclass  must implement the abstract
  * method {@link #createTaskEnvironment(TaskHandler)}.
- *
- * @param <E> task environment type.
  */
-public abstract class SimpleTaskExecutor<E extends TaskEnvironment> extends AbstractTaskExecutor<E> {
+public abstract class SimpleTaskExecutor extends AbstractTaskExecutor {
 
     private static class AssociationSet<V> {
 
@@ -92,7 +83,7 @@ public abstract class SimpleTaskExecutor<E extends TaskEnvironment> extends Abst
     }
 
     private final ExecutorService executorService;
-    private final AssociationSet<TaskHandler<? extends Task, E>> queue = new AssociationSet<TaskHandler<? extends Task, E>>();
+    private final AssociationSet<TaskHandler> queue = new AssociationSet<TaskHandler>();
 
     public SimpleTaskExecutor(ExecutorService executorService) {
         this.executorService = executorService;
@@ -105,17 +96,16 @@ public abstract class SimpleTaskExecutor<E extends TaskEnvironment> extends Abst
      * its base functionality.
      *
      * @param taskHandler corresponding {@link TaskHandler} object.
-     * @param <T>         type of task.
      * @return a {@link TaskEnvironment} object.
      */
-    protected abstract <T extends Task> E createTaskEnvironment(TaskHandler<T, E> taskHandler);
+    protected abstract TaskEnvironment createTaskEnvironment(TaskHandler taskHandler);
 
     @Override
-    public TaskSet<E> queue(Collection<String> tags) {
+    public TaskSet queue(Collection<String> tags) {
         synchronized (lock()) {
-            return new AbstractTaskSet<E>(this, tags) {
+            return new AbstractTaskSet(this, tags) {
                 @Override
-                public Iterator<TaskHandler<? extends Task, E>> iterator() {
+                public Iterator<TaskHandler> iterator() {
                     synchronized (lock()) {
                         return queue.getAssociated(tags()).iterator();
                     }
@@ -136,7 +126,7 @@ public abstract class SimpleTaskExecutor<E extends TaskEnvironment> extends Abst
                 public void interrupt() {
                     synchronized (lock()) {
                         queue.interrupt(tags());
-                        for (TaskHandler<?, E> handler : queue.getAssociated(tags())) {
+                        for (TaskHandler handler : queue.getAssociated(tags())) {
                             handler.interrupt();
                         }
                     }
@@ -146,10 +136,10 @@ public abstract class SimpleTaskExecutor<E extends TaskEnvironment> extends Abst
     }
 
     @Override
-    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, Pack args, List<TaskListener> taskListeners, Collection<String> tags) {
-        return new AbstractTaskHandler<T, E>(executorService, task, this, queue(tags), args, copyTaskListeners(taskListeners)) {
+    public TaskHandler execute(Task task, Pack args, List<TaskListener> taskListeners, Collection<String> tags) {
+        return new AbstractTaskHandler(executorService, task, this, queue(tags), args, copyTaskListeners(taskListeners)) {
             @Override
-            protected E createTaskEnvironment() {
+            protected TaskEnvironment createTaskEnvironment() {
                 return SimpleTaskExecutor.this.createTaskEnvironment(this);
             }
 

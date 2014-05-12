@@ -6,20 +6,20 @@ public class Tasks {
         throw new UnsupportedOperationException();
     }
 
-    public static <E extends TaskEnvironment> Task<E> sequence(final Task<E> task1, final Task<E> task2) {
-        return new Task<E>() {
+    public static Task sequence(final Task task1, final Task task2) {
+        return new Task() {
             @Override
-            public void run(E env) throws Throwable {
+            public void run(TaskEnvironment env) throws Throwable {
                 env.owner().execute(task1).join();
                 env.owner().execute(task2).join();
             }
         };
     }
 
-    public static <E extends TaskEnvironment> Task<E> parallel(final Task<E> task1, final Task<E> task2) {
-        return new Task<E>() {
+    public static Task parallel(final Task task1, final Task task2) {
+        return new Task() {
             @Override
-            public void run(E env) throws Throwable {
+            public void run(TaskEnvironment env) throws Throwable {
                 TaskHandler handler1 = env.owner().execute(task1);
                 TaskHandler handler2 = env.owner().execute(task2);
                 handler1.join();

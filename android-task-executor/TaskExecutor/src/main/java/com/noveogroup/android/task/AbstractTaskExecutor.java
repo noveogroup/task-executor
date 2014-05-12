@@ -34,12 +34,10 @@ import java.util.List;
 /**
  * {@link AbstractTaskExecutor} is an abstract implementation of
  * the {@link TaskExecutor} interface. A subclass must implement the abstract
- * methods {@link #execute(Task, Pack, java.util.List, java.util.Collection)} and
+ * methods {@link TaskExecutor#execute(Task, Pack, java.util.List, java.util.Collection)} and
  * {@link #queue(java.util.Collection)}}.
- *
- * @param <E> task environment type.
  */
-abstract class AbstractTaskExecutor<E extends TaskEnvironment> implements TaskExecutor<E> {
+abstract class AbstractTaskExecutor implements TaskExecutor {
 
     private final Object lock = new Object();
     private final ArrayList<TaskListener> listeners = new ArrayList<TaskListener>(8);
@@ -61,12 +59,12 @@ abstract class AbstractTaskExecutor<E extends TaskEnvironment> implements TaskEx
     }
 
     @Override
-    public TaskSet<E> queue(String... tags) {
+    public TaskSet queue(String... tags) {
         return queue(Arrays.asList(tags));
     }
 
     @Override
-    public abstract TaskSet<E> queue(Collection<String> tags);
+    public abstract TaskSet queue(Collection<String> tags);
 
     @Override
     public void addTaskListener(TaskListener... taskListeners) {
@@ -110,35 +108,35 @@ abstract class AbstractTaskExecutor<E extends TaskEnvironment> implements TaskEx
     }
 
     @Override
-    public abstract <T extends Task<? super E>> TaskHandler<T, E> execute(T task, Pack args, List<TaskListener> taskListeners, Collection<String> tags);
+    public abstract TaskHandler execute(Task task, Pack args, List<TaskListener> taskListeners, Collection<String> tags);
 
     @Override
-    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, Pack args, List<TaskListener> taskListeners, String... tags) {
+    public TaskHandler execute(Task task, Pack args, List<TaskListener> taskListeners, String... tags) {
         return execute(task, args, taskListeners, Arrays.asList(tags));
     }
 
     @Override
-    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, Pack args, TaskListener taskListener, String... tags) {
+    public TaskHandler execute(Task task, Pack args, TaskListener taskListener, String... tags) {
         return execute(task, args, Arrays.asList(taskListener), Arrays.asList(tags));
     }
 
     @Override
-    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, Pack args, String... tags) {
+    public TaskHandler execute(Task task, Pack args, String... tags) {
         return execute(task, args, new ArrayList<TaskListener>(0), Arrays.asList(tags));
     }
 
     @Override
-    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, List<TaskListener> taskListeners, String... tags) {
+    public TaskHandler execute(Task task, List<TaskListener> taskListeners, String... tags) {
         return execute(task, new Pack(), taskListeners, Arrays.asList(tags));
     }
 
     @Override
-    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, TaskListener taskListener, String... tags) {
+    public TaskHandler execute(Task task, TaskListener taskListener, String... tags) {
         return execute(task, new Pack(), Arrays.asList(taskListener), Arrays.asList(tags));
     }
 
     @Override
-    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, String... tags) {
+    public TaskHandler execute(Task task, String... tags) {
         return execute(task, new Pack(), new ArrayList<TaskListener>(0), Arrays.asList(tags));
     }
 

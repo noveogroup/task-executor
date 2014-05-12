@@ -26,33 +26,26 @@
 
 package com.noveogroup.android.task;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 /**
  * {@link AbstractTaskSet} is an abstract implementation of
  * the {@link TaskSet} interface. A subclass must implement the abstract
  * methods {@link #iterator()}, {@link #interrupt()} and
  * {@link #isInterrupted()}.
- *
- * @param <E> task environment type.
  */
-abstract class AbstractTaskSet<E extends TaskEnvironment> implements TaskSet<E> {
+abstract class AbstractTaskSet implements TaskSet {
 
-    private final TaskExecutor<E> executor;
+    private final TaskExecutor executor;
     private final Set<String> tags;
 
-    public AbstractTaskSet(TaskExecutor<E> executor, Collection<String> tags) {
+    public AbstractTaskSet(TaskExecutor executor, Collection<String> tags) {
         this.executor = executor;
         this.tags = Collections.unmodifiableSet(new HashSet<String>(tags));
     }
 
     @Override
-    public TaskExecutor<E> executor() {
+    public TaskExecutor executor() {
         return executor;
     }
 
@@ -67,24 +60,24 @@ abstract class AbstractTaskSet<E extends TaskEnvironment> implements TaskSet<E> 
     }
 
     @Override
-    public TaskSet<E> sub(String... tags) {
+    public TaskSet sub(String... tags) {
         return sub(Arrays.asList(tags));
     }
 
     @Override
-    public TaskSet<E> sub(Collection<String> tags) {
+    public TaskSet sub(Collection<String> tags) {
         HashSet<String> tagSet = new HashSet<String>(tags());
         tagSet.addAll(tags);
         return executor().queue(tagSet);
     }
 
     @Override
-    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, Pack args, TaskListener... taskListeners) {
+    public TaskHandler execute(Task task, Pack args, TaskListener... taskListeners) {
         return executor().execute(task, args, Arrays.asList(taskListeners), tags());
     }
 
     @Override
-    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, TaskListener... taskListeners) {
+    public TaskHandler execute(Task task, TaskListener... taskListeners) {
         return execute(task, new Pack(), taskListeners);
     }
 
@@ -103,7 +96,7 @@ abstract class AbstractTaskSet<E extends TaskEnvironment> implements TaskSet<E> 
     }
 
     @Override
-    public abstract Iterator<TaskHandler<? extends Task, E>> iterator();
+    public abstract Iterator<TaskHandler> iterator();
 
     @Override
     public abstract boolean isInterrupted();
@@ -123,7 +116,7 @@ abstract class AbstractTaskSet<E extends TaskEnvironment> implements TaskSet<E> 
         }
 
         while (true) {
-            Iterator<TaskHandler<? extends Task, E>> iterator = this.iterator();
+            Iterator<TaskHandler> iterator = this.iterator();
             if (!iterator.hasNext()) {
                 return true;
             }

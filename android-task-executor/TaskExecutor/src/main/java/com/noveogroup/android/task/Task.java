@@ -28,10 +28,8 @@ package com.noveogroup.android.task;
 
 /**
  * Represents a task that can be executed.
- *
- * @param <E> custom task environment.
  */
-public interface Task<E extends TaskEnvironment> {
+public interface Task {
 
     /**
      * Starts executing the task inside the specified environment.
@@ -43,6 +41,6 @@ public interface Task<E extends TaskEnvironment> {
      * @param env the task environment.
      * @throws Throwable the throwable object.
      */
-    public void run(E env) throws Throwable;
+    public void run(TaskEnvironment env) throws Throwable;
 
 }

@@ -34,28 +34,28 @@ package com.noveogroup.android.task;
  * representing a task is reused different task environments will be passed
  * inside {@link Task#run(TaskEnvironment)} as a parameter.
  */
-public interface TaskEnvironment<E extends TaskEnvironment> {
+public interface TaskEnvironment {
 
     /**
      * Returns a task executor that runs this task.
      *
      * @return owner {@link TaskExecutor}.
      */
-    public TaskExecutor<E> executor();
+    public TaskExecutor executor();
 
     /**
      * Returns a task set that owns a task corresponding to this task environment.
      *
      * @return owner {@link TaskSet}.
      */
-    public TaskSet<E> owner();
+    public TaskSet owner();
 
     /**
      * Returns a task handler corresponding to this task environment.
      *
      * @return corresponding {@link TaskHandler}.
      */
-    public TaskHandler<?, E> handler();
+    public TaskHandler handler();
 
     /**
      * Returns synchronization object of {@link TaskExecutor}.

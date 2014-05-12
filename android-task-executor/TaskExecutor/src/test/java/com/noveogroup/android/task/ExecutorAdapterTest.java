@@ -12,13 +12,13 @@ import java.util.concurrent.TimeUnit;
 public class ExecutorAdapterTest {
 
     private static ExecutorService createAdapter() {
-        SimpleTaskExecutor<SimpleTaskEnvironment> executor = new SimpleTaskExecutor<SimpleTaskEnvironment>(createExecutor()) {
+        SimpleTaskExecutor executor = new SimpleTaskExecutor(createExecutor()) {
             @Override
-            protected <T extends Task> SimpleTaskEnvironment createTaskEnvironment(TaskHandler<T, SimpleTaskEnvironment> taskHandler) {
-                return new SimpleTaskEnvironment<SimpleTaskEnvironment>(taskHandler);
+            protected SimpleTaskEnvironment createTaskEnvironment(TaskHandler taskHandler) {
+                return new SimpleTaskEnvironment(taskHandler);
             }
         };
-        return new ExecutorAdapter<SimpleTaskEnvironment>(executor);
+        return new ExecutorAdapter(executor);
     }
 
     private static ExecutorService createExecutor() {

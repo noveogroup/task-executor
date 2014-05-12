@@ -29,7 +29,7 @@ package com.noveogroup.android.task;
 import java.util.Collection;
 import java.util.List;
 
-public interface TaskExecutor<E extends TaskEnvironment> {
+public interface TaskExecutor {
 
     /**
      * Returns synchronization object of this {@link TaskExecutor}.
@@ -49,27 +49,27 @@ public interface TaskExecutor<E extends TaskEnvironment> {
 
     public Pack newPack(Pack pack);
 
-    public TaskSet<E> queue(String... tags);
+    public TaskSet queue(String... tags);
 
-    public TaskSet<E> queue(Collection<String> tags);
+    public TaskSet queue(Collection<String> tags);
 
     public void addTaskListener(TaskListener... taskListeners);
 
     public void removeTaskListener(TaskListener... taskListeners);
 
-    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, Pack args, List<TaskListener> taskListeners, Collection<String> tags);
+    public TaskHandler execute(Task task, Pack args, List<TaskListener> taskListeners, Collection<String> tags);
 
-    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, Pack args, List<TaskListener> taskListeners, String... tags);
+    public TaskHandler execute(Task task, Pack args, List<TaskListener> taskListeners, String... tags);
 
-    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, Pack args, TaskListener taskListener, String... tags);
+    public TaskHandler execute(Task task, Pack args, TaskListener taskListener, String... tags);
 
-    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, Pack args, String... tags);
+    public TaskHandler execute(Task task, Pack args, String... tags);
 
-    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, List<TaskListener> taskListeners, String... tags);
+    public TaskHandler execute(Task task, List<TaskListener> taskListeners, String... tags);
 
-    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, TaskListener taskListener, String... tags);
+    public TaskHandler execute(Task task, TaskListener taskListener, String... tags);
 
-    public <T extends Task<? super E>> TaskHandler<T, E> execute(T task, String... tags);
+    public TaskHandler execute(Task task, String... tags);
 
     public void shutdown();
 

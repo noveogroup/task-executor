@@ -35,20 +35,17 @@ import java.util.concurrent.Future;
  * the {@link TaskHandler} interface. A subclass must implement the abstract
  * methods {@link #addToQueue()}, {@link #removeFromQueue()} and
  * {@link #createTaskEnvironment()}.
- *
- * @param <T> task type.
- * @param <E> task environment type.
  */
-abstract class AbstractTaskHandler<T extends Task<? super E>, E extends TaskEnvironment> implements TaskHandler<T, E> {
+abstract class AbstractTaskHandler implements TaskHandler {
 
     private final Object joinObject = new Object();
     private final ExecutorService executorService;
     private volatile Future<Throwable> taskFuture;
     private volatile boolean taskFutureCanBeInterrupted;
 
-    private final TaskExecutor<E> executor;
-    private final TaskSet<E> owner;
-    private final T task;
+    private final TaskExecutor executor;
+    private final TaskSet owner;
+    private final Task task;
     private final Pack args;
     private final TaskListener[] listeners;
 
@@ -66,7 +63,7 @@ abstract class AbstractTaskHandler<T extends Task<? super E>, E extends TaskEnvi
      * @param args            arguments container.
      * @param listeners       a list of {@link TaskListener}.
      */
-    public AbstractTaskHandler(ExecutorService executorService, T task, TaskExecutor<E> executor, TaskSet<E> owner, Pack args, List<TaskListener> listeners) {
+    public AbstractTaskHandler(ExecutorService executorService, Task task, TaskExecutor executor, TaskSet owner, Pack args, List<TaskListener> listeners) {
         this.executorService = executorService;
         this.taskFuture = null;
         this.taskFutureCanBeInterrupted = false;
@@ -94,7 +91,7 @@ abstract class AbstractTaskHandler<T extends Task<? super E>, E extends TaskEnvi
      *
      * @return a {@link TaskEnvironment} object.
      */
-    protected abstract E createTaskEnvironment();
+    protected abstract TaskEnvironment createTaskEnvironment();
 
     /**
      * Task handler will call this method when it is needed to be added to
@@ -177,7 +174,7 @@ abstract class AbstractTaskHandler<T extends Task<? super E>, E extends TaskEnvi
             callOnStart();
 
             // create task environment
-            E env;
+            TaskEnvironment env;
             synchronized (lock()) {
                 env = createTaskEnvironment();
             }
@@ -230,12 +227,12 @@ abstract class AbstractTaskHandler<T extends Task<? super E>, E extends TaskEnvi
     }
 
     @Override
-    public TaskExecutor<E> executor() {
+    public TaskExecutor executor() {
         return executor;
     }
 
     @Override
-    public TaskSet<E> owner() {
+    public TaskSet owner() {
         return owner;
     }
 
@@ -245,7 +242,7 @@ abstract class AbstractTaskHandler<T extends Task<? super E>, E extends TaskEnvi
     }
 
     @Override
-    public T task() {
+    public Task task() {
         return task;
     }
 

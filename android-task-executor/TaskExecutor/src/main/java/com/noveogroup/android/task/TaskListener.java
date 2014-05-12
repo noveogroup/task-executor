@@ -115,47 +115,47 @@ public interface TaskListener {
     public class Default implements TaskListener {
 
         @Override
-        public void onCreate(TaskHandler<?, ?> handler) {
+        public void onCreate(TaskHandler handler) {
             // do nothing
         }
 
         @Override
-        public void onQueueInsert(TaskHandler<?, ?> handler) {
+        public void onQueueInsert(TaskHandler handler) {
             // do nothing
         }
 
         @Override
-        public void onStart(TaskHandler<?, ?> handler) {
+        public void onStart(TaskHandler handler) {
             // do nothing
         }
 
         @Override
-        public void onFinish(TaskHandler<?, ?> handler) {
+        public void onFinish(TaskHandler handler) {
             // do nothing
         }
 
         @Override
-        public void onQueueRemove(TaskHandler<?, ?> handler) {
+        public void onQueueRemove(TaskHandler handler) {
             // do nothing
         }
 
         @Override
-        public void onDestroy(TaskHandler<?, ?> handler) {
+        public void onDestroy(TaskHandler handler) {
             // do nothing
         }
 
         @Override
-        public void onCanceled(TaskHandler<?, ?> handler) {
+        public void onCanceled(TaskHandler handler) {
             // do nothing
         }
 
         @Override
-        public void onFailed(TaskHandler<?, ?> handler) {
+        public void onFailed(TaskHandler handler) {
             // do nothing
         }
 
         @Override
-        public void onSucceed(TaskHandler<?, ?> handler) {
+        public void onSucceed(TaskHandler handler) {
             // do nothing
         }
 
@@ -167,7 +167,7 @@ public interface TaskListener {
      * @param handler the task handler.
      * @see #onDestroy(TaskHandler)
      */
-    public void onCreate(TaskHandler<?, ?> handler);
+    public void onCreate(TaskHandler handler);
 
     /**
      * Should be called in <b>direct</b> order.
@@ -175,7 +175,7 @@ public interface TaskListener {
      * @param handler the task handler.
      * @see #onQueueRemove(TaskHandler)
      */
-    public void onQueueInsert(TaskHandler<?, ?> handler);
+    public void onQueueInsert(TaskHandler handler);
 
     /**
      * Should be called in <b>direct</b> order.
@@ -183,7 +183,7 @@ public interface TaskListener {
      * @param handler the task handler.
      * @see #onFinish(TaskHandler)
      */
-    public void onStart(TaskHandler<?, ?> handler);
+    public void onStart(TaskHandler handler);
 
     /**
      * Should be called in <b>reverse</b> order.
@@ -191,7 +191,7 @@ public interface TaskListener {
      * @param handler the task handler.
      * @see #onStart(TaskHandler)
      */
-    public void onFinish(TaskHandler<?, ?> handler);
+    public void onFinish(TaskHandler handler);
 
     /**
      * Should be called in <b>reverse</b> order.
@@ -199,7 +199,7 @@ public interface TaskListener {
      * @param handler the task handler.
      * @see #onQueueInsert(TaskHandler)
      */
-    public void onQueueRemove(TaskHandler<?, ?> handler);
+    public void onQueueRemove(TaskHandler handler);
 
     /**
      * Should be called in <b>reverse</b> order.
@@ -207,27 +207,27 @@ public interface TaskListener {
      * @param handler the task handler.
      * @see #onCreate(TaskHandler)
      */
-    public void onDestroy(TaskHandler<?, ?> handler);
+    public void onDestroy(TaskHandler handler);
 
     /**
      * Should be called in <b>reverse</b> order.
      *
      * @param handler the task handler.
      */
-    public void onCanceled(TaskHandler<?, ?> handler);
+    public void onCanceled(TaskHandler handler);
 
     /**
      * Should be called in <b>reverse</b> order.
      *
      * @param handler the task handler.
      */
-    public void onFailed(TaskHandler<?, ?> handler);
+    public void onFailed(TaskHandler handler);
 
     /**
      * Should be called in <b>reverse</b> order.
      *
      * @param handler the task handler.
      */
-    public void onSucceed(TaskHandler<?, ?> handler);
+    public void onSucceed(TaskHandler handler);
 
 }

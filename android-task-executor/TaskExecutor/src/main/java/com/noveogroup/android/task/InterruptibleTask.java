@@ -26,5 +26,5 @@
 
 package com.noveogroup.android.task;
 
-public interface InterruptibleTask<E extends TaskEnvironment> extends Interruptible, Task<E> {
+public interface InterruptibleTask extends Interruptible, Task {
 }
