@@ -34,7 +34,7 @@ import java.util.concurrent.ExecutorService;
  * the {@link TaskExecutor} interface. A subclass  must implement the abstract
  * method {@link #createTaskEnvironment(TaskHandler)}.
  */
-public abstract class SimpleTaskExecutor extends AbstractTaskExecutor {
+public class SimpleTaskExecutor extends AbstractTaskExecutor {
 
     private static class AssociationSet<V> {
 
@@ -96,7 +96,9 @@ public abstract class SimpleTaskExecutor extends AbstractTaskExecutor {
      * @param taskHandler corresponding {@link TaskHandler} object.
      * @return a {@link TaskEnvironment} object.
      */
-    protected abstract TaskEnvironment createTaskEnvironment(TaskHandler taskHandler);
+    protected TaskEnvironment createTaskEnvironment(TaskHandler taskHandler) {
+        return new SimpleTaskEnvironment(taskHandler);
+    }
 
     @Override
     public TaskSet queue(Collection<String> tags) {
