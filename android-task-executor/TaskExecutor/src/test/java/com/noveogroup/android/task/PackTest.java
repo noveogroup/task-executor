@@ -23,7 +23,7 @@ public class PackTest {
 
     @Test
     public void testConstructorCopy1() {
-        final StringBuffer buffer = new StringBuffer();
+        final Helper helper = new Helper();
 
         final Object lock = new Object();
 
@@ -34,29 +34,29 @@ public class PackTest {
             @Override
             public void run() {
                 synchronized (lock) {
-                    buffer.append("[thread-A]");
+                    helper.append("[thread-A]");
                     Utils.doSleep(10);
-                    buffer.append("[thread-B]");
+                    helper.append("[thread-B]");
                 }
             }
         }.start();
 
         Utils.doSleep(1);
-        buffer.append("[copy-A]");
+        helper.append("[copy-A]");
         Pack copyPack = new Pack(pack);
         Utils.doSleep(1);
-        buffer.append("[copy-B]");
+        helper.append("[copy-B]");
 
         Assert.assertEquals(lock, copyPack.lock());
         Assert.assertEquals(1, copyPack.size());
         Assert.assertEquals(Utils.set("key"), copyPack.keySet());
         Assert.assertEquals("value", copyPack.get("key"));
-        Assert.assertEquals("[thread-A][copy-A][thread-B][copy-B]", buffer.toString());
+        helper.check("[thread-A][copy-A][thread-B][copy-B]");
     }
 
     @Test
     public void testConstructorCopy2() {
-        final StringBuffer buffer = new StringBuffer();
+        final Helper helper = new Helper();
 
         final Object lock = new Object();
         final Object copyLock = new Object();
@@ -68,24 +68,24 @@ public class PackTest {
             @Override
             public void run() {
                 synchronized (lock) {
-                    buffer.append("[thread-A]");
+                    helper.append("[thread-A]");
                     Utils.doSleep(10);
-                    buffer.append("[thread-B]");
+                    helper.append("[thread-B]");
                 }
             }
         }.start();
 
         Utils.doSleep(1);
-        buffer.append("[copy-A]");
+        helper.append("[copy-A]");
         Pack copyPack = new Pack(copyLock, pack);
         Utils.doSleep(1);
-        buffer.append("[copy-B]");
+        helper.append("[copy-B]");
 
         Assert.assertEquals(copyLock, copyPack.lock());
         Assert.assertEquals(1, copyPack.size());
         Assert.assertEquals(Utils.set("key"), copyPack.keySet());
         Assert.assertEquals("value", copyPack.get("key"));
-        Assert.assertEquals("[thread-A][copy-A][thread-B][copy-B]", buffer.toString());
+        helper.check("[thread-A][copy-A][thread-B][copy-B]");
     }
 
 }

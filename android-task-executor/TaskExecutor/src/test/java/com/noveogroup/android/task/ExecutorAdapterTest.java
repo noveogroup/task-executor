@@ -26,18 +26,18 @@ public class ExecutorAdapterTest {
     }
 
     private void testExecute(ExecutorService executorService) {
-        final StringBuffer buffer = new StringBuffer();
+        final Helper helper = new Helper();
 
         executorService.execute(new Runnable() {
             @Override
             public void run() {
-                buffer.append("[runnable]");
+                helper.append("[runnable]");
             }
         });
 
         Utils.doSleep(5);
 
-        Assert.assertEquals("[runnable]", buffer.toString());
+        helper.check("[runnable]");
     }
 
     @Test
@@ -51,7 +51,7 @@ public class ExecutorAdapterTest {
     }
 
     private void testShutdown(ExecutorService executorService) {
-        final StringBuffer buffer = new StringBuffer();
+        final Helper helper = new Helper();
 
         for (int i = 0; i < 5; i++) {
             final char index = "ABCDE".charAt(i);
@@ -59,9 +59,9 @@ public class ExecutorAdapterTest {
             executorService.execute(new Runnable() {
                 @Override
                 public void run() {
-                    buffer.append(String.format("[%s-1]", index));
+                    helper.append(String.format("[%s-1]", index));
                     Utils.doSleep(time);
-                    buffer.append(String.format("[%s-2]", index));
+                    helper.append(String.format("[%s-2]", index));
                 }
             });
             Utils.doSleep(1);
@@ -73,7 +73,7 @@ public class ExecutorAdapterTest {
         Assert.assertEquals(false, executorService.isTerminated());
 
         executorService.shutdown();
-        buffer.append("[shutdown]");
+        helper.append("[shutdown]");
 
         Assert.assertEquals(true, executorService.isShutdown());
         Assert.assertEquals(false, executorService.isTerminated());
@@ -91,7 +91,7 @@ public class ExecutorAdapterTest {
         Utils.doSleep(50);
         Assert.assertEquals(true, executorService.isTerminated());
 
-        Assert.assertEquals("[A-1][B-1][C-1][shutdown][A-2][D-1][B-2][E-1][C-2][D-2][E-2]", buffer.toString());
+        helper.check("[A-1][B-1][C-1][shutdown][A-2][D-1][B-2][E-1][C-2][D-2][E-2]");
     }
 
     @Test
@@ -105,7 +105,7 @@ public class ExecutorAdapterTest {
     }
 
     private void testShutdownNow(ExecutorService executorService) {
-        final StringBuffer buffer = new StringBuffer();
+        final Helper helper = new Helper();
 
         for (int i = 0; i < 5; i++) {
             final char index = "ABCDE".charAt(i);
@@ -113,9 +113,9 @@ public class ExecutorAdapterTest {
             executorService.execute(new Runnable() {
                 @Override
                 public void run() {
-                    buffer.append(String.format("[%s-1]", index));
+                    helper.append(String.format("[%s-1]", index));
                     Utils.doSleep(time);
-                    buffer.append(String.format("[%s-2]", index));
+                    helper.append(String.format("[%s-2]", index));
                 }
 
                 @Override
@@ -133,7 +133,7 @@ public class ExecutorAdapterTest {
 
         List<Runnable> list = executorService.shutdownNow();
         Assert.assertEquals(2, list.size());
-        buffer.append("[shutdown]");
+        helper.append("[shutdown]");
 
         Assert.assertEquals(true, executorService.isShutdown());
         Assert.assertEquals(false, executorService.isTerminated());
@@ -151,7 +151,7 @@ public class ExecutorAdapterTest {
         Utils.doSleep(20);
         Assert.assertEquals(true, executorService.isTerminated());
 
-        Assert.assertEquals("[A-1][B-1][C-1][shutdown][A-2][B-2][C-2]", buffer.toString());
+        helper.check("[A-1][B-1][C-1][shutdown][A-2][B-2][C-2]");
     }
 
     @Test
@@ -165,7 +165,7 @@ public class ExecutorAdapterTest {
     }
 
     private void testAwaitTermination(ExecutorService executorService) throws InterruptedException {
-        final StringBuffer buffer = new StringBuffer();
+        final Helper helper = new Helper();
 
         for (int i = 0; i < 5; i++) {
             final char index = "ABCDE".charAt(i);
@@ -173,9 +173,9 @@ public class ExecutorAdapterTest {
             executorService.execute(new Runnable() {
                 @Override
                 public void run() {
-                    buffer.append(String.format("[%s-1]", index));
+                    helper.append(String.format("[%s-1]", index));
                     Utils.doSleep(time);
-                    buffer.append(String.format("[%s-2]", index));
+                    helper.append(String.format("[%s-2]", index));
                 }
             });
             Utils.doSleep(1);
@@ -183,31 +183,31 @@ public class ExecutorAdapterTest {
 
         Utils.doSleep(1);
         executorService.shutdown();
-        buffer.append("[shutdown]");
+        helper.append("[shutdown]");
 
         Assert.assertEquals(true, executorService.isShutdown());
         Assert.assertEquals(false, executorService.isTerminated());
-        Assert.assertEquals("[A-1][B-1][C-1][shutdown]", buffer.toString());
+        helper.check("[A-1][B-1][C-1][shutdown]");
         Assert.assertEquals(false, executorService.awaitTermination(2 * Utils.DT, TimeUnit.MILLISECONDS));
 
         Assert.assertEquals(true, executorService.isShutdown());
         Assert.assertEquals(false, executorService.isTerminated());
-        Assert.assertEquals("[A-1][B-1][C-1][shutdown]", buffer.toString());
+        helper.check("[A-1][B-1][C-1][shutdown]");
         Assert.assertEquals(false, executorService.awaitTermination(10 * Utils.DT, TimeUnit.MILLISECONDS));
 
         Assert.assertEquals(true, executorService.isShutdown());
         Assert.assertEquals(false, executorService.isTerminated());
-        Assert.assertEquals("[A-1][B-1][C-1][shutdown][A-2][D-1][B-2][E-1]", buffer.toString());
+        helper.check("[A-1][B-1][C-1][shutdown][A-2][D-1][B-2][E-1]");
         Assert.assertEquals(false, executorService.awaitTermination(20 * Utils.DT, TimeUnit.MILLISECONDS));
 
         Assert.assertEquals(true, executorService.isShutdown());
         Assert.assertEquals(false, executorService.isTerminated());
-        Assert.assertEquals("[A-1][B-1][C-1][shutdown][A-2][D-1][B-2][E-1][C-2][D-2]", buffer.toString());
+        helper.check("[A-1][B-1][C-1][shutdown][A-2][D-1][B-2][E-1][C-2][D-2]");
         Assert.assertEquals(true, executorService.awaitTermination(20 * Utils.DT, TimeUnit.MILLISECONDS));
 
         Assert.assertEquals(true, executorService.isShutdown());
         Assert.assertEquals(true, executorService.isTerminated());
-        Assert.assertEquals("[A-1][B-1][C-1][shutdown][A-2][D-1][B-2][E-1][C-2][D-2][E-2]", buffer.toString());
+        helper.check("[A-1][B-1][C-1][shutdown][A-2][D-1][B-2][E-1][C-2][D-2][E-2]");
         Assert.assertEquals(true, executorService.awaitTermination(20 * Utils.DT, TimeUnit.MILLISECONDS));
     }
 

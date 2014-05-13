@@ -1,6 +1,5 @@
 package com.noveogroup.android.task;
 
-import junit.framework.Assert;
 import org.junit.Test;
 
 import java.util.concurrent.Executors;
@@ -18,18 +17,18 @@ public class TaskTest {
 
     @Test
     public void runTest() throws InterruptedException {
-        final StringBuffer buffer = new StringBuffer();
+        final Helper helper = new Helper();
 
         TaskExecutor executor = createTaskExecutor();
         executor.execute(new Task() {
             @Override
             public void run(TaskEnvironment env) throws Throwable {
-                buffer.append("Task::run");
+                helper.append("Task::run");
             }
         });
         Thread.sleep(Utils.DT);
 
-        Assert.assertEquals("Task::run", buffer.toString());
+        helper.check("Task::run");
     }
 
 }
