@@ -1,5 +1,62 @@
 apply plugin: 'java'
+apply plugin: 'maven'
 
 dependencies {
     testCompile 'junit:junit:4.9'
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+project.group = 'com.noveogroup'
+project.version = '1.4.0'
+
+install {
+    repositories {
+        mavenDeployer {
+            repository(url: rootProject.file(".m2repository").toURI())
+            pom {
+                artifactId = 'task-executor'
+                project {
+                    name 'Task Executor'
+                    description 'Task Executor - bla bla bla'
+                    url 'http://noveogroup.github.io/android-task-manager/'
+                    licenses {
+                        license {
+                            name 'The MIT License (MIT)'
+                            url 'http://opensource.org/licenses/MIT'
+                            distribution 'repo'
+                        }
+                    }
+                    scm {
+                        url 'https://github.com/noveogroup/android-task-manager/'
+                        connection 'scm:git:git://github.com/noveogroup/android-task-manager.git'
+                        developerConnection 'scm:git:git@github.com:noveogroup/android-task-manager.git'
+                    }
+                    developers {
+                        developer {
+                            name 'Pavel Stepanov'
+                            url 'https://github.com/stefan-nsk'
+                            roles {
+                                role 'architect'
+                                role 'developer'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
