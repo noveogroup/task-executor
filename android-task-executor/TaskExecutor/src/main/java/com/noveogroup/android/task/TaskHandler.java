@@ -65,7 +65,7 @@ public interface TaskHandler {
         SUCCEED;
 
         /**
-         * Returns {@link boolean} indicating whether the task's state is
+         * Returns {@code boolean} indicating whether the task's state is
          * alive {@code true} or {@code false}.
          *
          * @return a {@code boolean} indicating if state is {@link #CREATED}
@@ -76,7 +76,7 @@ public interface TaskHandler {
         }
 
         /**
-         * Returns {@link boolean} indicating whether the task's state is
+         * Returns {@code boolean} indicating whether the task's state is
          * destroyed {@code true} or {@code false}.
          *
          * @return a {@code boolean} indicating if state is {@link #CANCELED},
@@ -87,7 +87,7 @@ public interface TaskHandler {
         }
 
         /**
-         * Returns {@link boolean} indicating whether the task's state is
+         * Returns {@code boolean} indicating whether the task's state is
          * finished {@code true} or {@code false}.
          *
          * @return a {@code boolean} indicating if state is {@link #FAILED}

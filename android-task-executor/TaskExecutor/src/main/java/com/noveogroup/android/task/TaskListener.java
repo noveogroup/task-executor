@@ -31,7 +31,7 @@ package com.noveogroup.android.task;
  * <p/>
  * The callback method can take any time to execute - it only makes the task
  * lifetime longer. If some exception is thrown from a callback it won't be
- * caught and will be reported to the standard {@link Thread.UncaughtExceptionHandler}.
+ * caught and will be reported to the standard Thread.UncaughtExceptionHandler.
  * <p/>
  * The whole set of callbacks is divided onto two subsets:
  * <ul>
