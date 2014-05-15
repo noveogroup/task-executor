@@ -49,6 +49,8 @@ public interface TaskExecutor {
 
     public Pack newPack(Pack pack);
 
+    public Pack args();
+
     public TaskSet queue(String... tags);
 
     public TaskSet queue(Collection<String> tags);

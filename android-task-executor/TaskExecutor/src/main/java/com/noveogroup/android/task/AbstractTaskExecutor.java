@@ -40,12 +40,18 @@ import java.util.List;
 abstract class AbstractTaskExecutor implements TaskExecutor {
 
     private final Object lock = new Object();
+    private final Pack args = new Pack(lock);
     private final ArrayList<TaskListener> listeners = new ArrayList<TaskListener>(8);
     private volatile boolean shutdown = false;
 
     @Override
     public Object lock() {
         return lock;
+    }
+
+    @Override
+    public Pack args() {
+        return args;
     }
 
     @Override
