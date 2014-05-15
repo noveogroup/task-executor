@@ -331,8 +331,13 @@ abstract class AbstractTaskHandler implements TaskHandler {
         }
     }
 
-    private void uncaughtListenerException(TaskListener listener, Throwable throwable) {
-        Thread.getDefaultUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), throwable);
+    private void handleListenerError(TaskListener listener, Throwable throwable) {
+        synchronized (executor().lock()) {
+            ErrorHandler errorHandler = executor().getErrorHandler();
+            if (errorHandler != null) {
+                errorHandler.listenerError(listener, throwable);
+            }
+        }
     }
 
     private void callOnCreate() {
@@ -340,7 +345,7 @@ abstract class AbstractTaskHandler implements TaskHandler {
             try {
                 listener.onCreate(this);
             } catch (Throwable throwable) {
-                uncaughtListenerException(listener, throwable);
+                handleListenerError(listener, throwable);
             }
         }
     }
@@ -350,7 +355,7 @@ abstract class AbstractTaskHandler implements TaskHandler {
             try {
                 listener.onQueueInsert(this);
             } catch (Throwable throwable) {
-                uncaughtListenerException(listener, throwable);
+                handleListenerError(listener, throwable);
             }
         }
     }
@@ -360,7 +365,7 @@ abstract class AbstractTaskHandler implements TaskHandler {
             try {
                 listener.onStart(this);
             } catch (Throwable throwable) {
-                uncaughtListenerException(listener, throwable);
+                handleListenerError(listener, throwable);
             }
         }
     }
@@ -371,7 +376,7 @@ abstract class AbstractTaskHandler implements TaskHandler {
             try {
                 listener.onFinish(this);
             } catch (Throwable throwable) {
-                uncaughtListenerException(listener, throwable);
+                handleListenerError(listener, throwable);
             }
         }
     }
@@ -382,7 +387,7 @@ abstract class AbstractTaskHandler implements TaskHandler {
             try {
                 listener.onQueueRemove(this);
             } catch (Throwable throwable) {
-                uncaughtListenerException(listener, throwable);
+                handleListenerError(listener, throwable);
             }
         }
     }
@@ -393,7 +398,7 @@ abstract class AbstractTaskHandler implements TaskHandler {
             try {
                 listener.onDestroy(this);
             } catch (Throwable throwable) {
-                uncaughtListenerException(listener, throwable);
+                handleListenerError(listener, throwable);
             }
         }
     }
@@ -404,7 +409,7 @@ abstract class AbstractTaskHandler implements TaskHandler {
             try {
                 listener.onCanceled(this);
             } catch (Throwable throwable) {
-                uncaughtListenerException(listener, throwable);
+                handleListenerError(listener, throwable);
             }
         }
     }
@@ -415,7 +420,7 @@ abstract class AbstractTaskHandler implements TaskHandler {
             try {
                 listener.onFailed(this);
             } catch (Throwable throwable) {
-                uncaughtListenerException(listener, throwable);
+                handleListenerError(listener, throwable);
             }
         }
     }
@@ -426,7 +431,7 @@ abstract class AbstractTaskHandler implements TaskHandler {
             try {
                 listener.onSucceed(this);
             } catch (Throwable throwable) {
-                uncaughtListenerException(listener, throwable);
+                handleListenerError(listener, throwable);
             }
         }
     }

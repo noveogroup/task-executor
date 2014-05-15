@@ -55,6 +55,10 @@ public interface TaskExecutor {
 
     public TaskSet queue(Collection<String> tags);
 
+    public ErrorHandler getErrorHandler();
+
+    public void setErrorHandler(ErrorHandler errorHandler);
+
     public void addTaskListener(TaskListener... taskListeners);
 
     public void removeTaskListener(TaskListener... taskListeners);

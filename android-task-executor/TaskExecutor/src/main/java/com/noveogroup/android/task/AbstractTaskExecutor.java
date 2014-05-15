@@ -41,6 +41,7 @@ abstract class AbstractTaskExecutor implements TaskExecutor {
 
     private final Object lock = new Object();
     private final Pack args = new Pack(lock);
+    private volatile ErrorHandler errorHandler = null;
     private final ArrayList<TaskListener> listeners = new ArrayList<TaskListener>(8);
     private volatile boolean shutdown = false;
 
@@ -71,6 +72,19 @@ abstract class AbstractTaskExecutor implements TaskExecutor {
 
     @Override
     public abstract TaskSet queue(Collection<String> tags);
+
+    public ErrorHandler getErrorHandler() {
+        synchronized (lock()) {
+            return errorHandler;
+        }
+    }
+
+    @Override
+    public void setErrorHandler(ErrorHandler errorHandler) {
+        synchronized (lock()) {
+            this.errorHandler = errorHandler;
+        }
+    }
 
     @Override
     public void addTaskListener(TaskListener... taskListeners) {
