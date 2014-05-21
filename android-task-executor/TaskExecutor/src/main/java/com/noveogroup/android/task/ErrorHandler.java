@@ -42,6 +42,13 @@ public interface ErrorHandler {
 
     }
 
+    /**
+     * Should be called when method of {@link TaskListener} throws a throwable.
+     *
+     * @param taskListener the task listener.
+     * @param throwable    the throwable.
+     * @see TaskListener
+     */
     public void listenerError(TaskListener taskListener, Throwable throwable);
 
 }
