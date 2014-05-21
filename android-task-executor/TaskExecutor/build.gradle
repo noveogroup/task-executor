@@ -21,7 +21,7 @@ artifacts {
 }
 
 project.group = 'com.noveogroup'
-project.version = '1.4.1-SNAPSHOT'
+project.version = '1.5.1-SNAPSHOT'
 
 install {
     repositories {
