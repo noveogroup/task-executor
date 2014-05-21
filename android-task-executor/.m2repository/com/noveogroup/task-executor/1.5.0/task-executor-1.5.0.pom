@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.noveogroup</groupId>
   <artifactId>task-executor</artifactId>
-  <version>1.4.0</version>
+  <version>1.5.0</version>
   <name>Task Executor</name>
   <description>Task Executor - bla bla bla</description>
   <url>http://noveogroup.github.io/android-task-manager/</url>
