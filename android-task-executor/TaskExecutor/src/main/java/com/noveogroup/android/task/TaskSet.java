@@ -62,8 +62,6 @@ public interface TaskSet extends Iterable<TaskHandler> {
     @Override
     public Iterator<TaskHandler> iterator();
 
-    public boolean isInterrupted();
-
     public void interrupt();
 
     public void join() throws InterruptedException;

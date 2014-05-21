@@ -99,9 +99,6 @@ abstract class AbstractTaskSet implements TaskSet {
     public abstract Iterator<TaskHandler> iterator();
 
     @Override
-    public abstract boolean isInterrupted();
-
-    @Override
     public abstract void interrupt();
 
     @Override

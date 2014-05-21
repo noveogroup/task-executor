@@ -111,12 +111,6 @@ abstract class AbstractTaskHandler implements TaskHandler {
             state = State.CREATED;
             throwable = null;
 
-            if (owner().isInterrupted()) {
-                interrupted = true;
-                state = State.CANCELED;
-                throwable = null;
-            }
-
             addToQueue();
 
             executorService.submit(new Runnable() {

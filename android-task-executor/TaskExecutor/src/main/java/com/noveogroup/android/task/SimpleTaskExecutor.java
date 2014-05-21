@@ -36,52 +36,18 @@ import java.util.concurrent.ExecutorService;
  */
 public class SimpleTaskExecutor extends AbstractTaskExecutor {
 
-    private static class AssociationSet<V> {
-
-        private final Map<V, Set<String>> values = new HashMap<V, Set<String>>();
-        private final Set<Set<String>> interruptedTags = new HashSet<Set<String>>();
-
-        public void add(V value, Collection<String> tags) {
-            values.put(value, new HashSet<String>(tags));
-        }
-
-        public void remove(V value) {
-            values.remove(value);
-        }
-
-        public Set<V> getAssociated(Collection<String> tags) {
-            Set<V> set = new HashSet<V>();
-            for (Map.Entry<V, Set<String>> entry : values.entrySet()) {
-                if (entry.getValue().containsAll(tags)) {
-                    set.add(entry.getKey());
-                }
+    private static Set<TaskHandler> getAssociated(Set<TaskHandler> queue, Collection<String> tags) {
+        Set<TaskHandler> set = new HashSet<TaskHandler>();
+        for (TaskHandler taskHandler : queue) {
+            if (taskHandler.owner().tags().containsAll(tags)) {
+                set.add(taskHandler);
             }
-            return Collections.unmodifiableSet(set);
         }
-
-        public boolean isInterrupted(Collection<String> tags) {
-            boolean isInterrupted = false;
-            for (Iterator<Set<String>> iterator = interruptedTags.iterator(); iterator.hasNext(); ) {
-                Set<String> set = iterator.next();
-                if (tags.containsAll(set)) {
-                    if (getAssociated(set).isEmpty()) {
-                        iterator.remove();
-                    } else {
-                        isInterrupted = true;
-                    }
-                }
-            }
-            return isInterrupted;
-        }
-
-        public void interrupt(Collection<String> tags) {
-            interruptedTags.add(new HashSet<String>(tags));
-        }
-
+        return Collections.unmodifiableSet(set);
     }
 
     private final ExecutorService executorService;
-    private final AssociationSet<TaskHandler> queue = new AssociationSet<TaskHandler>();
+    private final Set<TaskHandler> queue = new HashSet<TaskHandler>();
 
     public SimpleTaskExecutor(ExecutorService executorService) {
         this.executorService = executorService;
@@ -107,26 +73,14 @@ public class SimpleTaskExecutor extends AbstractTaskExecutor {
                 @Override
                 public Iterator<TaskHandler> iterator() {
                     synchronized (lock()) {
-                        return queue.getAssociated(tags()).iterator();
-                    }
-                }
-
-                @Override
-                public boolean isInterrupted() {
-                    synchronized (lock()) {
-                        if (SimpleTaskExecutor.this.isShutdown()) {
-                            return true;
-                        } else {
-                            return queue.isInterrupted(tags());
-                        }
+                        return getAssociated(queue, tags()).iterator();
                     }
                 }
 
                 @Override
                 public void interrupt() {
                     synchronized (lock()) {
-                        queue.interrupt(tags());
-                        for (TaskHandler handler : queue.getAssociated(tags())) {
+                        for (TaskHandler handler : getAssociated(queue, tags())) {
                             handler.interrupt();
                         }
                     }
@@ -146,7 +100,7 @@ public class SimpleTaskExecutor extends AbstractTaskExecutor {
             @Override
             protected void addToQueue() {
                 synchronized (lock()) {
-                    queue.add(this, owner().tags());
+                    queue.add(this);
                 }
             }
 
