@@ -38,10 +38,12 @@ abstract class AbstractTaskSet implements TaskSet {
 
     private final TaskExecutor executor;
     private final Set<String> tags;
+    private final Set<TaskHandler.State> states;
 
-    public AbstractTaskSet(TaskExecutor executor, Collection<String> tags) {
+    public AbstractTaskSet(TaskExecutor executor, Collection<String> tags, Collection<TaskHandler.State> states) {
         this.executor = executor;
         this.tags = Collections.unmodifiableSet(new HashSet<String>(tags));
+        this.states = Collections.unmodifiableSet(new HashSet<TaskHandler.State>(states));
     }
 
     @Override
@@ -69,6 +71,23 @@ abstract class AbstractTaskSet implements TaskSet {
         HashSet<String> tagSet = new HashSet<String>(tags());
         tagSet.addAll(tags);
         return executor().queue(tagSet);
+    }
+
+    @Override
+    public Set<TaskHandler.State> states() {
+        return states;
+    }
+
+    @Override
+    public TaskSet filter(TaskHandler.State... states) {
+        return filter(Arrays.asList(states));
+    }
+
+    @Override
+    public TaskSet filter(Collection<TaskHandler.State> states) {
+        HashSet<TaskHandler.State> stateSet = new HashSet<TaskHandler.State>(states());
+        stateSet.retainAll(states);
+        return executor().queue(tags(), stateSet);
     }
 
     @Override

@@ -36,10 +36,11 @@ import java.util.concurrent.ExecutorService;
  */
 public class SimpleTaskExecutor extends AbstractTaskExecutor {
 
-    private static Set<TaskHandler> getAssociated(Set<TaskHandler> queue, Collection<String> tags) {
+    private static Set<TaskHandler> getAssociated(Set<TaskHandler> queue,
+                                                  Collection<String> tags, Collection<TaskHandler.State> states) {
         Set<TaskHandler> set = new HashSet<TaskHandler>();
         for (TaskHandler taskHandler : queue) {
-            if (taskHandler.owner().tags().containsAll(tags)) {
+            if (taskHandler.owner().tags().containsAll(tags) && states.contains(taskHandler.getState())) {
                 set.add(taskHandler);
             }
         }
@@ -67,20 +68,20 @@ public class SimpleTaskExecutor extends AbstractTaskExecutor {
     }
 
     @Override
-    public TaskSet queue(Collection<String> tags) {
+    public TaskSet queue(Collection<String> tags, final Collection<TaskHandler.State> states) {
         synchronized (lock()) {
-            return new AbstractTaskSet(this, tags) {
+            return new AbstractTaskSet(this, tags, states) {
                 @Override
                 public Iterator<TaskHandler> iterator() {
                     synchronized (lock()) {
-                        return getAssociated(queue, tags()).iterator();
+                        return getAssociated(queue, tags(), states()).iterator();
                     }
                 }
 
                 @Override
                 public void interrupt() {
                     synchronized (lock()) {
-                        for (TaskHandler handler : getAssociated(queue, tags())) {
+                        for (TaskHandler handler : getAssociated(queue, tags(), states())) {
                             handler.interrupt();
                         }
                     }

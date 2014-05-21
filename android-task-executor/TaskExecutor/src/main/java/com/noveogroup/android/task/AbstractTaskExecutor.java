@@ -71,7 +71,12 @@ abstract class AbstractTaskExecutor implements TaskExecutor {
     }
 
     @Override
-    public abstract TaskSet queue(Collection<String> tags);
+    public TaskSet queue(Collection<String> tags) {
+        return queue(tags, Arrays.asList(TaskHandler.State.values()));
+    }
+
+    @Override
+    public abstract TaskSet queue(Collection<String> tags, Collection<TaskHandler.State> states);
 
     public ErrorHandler getErrorHandler() {
         synchronized (lock()) {

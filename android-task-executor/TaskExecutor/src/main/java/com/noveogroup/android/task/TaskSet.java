@@ -51,6 +51,12 @@ public interface TaskSet extends Iterable<TaskHandler> {
 
     public TaskSet sub(Collection<String> tags);
 
+    public Set<TaskHandler.State> states();
+
+    public TaskSet filter(TaskHandler.State... states);
+
+    public TaskSet filter(Collection<TaskHandler.State> states);
+
     public TaskHandler execute(Task task, Pack args, TaskListener... taskListeners);
 
     public TaskHandler execute(Task task, TaskListener... taskListeners);

@@ -55,6 +55,8 @@ public interface TaskExecutor {
 
     public TaskSet queue(Collection<String> tags);
 
+    public TaskSet queue(Collection<String> tags, Collection<TaskHandler.State> states);
+
     public ErrorHandler getErrorHandler();
 
     public void setErrorHandler(ErrorHandler errorHandler);
