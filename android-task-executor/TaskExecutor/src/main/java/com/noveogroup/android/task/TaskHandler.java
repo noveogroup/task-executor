@@ -26,6 +26,10 @@
 
 package com.noveogroup.android.task;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 public interface TaskHandler {
 
     /**
@@ -64,6 +68,30 @@ public interface TaskHandler {
          */
         SUCCEED;
 
+        public static final Set<State> ALIVE_SET;
+        public static final Set<State> DESTROYED_SET;
+        public static final Set<State> FINISHED_SET;
+
+        static {
+            Set<State> set;
+
+            set = new HashSet<State>();
+            set.add(CREATED);
+            set.add(STARTED);
+            ALIVE_SET = Collections.unmodifiableSet(set);
+
+            set = new HashSet<State>();
+            set.add(CANCELED);
+            set.add(FAILED);
+            set.add(SUCCEED);
+            DESTROYED_SET = Collections.unmodifiableSet(set);
+
+            set = new HashSet<State>();
+            set.add(FAILED);
+            set.add(SUCCEED);
+            FINISHED_SET = Collections.unmodifiableSet(set);
+        }
+
         /**
          * Returns {@code boolean} indicating whether the task's state is
          * alive {@code true} or {@code false}.
@@ -72,7 +100,7 @@ public interface TaskHandler {
          * or {@link #STARTED}.
          */
         public boolean isAlive() {
-            return this == CREATED || this == STARTED;
+            return ALIVE_SET.contains(this);
         }
 
         /**
@@ -83,7 +111,7 @@ public interface TaskHandler {
          * {@link #FAILED} or {@link #SUCCEED}.
          */
         public boolean isDestroyed() {
-            return this == CANCELED || this == FAILED || this == SUCCEED;
+            return DESTROYED_SET.contains(this);
         }
 
         /**
@@ -94,7 +122,7 @@ public interface TaskHandler {
          * or {@link #SUCCEED}.
          */
         public boolean isFinished() {
-            return this == FAILED || this == SUCCEED;
+            return FINISHED_SET.contains(this);
         }
 
     }
