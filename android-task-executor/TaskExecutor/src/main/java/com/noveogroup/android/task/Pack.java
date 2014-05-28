@@ -26,11 +26,7 @@
 
 package com.noveogroup.android.task;
 
-import java.util.AbstractSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 /**
  * A {@link Pack} is a data structure consisting of a set of arguments.
@@ -89,6 +85,19 @@ public final class Pack implements Cloneable, Iterable<String> {
         putAll(pack);
     }
 
+    @Override
+    public Pack clone() {
+        return new Pack(this);
+    }
+
+    public Pack copy() {
+        return new Pack(this);
+    }
+
+    public Pack copy(Object lock) {
+        return new Pack(lock, this);
+    }
+
     /**
      * Returns synchronization object of this pack.
      *
@@ -96,11 +105,6 @@ public final class Pack implements Cloneable, Iterable<String> {
      */
     public Object lock() {
         return lock;
-    }
-
-    @Override
-    public Pack clone() {
-        return new Pack(this);
     }
 
     /**
