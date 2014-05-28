@@ -9,7 +9,7 @@ public class PackTest {
 
     @Test
     public void testConstructorSimple1() {
-        Pack pack = new Pack();
+        Pack<Integer, String> pack = new Pack<Integer, String>();
 
         Assert.assertEquals(0, pack.size());
     }
@@ -17,7 +17,7 @@ public class PackTest {
     @Test
     public void testConstructorSimple2() {
         Object lock = new Object();
-        Pack pack = new Pack(lock);
+        Pack<Integer, String> pack = new Pack<Integer, String>(lock);
 
         Assert.assertEquals(lock, pack.lock());
         Assert.assertEquals(0, pack.size());
@@ -29,7 +29,7 @@ public class PackTest {
 
         final Object lock = new Object();
 
-        Pack pack = new Pack(lock);
+        Pack<Integer, String> pack = new Pack<Integer, String>(lock);
         pack.put("key", "value");
 
         new Thread() {
@@ -45,7 +45,7 @@ public class PackTest {
 
         Utils.doSleep(1);
         helper.append("[copy-A]");
-        Pack copyPack = new Pack(pack);
+        Pack<Integer, String> copyPack = new Pack<Integer, String>(pack);
         Utils.doSleep(1);
         helper.append("[copy-B]");
 
@@ -63,7 +63,7 @@ public class PackTest {
         final Object lock = new Object();
         final Object copyLock = new Object();
 
-        Pack pack = new Pack(lock);
+        Pack<Integer, String> pack = new Pack<Integer, String>(lock);
         pack.put("key", "value");
 
         new Thread() {
@@ -79,7 +79,7 @@ public class PackTest {
 
         Utils.doSleep(1);
         helper.append("[copy-A]");
-        Pack copyPack = new Pack(copyLock, pack);
+        Pack<Integer, String> copyPack = new Pack<Integer, String>(copyLock, pack);
         Utils.doSleep(1);
         helper.append("[copy-B]");
 
@@ -92,7 +92,7 @@ public class PackTest {
 
     @Test
     public void testEmpty() {
-        Pack pack = new Pack();
+        Pack<Integer, String> pack = new Pack<Integer, String>();
         Assert.assertTrue(pack.isEmpty());
         pack.put("key", "value");
         Assert.assertFalse(pack.isEmpty());
@@ -102,7 +102,7 @@ public class PackTest {
     public void testIterator1() {
         final Helper helper = new Helper();
 
-        final Pack pack = new Pack();
+        final Pack<Integer, String> pack = new Pack<Integer, String>();
         pack.put("key1", "value1");
         pack.put("key2", "value2");
         pack.put("key3", "value3");
@@ -135,7 +135,7 @@ public class PackTest {
     public void testIterator2() {
         final Helper helper = new Helper();
 
-        final Pack pack = new Pack();
+        final Pack<Integer, String> pack = new Pack<Integer, String>();
         pack.put("key1", "value1");
         pack.put("key2", "value2");
         pack.put("key3", "value3");
