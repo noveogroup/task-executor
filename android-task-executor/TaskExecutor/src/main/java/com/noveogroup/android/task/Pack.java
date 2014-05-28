@@ -40,7 +40,7 @@ import java.util.*;
  * by {@link Pack#lock()} method. This object can be used outside of pack
  * to synchronize complex and dependent sequences of accesses/updates.
  */
-public final class Pack implements Cloneable, Iterable<String> {
+public final class Pack implements Iterable<String> {
 
     private final Object lock;
     private final HashMap<String, Object> map;
@@ -83,11 +83,6 @@ public final class Pack implements Cloneable, Iterable<String> {
     public Pack(Object lock, Pack pack) {
         this(lock);
         putAll(pack);
-    }
-
-    @Override
-    public Pack clone() {
-        return new Pack(this);
     }
 
     public Pack copy() {
