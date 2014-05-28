@@ -26,10 +26,7 @@
 
 package com.noveogroup.android.task;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * {@link AbstractTaskExecutor} is an abstract implementation of
@@ -142,7 +139,7 @@ abstract class AbstractTaskExecutor implements TaskExecutor {
 
     @Override
     public TaskHandler execute(Task task, Pack args, TaskListener taskListener, String... tags) {
-        return execute(task, args, Arrays.asList(taskListener), Arrays.asList(tags));
+        return execute(task, args, Collections.singletonList(taskListener), Arrays.asList(tags));
     }
 
     @Override
@@ -157,7 +154,7 @@ abstract class AbstractTaskExecutor implements TaskExecutor {
 
     @Override
     public TaskHandler execute(Task task, TaskListener taskListener, String... tags) {
-        return execute(task, new Pack(), Arrays.asList(taskListener), Arrays.asList(tags));
+        return execute(task, new Pack(), Collections.singletonList(taskListener), Arrays.asList(tags));
     }
 
     @Override

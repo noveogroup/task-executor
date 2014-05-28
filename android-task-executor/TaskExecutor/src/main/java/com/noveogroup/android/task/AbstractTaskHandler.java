@@ -26,6 +26,7 @@
 
 package com.noveogroup.android.task;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -47,7 +48,7 @@ abstract class AbstractTaskHandler implements TaskHandler {
     private final TaskSet owner;
     private final Task task;
     private final Pack args;
-    private final TaskListener[] listeners;
+    private final List<TaskListener> listeners;
 
     private volatile State state;
     private volatile Throwable throwable;
@@ -72,8 +73,8 @@ abstract class AbstractTaskHandler implements TaskHandler {
         this.owner = owner;
         this.task = task;
         this.args = args.lock() == owner.lock() ? args : new Pack(owner.lock(), args);
-        this.listeners = new TaskListener[listeners.size()];
-        listeners.toArray(this.listeners);
+        this.listeners = new ArrayList<TaskListener>(listeners.size());
+        this.listeners.addAll(listeners);
 
         this.state = null;
         this.throwable = null;
@@ -365,8 +366,8 @@ abstract class AbstractTaskHandler implements TaskHandler {
     }
 
     private void callOnFinish() {
-        for (int i = listeners.length - 1; i >= 0; i--) { // in reverse order
-            TaskListener listener = listeners[i];
+        for (int i = listeners.size() - 1; i >= 0; i--) { // in reverse order
+            TaskListener listener = listeners.get(i);
             try {
                 listener.onFinish(this);
             } catch (Throwable throwable) {
@@ -376,8 +377,8 @@ abstract class AbstractTaskHandler implements TaskHandler {
     }
 
     private void callOnQueueRemove() {
-        for (int i = listeners.length - 1; i >= 0; i--) { // in reverse order
-            TaskListener listener = listeners[i];
+        for (int i = listeners.size() - 1; i >= 0; i--) { // in reverse order
+            TaskListener listener = listeners.get(i);
             try {
                 listener.onQueueRemove(this);
             } catch (Throwable throwable) {
@@ -387,8 +388,8 @@ abstract class AbstractTaskHandler implements TaskHandler {
     }
 
     private void callOnDestroy() {
-        for (int i = listeners.length - 1; i >= 0; i--) { // in reverse order
-            TaskListener listener = listeners[i];
+        for (int i = listeners.size() - 1; i >= 0; i--) { // in reverse order
+            TaskListener listener = listeners.get(i);
             try {
                 listener.onDestroy(this);
             } catch (Throwable throwable) {
@@ -398,8 +399,8 @@ abstract class AbstractTaskHandler implements TaskHandler {
     }
 
     private void callOnCanceled() {
-        for (int i = listeners.length - 1; i >= 0; i--) { // in reverse order
-            TaskListener listener = listeners[i];
+        for (int i = listeners.size() - 1; i >= 0; i--) { // in reverse order
+            TaskListener listener = listeners.get(i);
             try {
                 listener.onCanceled(this);
             } catch (Throwable throwable) {
@@ -409,8 +410,8 @@ abstract class AbstractTaskHandler implements TaskHandler {
     }
 
     private void callOnFailed() {
-        for (int i = listeners.length - 1; i >= 0; i--) { // in reverse order
-            TaskListener listener = listeners[i];
+        for (int i = listeners.size() - 1; i >= 0; i--) { // in reverse order
+            TaskListener listener = listeners.get(i);
             try {
                 listener.onFailed(this);
             } catch (Throwable throwable) {
@@ -420,8 +421,8 @@ abstract class AbstractTaskHandler implements TaskHandler {
     }
 
     private void callOnSucceed() {
-        for (int i = listeners.length - 1; i >= 0; i--) { // in reverse order
-            TaskListener listener = listeners[i];
+        for (int i = listeners.size() - 1; i >= 0; i--) { // in reverse order
+            TaskListener listener = listeners.get(i);
             try {
                 listener.onSucceed(this);
             } catch (Throwable throwable) {
