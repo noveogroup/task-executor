@@ -40,10 +40,20 @@ import java.util.*;
  * by {@link Pack#lock()} method. This object can be used outside of pack
  * to synchronize complex and dependent sequences of accesses/updates.
  */
-public final class Pack implements Iterable<String> {
+public final class Pack<Input, Output> implements Iterable<String> {
+
+    /**
+     * Key of input value.
+     */
+    public static final String INPUT = "input";
+
+    /**
+     * Key of output value.
+     */
+    public static final String OUTPUT = "output";
 
     private final Object lock;
-    private final HashMap<String, Object> map;
+    private final Map<String, Object> map;
 
     /**
      * Constructs a new empty pack.
@@ -68,7 +78,7 @@ public final class Pack implements Iterable<String> {
      *
      * @param pack the pack of arguments to add.
      */
-    public Pack(Pack pack) {
+    public Pack(Pack<?, ?> pack) {
         this(pack.lock());
         putAll(pack);
     }
@@ -80,17 +90,17 @@ public final class Pack implements Iterable<String> {
      * @param lock synchronization object.
      * @param pack the pack of arguments to add.
      */
-    public Pack(Object lock, Pack pack) {
+    public Pack(Object lock, Pack<?, ?> pack) {
         this(lock);
         putAll(pack);
     }
 
-    public Pack copy() {
-        return new Pack(this);
+    public Pack<Input, Output> copy() {
+        return new Pack<Input, Output>(this);
     }
 
-    public Pack copy(Object lock) {
-        return new Pack(lock, this);
+    public Pack<Input, Output> copy(Object lock) {
+        return new Pack<Input, Output>(lock, this);
     }
 
     /**
@@ -245,7 +255,7 @@ public final class Pack implements Iterable<String> {
      * @see #isEmpty()
      * @see #size()
      */
-    public Pack clear() {
+    public Pack<Input, Output> clear() {
         synchronized (lock()) {
             map.clear();
             return this;
@@ -258,7 +268,7 @@ public final class Pack implements Iterable<String> {
      * @param key the key.
      * @return this pack object.
      */
-    public Pack remove(String key) {
+    public Pack<Input, Output> remove(String key) {
         synchronized (lock()) {
             map.remove(key);
             return this;
@@ -277,7 +287,7 @@ public final class Pack implements Iterable<String> {
      * @see #putIf(boolean, String, Object)
      * @see #putAll(Pack)
      */
-    public <T> Pack put(String key, T value) {
+    public <T> Pack<Input, Output> put(String key, T value) {
         synchronized (lock()) {
             map.put(key, value);
             return this;
@@ -297,7 +307,7 @@ public final class Pack implements Iterable<String> {
      * @see #putIf(boolean, String, Object)
      * @see #putAll(Pack)
      */
-    public <T> Pack put(String key, T value, T defaultValue) {
+    public <T> Pack<Input, Output> put(String key, T value, T defaultValue) {
         synchronized (lock()) {
             if (value != null) {
                 map.put(key, value);
@@ -321,7 +331,7 @@ public final class Pack implements Iterable<String> {
      * @see #put(String, Object, Object)
      * @see #putAll(Pack)
      */
-    public <T> Pack putIf(boolean condition, String key, T value) {
+    public <T> Pack<Input, Output> putIf(boolean condition, String key, T value) {
         synchronized (lock()) {
             if (condition) {
                 map.put(key, value);
@@ -339,13 +349,51 @@ public final class Pack implements Iterable<String> {
      * @see #put(String, Object, Object)
      * @see #putIf(boolean, String, Object)
      */
-    public Pack putAll(Pack pack) {
+    public Pack<Input, Output> putAll(Pack<?, ?> pack) {
         synchronized (lock()) {
             synchronized (pack.lock()) {
                 map.putAll(pack.map);
             }
             return this;
         }
+    }
+
+    /**
+     * Returns input value.
+     *
+     * @return input value.
+     */
+    public Input input() {
+        return get(INPUT);
+    }
+
+    /**
+     * Returns output value.
+     *
+     * @return output value.
+     */
+    public Output output() {
+        return get(OUTPUT);
+    }
+
+    /**
+     * Sets input value.
+     *
+     * @param input new input value.
+     * @return this pack object.
+     */
+    public Pack<Input, Output> setInput(Input input) {
+        return put(INPUT, input);
+    }
+
+    /**
+     * Sets output value.
+     *
+     * @param output new output value.
+     * @return this pack object.
+     */
+    public Pack<Input, Output> setOutput(Output output) {
+        return put(OUTPUT, output);
     }
 
 }
