@@ -36,10 +36,10 @@ import java.util.concurrent.ExecutorService;
  */
 public class SimpleTaskExecutor extends AbstractTaskExecutor {
 
-    private static Set<TaskHandler> getAssociated(Set<TaskHandler> queue,
-                                                  Collection<String> tags, Collection<TaskHandler.State> states) {
-        Set<TaskHandler> set = new HashSet<TaskHandler>();
-        for (TaskHandler taskHandler : queue) {
+    private static Set<TaskHandler<?, ?>> getAssociated(Set<TaskHandler<?, ?>> queue,
+                                                        Collection<String> tags, Collection<TaskHandler.State> states) {
+        Set<TaskHandler<?, ?>> set = new HashSet<TaskHandler<?, ?>>();
+        for (TaskHandler<?, ?> taskHandler : queue) {
             if (taskHandler.owner().tags().containsAll(tags) && states.contains(taskHandler.getState())) {
                 set.add(taskHandler);
             }
@@ -48,7 +48,7 @@ public class SimpleTaskExecutor extends AbstractTaskExecutor {
     }
 
     private final ExecutorService executorService;
-    private final Set<TaskHandler> queue = new HashSet<TaskHandler>();
+    private final Set<TaskHandler<?, ?>> queue = new HashSet<TaskHandler<?, ?>>();
 
     public SimpleTaskExecutor(ExecutorService executorService) {
         this.executorService = executorService;
@@ -63,16 +63,16 @@ public class SimpleTaskExecutor extends AbstractTaskExecutor {
      * @param taskHandler corresponding {@link TaskHandler} object.
      * @return a {@link TaskEnvironment} object.
      */
-    protected TaskEnvironment createTaskEnvironment(TaskHandler taskHandler) {
-        return new SimpleTaskEnvironment(taskHandler);
+    protected <Input, Output> TaskEnvironment<Input, Output> createTaskEnvironment(TaskHandler<Input, Output> taskHandler) {
+        return new SimpleTaskEnvironment<Input, Output>(taskHandler);
     }
 
     @Override
-    public TaskSet queue(Collection<String> tags, final Collection<TaskHandler.State> states) {
+    public TaskSet queue(Collection<String> tags, Collection<TaskHandler.State> states) {
         synchronized (lock()) {
             return new AbstractTaskSet(this, tags, states) {
                 @Override
-                public Iterator<TaskHandler> iterator() {
+                public Iterator<TaskHandler<?, ?>> iterator() {
                     synchronized (lock()) {
                         return getAssociated(queue, tags(), states()).iterator();
                     }
@@ -81,7 +81,7 @@ public class SimpleTaskExecutor extends AbstractTaskExecutor {
                 @Override
                 public void interrupt() {
                     synchronized (lock()) {
-                        for (TaskHandler handler : getAssociated(queue, tags(), states())) {
+                        for (TaskHandler<?, ?> handler : getAssociated(queue, tags(), states())) {
                             handler.interrupt();
                         }
                     }
@@ -91,10 +91,10 @@ public class SimpleTaskExecutor extends AbstractTaskExecutor {
     }
 
     @Override
-    public TaskHandler execute(Task task, Pack args, List<TaskListener> taskListeners, Collection<String> tags) {
-        return new AbstractTaskHandler(executorService, task, this, queue(tags), args, copyTaskListeners(taskListeners)) {
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> args, List<TaskListener<Input, Output>> taskListeners, Collection<String> tags) {
+        return new AbstractTaskHandler<Input, Output>(executorService, task, this, queue(tags), args, copyTaskListeners(taskListeners)) {
             @Override
-            protected TaskEnvironment createTaskEnvironment() {
+            protected TaskEnvironment<Input, Output> createTaskEnvironment() {
                 return SimpleTaskExecutor.this.createTaskEnvironment(this);
             }
 

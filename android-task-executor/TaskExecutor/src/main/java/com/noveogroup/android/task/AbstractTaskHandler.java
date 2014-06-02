@@ -37,7 +37,7 @@ import java.util.concurrent.Future;
  * methods {@link #addToQueue()}, {@link #removeFromQueue()} and
  * {@link #createTaskEnvironment()}.
  */
-abstract class AbstractTaskHandler implements TaskHandler {
+abstract class AbstractTaskHandler<Input, Output> implements TaskHandler<Input, Output> {
 
     private final Object joinObject = new Object();
     private final ExecutorService executorService;
@@ -46,8 +46,8 @@ abstract class AbstractTaskHandler implements TaskHandler {
 
     private final TaskExecutor executor;
     private final TaskSet owner;
-    private final Task task;
-    private final Pack args;
+    private final Task<Input, Output> task;
+    private final Pack<Input, Output> args;
     private final List<TaskListener> listeners;
 
     private volatile State state;
@@ -64,7 +64,7 @@ abstract class AbstractTaskHandler implements TaskHandler {
      * @param args            arguments container.
      * @param listeners       a list of {@link TaskListener}.
      */
-    public AbstractTaskHandler(ExecutorService executorService, Task task, TaskExecutor executor, TaskSet owner, Pack args, List<TaskListener> listeners) {
+    public AbstractTaskHandler(ExecutorService executorService, Task<Input, Output> task, TaskExecutor executor, TaskSet owner, Pack<Input, Output> args, List<TaskListener> listeners) {
         this.executorService = executorService;
         this.taskFuture = null;
         this.taskFutureCanBeInterrupted = false;
@@ -72,7 +72,7 @@ abstract class AbstractTaskHandler implements TaskHandler {
         this.executor = executor;
         this.owner = owner;
         this.task = task;
-        this.args = args.lock() == owner.lock() ? args : new Pack(owner.lock(), args);
+        this.args = args.lock() == owner.lock() ? args : new Pack<Input, Output>(owner.lock(), args);
         this.listeners = new ArrayList<TaskListener>(listeners.size());
         this.listeners.addAll(listeners);
 
@@ -92,7 +92,7 @@ abstract class AbstractTaskHandler implements TaskHandler {
      *
      * @return a {@link TaskEnvironment} object.
      */
-    protected abstract TaskEnvironment createTaskEnvironment();
+    protected abstract TaskEnvironment<Input, Output> createTaskEnvironment();
 
     /**
      * Task handler will call this method when it is needed to be added to
@@ -169,7 +169,7 @@ abstract class AbstractTaskHandler implements TaskHandler {
             callOnStart();
 
             // create task environment
-            TaskEnvironment env;
+            TaskEnvironment<Input, Output> env;
             synchronized (lock()) {
                 env = createTaskEnvironment();
             }
@@ -237,12 +237,12 @@ abstract class AbstractTaskHandler implements TaskHandler {
     }
 
     @Override
-    public Task task() {
+    public Task<Input, Output> task() {
         return task;
     }
 
     @Override
-    public Pack args() {
+    public Pack<Input, Output> args() {
         return args;
     }
 
@@ -335,6 +335,7 @@ abstract class AbstractTaskHandler implements TaskHandler {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void callOnCreate() {
         for (TaskListener listener : listeners) { // in direct order
             try {
@@ -345,6 +346,7 @@ abstract class AbstractTaskHandler implements TaskHandler {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void callOnQueueInsert() {
         for (TaskListener listener : listeners) { // in direct order
             try {
@@ -355,6 +357,7 @@ abstract class AbstractTaskHandler implements TaskHandler {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void callOnStart() {
         for (TaskListener listener : listeners) { // in direct order
             try {
@@ -365,6 +368,7 @@ abstract class AbstractTaskHandler implements TaskHandler {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void callOnFinish() {
         for (int i = listeners.size() - 1; i >= 0; i--) { // in reverse order
             TaskListener listener = listeners.get(i);
@@ -376,6 +380,7 @@ abstract class AbstractTaskHandler implements TaskHandler {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void callOnQueueRemove() {
         for (int i = listeners.size() - 1; i >= 0; i--) { // in reverse order
             TaskListener listener = listeners.get(i);
@@ -387,6 +392,7 @@ abstract class AbstractTaskHandler implements TaskHandler {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void callOnDestroy() {
         for (int i = listeners.size() - 1; i >= 0; i--) { // in reverse order
             TaskListener listener = listeners.get(i);
@@ -398,6 +404,7 @@ abstract class AbstractTaskHandler implements TaskHandler {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void callOnCanceled() {
         for (int i = listeners.size() - 1; i >= 0; i--) { // in reverse order
             TaskListener listener = listeners.get(i);
@@ -409,6 +416,7 @@ abstract class AbstractTaskHandler implements TaskHandler {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void callOnFailed() {
         for (int i = listeners.size() - 1; i >= 0; i--) { // in reverse order
             TaskListener listener = listeners.get(i);
@@ -420,6 +428,7 @@ abstract class AbstractTaskHandler implements TaskHandler {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void callOnSucceed() {
         for (int i = listeners.size() - 1; i >= 0; i--) { // in reverse order
             TaskListener listener = listeners.get(i);

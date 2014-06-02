@@ -91,13 +91,13 @@ abstract class AbstractTaskSet implements TaskSet {
     }
 
     @Override
-    public TaskHandler execute(Task task, Pack args, TaskListener... taskListeners) {
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> args, TaskListener<Input, Output>... taskListeners) {
         return executor().execute(task, args, Arrays.asList(taskListeners), tags());
     }
 
     @Override
-    public TaskHandler execute(Task task, TaskListener... taskListeners) {
-        return execute(task, new Pack(), taskListeners);
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, TaskListener<Input, Output>... taskListeners) {
+        return execute(task, new Pack<Input, Output>(), taskListeners);
     }
 
     @Override
@@ -115,7 +115,7 @@ abstract class AbstractTaskSet implements TaskSet {
     }
 
     @Override
-    public abstract Iterator<TaskHandler> iterator();
+    public abstract Iterator<TaskHandler<?, ?>> iterator();
 
     @Override
     public abstract void interrupt();
@@ -132,7 +132,7 @@ abstract class AbstractTaskSet implements TaskSet {
         }
 
         while (true) {
-            Iterator<TaskHandler> iterator = this.iterator();
+            Iterator<TaskHandler<?, ?>> iterator = this.iterator();
             if (!iterator.hasNext()) {
                 return true;
             }

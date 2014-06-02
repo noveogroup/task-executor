@@ -31,19 +31,19 @@ package com.noveogroup.android.task;
  * the {@link TaskEnvironment} interface. A subclass may implement
  * an additional functionality.
  */
-public class SimpleTaskEnvironment implements TaskEnvironment {
+public class SimpleTaskEnvironment<Input, Output> implements TaskEnvironment<Input, Output> {
 
     /**
      * {@link TaskHandler} object to delegate functionality.
      */
-    protected final TaskHandler handler;
+    protected final TaskHandler<Input, Output> handler;
 
     /**
      * Creates new instance of {@link SimpleTaskEnvironment}.
      *
      * @param handler {@link TaskHandler} object to delegate functionality.
      */
-    public SimpleTaskEnvironment(TaskHandler handler) {
+    public SimpleTaskEnvironment(TaskHandler<Input, Output> handler) {
         this.handler = handler;
     }
 
@@ -58,7 +58,7 @@ public class SimpleTaskEnvironment implements TaskEnvironment {
     }
 
     @Override
-    public TaskHandler handler() {
+    public TaskHandler<Input, Output> handler() {
         return handler;
     }
 
@@ -68,7 +68,7 @@ public class SimpleTaskEnvironment implements TaskEnvironment {
     }
 
     @Override
-    public Pack args() {
+    public Pack<Input, Output> args() {
         return handler.args();
     }
 

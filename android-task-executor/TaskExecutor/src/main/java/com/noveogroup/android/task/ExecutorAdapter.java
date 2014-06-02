@@ -52,7 +52,7 @@ public class ExecutorAdapter extends AbstractExecutorService {
     public List<Runnable> shutdownNow() {
         synchronized (executor.lock()) {
             List<Runnable> list = new ArrayList<Runnable>();
-            for (TaskHandler handler : executor.queue()) {
+            for (TaskHandler<?, ?> handler : executor.queue()) {
                 if (handler.getState() != TaskHandler.State.STARTED) {
                     TaskRunnable task = (TaskRunnable) handler.task();
                     list.add(task.getRunnable());
