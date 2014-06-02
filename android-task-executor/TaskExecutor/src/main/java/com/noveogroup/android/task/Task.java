@@ -29,7 +29,7 @@ package com.noveogroup.android.task;
 /**
  * Represents a task that can be executed.
  */
-public interface Task {
+public interface Task<Input, Output> {
 
     /**
      * Starts executing the task inside the specified environment.
@@ -41,6 +41,6 @@ public interface Task {
      * @param env the task environment.
      * @throws Throwable the throwable object.
      */
-    public void run(TaskEnvironment env) throws Throwable;
+    public void run(TaskEnvironment<Input, Output> env) throws Throwable;
 
 }

@@ -26,5 +26,5 @@
 
 package com.noveogroup.android.task;
 
-public interface InterruptibleTask extends Interruptible, Task {
+public interface InterruptibleTask<Input, Output> extends Interruptible, Task<Input, Output> {
 }

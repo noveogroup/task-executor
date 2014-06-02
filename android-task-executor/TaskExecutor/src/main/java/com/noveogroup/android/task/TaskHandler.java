@@ -30,7 +30,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public interface TaskHandler {
+public interface TaskHandler<Input, Output> {
 
     /**
      * Represents a task's processing state. A given task may only be in one
@@ -133,9 +133,9 @@ public interface TaskHandler {
 
     public Object lock();
 
-    public Task task();
+    public Task<Input, Output> task();
 
-    public Pack args();
+    public Pack<Input, Output> args();
 
     public State getState();
 

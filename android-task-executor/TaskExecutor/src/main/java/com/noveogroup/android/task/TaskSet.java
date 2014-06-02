@@ -30,7 +30,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
-public interface TaskSet extends Iterable<TaskHandler> {
+public interface TaskSet extends Iterable<TaskHandler<?, ?>> {
 
     public TaskExecutor executor();
 
@@ -57,16 +57,16 @@ public interface TaskSet extends Iterable<TaskHandler> {
 
     public TaskSet filter(Collection<TaskHandler.State> states);
 
-    public TaskHandler execute(Task task, Pack args, TaskListener... taskListeners);
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> args, TaskListener<Input, Output>... taskListeners);
 
-    public TaskHandler execute(Task task, TaskListener... taskListeners);
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, TaskListener<Input, Output>... taskListeners);
 
     public int size();
 
     public boolean isEmpty();
 
     @Override
-    public Iterator<TaskHandler> iterator();
+    public Iterator<TaskHandler<?, ?>> iterator();
 
     public void interrupt();
 

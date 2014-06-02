@@ -45,11 +45,11 @@ public interface TaskExecutor {
      */
     public Object lock();
 
-    public Pack newPack();
+    public <Input, Output> Pack<Input, Output> newPack();
 
-    public Pack newPack(Pack pack);
+    public <Input, Output> Pack<Input, Output> newPack(Pack pack);
 
-    public Pack args();
+    public Pack<Void, Void> args();
 
     public TaskSet queue(String... tags);
 
@@ -61,23 +61,23 @@ public interface TaskExecutor {
 
     public void setErrorHandler(ErrorHandler errorHandler);
 
-    public void addTaskListener(TaskListener... taskListeners);
+    public void addTaskListener(TaskListener<Object, Object>... taskListeners);
 
-    public void removeTaskListener(TaskListener... taskListeners);
+    public void removeTaskListener(TaskListener<Object, Object>... taskListeners);
 
-    public TaskHandler execute(Task task, Pack args, List<TaskListener> taskListeners, Collection<String> tags);
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> args, List<TaskListener<Input, Output>> taskListeners, Collection<String> tags);
 
-    public TaskHandler execute(Task task, Pack args, List<TaskListener> taskListeners, String... tags);
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> args, List<TaskListener<Input, Output>> taskListeners, String... tags);
 
-    public TaskHandler execute(Task task, Pack args, TaskListener taskListener, String... tags);
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> args, TaskListener<Input, Output> taskListener, String... tags);
 
-    public TaskHandler execute(Task task, Pack args, String... tags);
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> args, String... tags);
 
-    public TaskHandler execute(Task task, List<TaskListener> taskListeners, String... tags);
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, List<TaskListener<Input, Output>> taskListeners, String... tags);
 
-    public TaskHandler execute(Task task, TaskListener taskListener, String... tags);
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, TaskListener<Input, Output> taskListener, String... tags);
 
-    public TaskHandler execute(Task task, String... tags);
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, String... tags);
 
     public void shutdown();
 

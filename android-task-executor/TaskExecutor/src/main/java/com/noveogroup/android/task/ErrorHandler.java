@@ -36,7 +36,7 @@ public interface ErrorHandler {
     public class Default implements ErrorHandler {
 
         @Override
-        public void listenerError(TaskListener taskListener, Throwable throwable) {
+        public void listenerError(TaskListener<?, ?> taskListener, Throwable throwable) {
             // do nothing
         }
 
@@ -49,6 +49,6 @@ public interface ErrorHandler {
      * @param throwable    the throwable.
      * @see TaskListener
      */
-    public void listenerError(TaskListener taskListener, Throwable throwable);
+    public void listenerError(TaskListener<?, ?> taskListener, Throwable throwable);
 
 }

@@ -105,57 +105,57 @@ package com.noveogroup.android.task;
  * @see TaskListener.Default
  * @see TaskHandler.State
  */
-public interface TaskListener {
+public interface TaskListener<Input, Output> {
 
     /**
      * Default implementation of {@link TaskListener}.
      * <p/>
      * Does nothing.
      */
-    public class Default implements TaskListener {
+    public class Default<Input, Output> implements TaskListener<Input, Output> {
 
         @Override
-        public void onCreate(TaskHandler handler) {
+        public void onCreate(TaskHandler<Input, Output> handler) {
             // do nothing
         }
 
         @Override
-        public void onQueueInsert(TaskHandler handler) {
+        public void onQueueInsert(TaskHandler<Input, Output> handler) {
             // do nothing
         }
 
         @Override
-        public void onStart(TaskHandler handler) {
+        public void onStart(TaskHandler<Input, Output> handler) {
             // do nothing
         }
 
         @Override
-        public void onFinish(TaskHandler handler) {
+        public void onFinish(TaskHandler<Input, Output> handler) {
             // do nothing
         }
 
         @Override
-        public void onQueueRemove(TaskHandler handler) {
+        public void onQueueRemove(TaskHandler<Input, Output> handler) {
             // do nothing
         }
 
         @Override
-        public void onDestroy(TaskHandler handler) {
+        public void onDestroy(TaskHandler<Input, Output> handler) {
             // do nothing
         }
 
         @Override
-        public void onCanceled(TaskHandler handler) {
+        public void onCanceled(TaskHandler<Input, Output> handler) {
             // do nothing
         }
 
         @Override
-        public void onFailed(TaskHandler handler) {
+        public void onFailed(TaskHandler<Input, Output> handler) {
             // do nothing
         }
 
         @Override
-        public void onSucceed(TaskHandler handler) {
+        public void onSucceed(TaskHandler<Input, Output> handler) {
             // do nothing
         }
 
@@ -167,7 +167,7 @@ public interface TaskListener {
      * @param handler the task handler.
      * @see #onDestroy(TaskHandler)
      */
-    public void onCreate(TaskHandler handler);
+    public void onCreate(TaskHandler<Input, Output> handler);
 
     /**
      * Should be called in <b>direct</b> order.
@@ -175,7 +175,7 @@ public interface TaskListener {
      * @param handler the task handler.
      * @see #onQueueRemove(TaskHandler)
      */
-    public void onQueueInsert(TaskHandler handler);
+    public void onQueueInsert(TaskHandler<Input, Output> handler);
 
     /**
      * Should be called in <b>direct</b> order.
@@ -183,7 +183,7 @@ public interface TaskListener {
      * @param handler the task handler.
      * @see #onFinish(TaskHandler)
      */
-    public void onStart(TaskHandler handler);
+    public void onStart(TaskHandler<Input, Output> handler);
 
     /**
      * Should be called in <b>reverse</b> order.
@@ -191,7 +191,7 @@ public interface TaskListener {
      * @param handler the task handler.
      * @see #onStart(TaskHandler)
      */
-    public void onFinish(TaskHandler handler);
+    public void onFinish(TaskHandler<Input, Output> handler);
 
     /**
      * Should be called in <b>reverse</b> order.
@@ -199,7 +199,7 @@ public interface TaskListener {
      * @param handler the task handler.
      * @see #onQueueInsert(TaskHandler)
      */
-    public void onQueueRemove(TaskHandler handler);
+    public void onQueueRemove(TaskHandler<Input, Output> handler);
 
     /**
      * Should be called in <b>reverse</b> order.
@@ -207,27 +207,27 @@ public interface TaskListener {
      * @param handler the task handler.
      * @see #onCreate(TaskHandler)
      */
-    public void onDestroy(TaskHandler handler);
+    public void onDestroy(TaskHandler<Input, Output> handler);
 
     /**
      * Should be called in <b>reverse</b> order.
      *
      * @param handler the task handler.
      */
-    public void onCanceled(TaskHandler handler);
+    public void onCanceled(TaskHandler<Input, Output> handler);
 
     /**
      * Should be called in <b>reverse</b> order.
      *
      * @param handler the task handler.
      */
-    public void onFailed(TaskHandler handler);
+    public void onFailed(TaskHandler<Input, Output> handler);
 
     /**
      * Should be called in <b>reverse</b> order.
      *
      * @param handler the task handler.
      */
-    public void onSucceed(TaskHandler handler);
+    public void onSucceed(TaskHandler<Input, Output> handler);
 
 }
