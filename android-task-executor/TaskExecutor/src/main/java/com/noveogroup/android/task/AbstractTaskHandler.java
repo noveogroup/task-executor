@@ -187,7 +187,9 @@ abstract class AbstractTaskHandler<Input, Output> implements TaskHandler<Input, 
                     }
                 }
                 // run task
-                task.run(env);
+                Input input = env.args().input();
+                Output output = task.run(input, env);
+                env.args().setOutput(output);
             } catch (Throwable throwable) {
                 t = throwable;
             } finally {

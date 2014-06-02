@@ -22,8 +22,9 @@ public class TaskTest {
         TaskExecutor executor = createTaskExecutor();
         executor.execute(new Task() {
             @Override
-            public void run(TaskEnvironment env) throws Throwable {
+            public Object run(Object input, TaskEnvironment env) throws Throwable {
                 helper.append("Task::run");
+                return null;
             }
         });
         Thread.sleep(Utils.DT);

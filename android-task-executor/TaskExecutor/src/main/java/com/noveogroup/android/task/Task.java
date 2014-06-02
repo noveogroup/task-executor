@@ -38,9 +38,11 @@ public interface Task<Input, Output> {
      * Implementation can throw any exception/error - so there are
      * no need to duplicate try-catch clauses.
      *
-     * @param env the task environment.
+     * @param env   the task environment.
+     * @param input an input value.
+     * @return an output value.
      * @throws Throwable the throwable object.
      */
-    public void run(TaskEnvironment<Input, Output> env) throws Throwable;
+    public Output run(Input input, TaskEnvironment<Input, Output> env) throws Throwable;
 
 }

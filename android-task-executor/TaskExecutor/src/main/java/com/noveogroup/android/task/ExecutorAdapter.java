@@ -21,8 +21,9 @@ public class ExecutorAdapter extends AbstractExecutorService {
         }
 
         @Override
-        public void run(TaskEnvironment env) throws Throwable {
+        public Object run(Object input, TaskEnvironment env) throws Throwable {
             runnable.run();
+            return null;
         }
 
     }
