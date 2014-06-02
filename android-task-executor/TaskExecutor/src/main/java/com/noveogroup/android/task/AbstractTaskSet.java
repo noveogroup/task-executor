@@ -96,6 +96,11 @@ abstract class AbstractTaskSet implements TaskSet {
     }
 
     @Override
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Input input, TaskListener<Input, Output>... taskListeners) {
+        return executor().execute(task, input, Arrays.asList(taskListeners), tags());
+    }
+
+    @Override
     public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, TaskListener<Input, Output>... taskListeners) {
         return execute(task, new Pack<Input, Output>(), taskListeners);
     }

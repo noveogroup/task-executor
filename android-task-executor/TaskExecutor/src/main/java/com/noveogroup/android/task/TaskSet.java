@@ -59,6 +59,8 @@ public interface TaskSet extends Iterable<TaskHandler<?, ?>> {
 
     public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> args, TaskListener<Input, Output>... taskListeners);
 
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Input input, TaskListener<Input, Output>... taskListeners);
+
     public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, TaskListener<Input, Output>... taskListeners);
 
     public int size();
