@@ -146,7 +146,7 @@ public interface TaskHandler<Input, Output> {
 
     public Task<Input, Output> task();
 
-    public Pack<Input, Output> args();
+    public Pack<Input, Output> vars();
 
     public State getState();
 

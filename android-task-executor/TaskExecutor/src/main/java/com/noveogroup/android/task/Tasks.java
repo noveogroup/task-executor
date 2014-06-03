@@ -47,11 +47,11 @@ public class Tasks {
         return new Task<C2<I1, I2>, C2<O1, O2>>() {
             @Override
             public C2<O1, O2> run(C2<I1, I2> value, TaskEnvironment<C2<I1, I2>, C2<O1, O2>> env) throws Throwable {
-                TaskHandler<I1, O1> handler1 = env.owner().execute(task1, env.args().input().getV1());
+                TaskHandler<I1, O1> handler1 = env.owner().execute(task1, env.vars().input().getV1());
                 handler1.join();
-                TaskHandler<I2, O2> handler2 = env.owner().execute(task2, env.args().input().getV2());
+                TaskHandler<I2, O2> handler2 = env.owner().execute(task2, env.vars().input().getV2());
                 handler2.join();
-                return new C2<O1, O2>(handler1.args().output(), handler2.args().output());
+                return new C2<O1, O2>(handler1.vars().output(), handler2.vars().output());
             }
         };
     }
@@ -60,11 +60,11 @@ public class Tasks {
         return new Task<C2<I1, I2>, C2<O1, O2>>() {
             @Override
             public C2<O1, O2> run(C2<I1, I2> value, TaskEnvironment<C2<I1, I2>, C2<O1, O2>> env) throws Throwable {
-                TaskHandler<I1, O1> handler1 = env.owner().execute(task1, env.args().input().getV1());
-                TaskHandler<I2, O2> handler2 = env.owner().execute(task2, env.args().input().getV2());
+                TaskHandler<I1, O1> handler1 = env.owner().execute(task1, env.vars().input().getV1());
+                TaskHandler<I2, O2> handler2 = env.owner().execute(task2, env.vars().input().getV2());
                 handler1.join();
                 handler2.join();
-                return new C2<O1, O2>(handler1.args().output(), handler2.args().output());
+                return new C2<O1, O2>(handler1.vars().output(), handler2.vars().output());
             }
         };
     }

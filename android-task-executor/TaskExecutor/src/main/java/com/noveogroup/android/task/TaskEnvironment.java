@@ -81,7 +81,7 @@ public interface TaskEnvironment<Input, Output> {
      * @see TaskExecutor#lock()
      * @see #lock()
      */
-    public Pack<Input, Output> args();
+    public Pack<Input, Output> vars();
 
     /**
      * Posts an interrupt request to a task corresponding to this task environment.

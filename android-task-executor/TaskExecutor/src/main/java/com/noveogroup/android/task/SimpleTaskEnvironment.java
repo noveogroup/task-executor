@@ -71,8 +71,8 @@ public class SimpleTaskEnvironment<Input, Output> implements TaskEnvironment<Inp
     }
 
     @Override
-    public Pack<Input, Output> args() {
-        return handler.args();
+    public Pack<Input, Output> vars() {
+        return handler.vars();
     }
 
     @Override

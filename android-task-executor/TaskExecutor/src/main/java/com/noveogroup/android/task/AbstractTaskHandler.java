@@ -190,9 +190,9 @@ abstract class AbstractTaskHandler<Input, Output> implements TaskHandler<Input, 
                     }
                 }
                 // run task
-                Input input = env.args().input();
+                Input input = env.vars().input();
                 Output output = task.run(input, env);
-                env.args().setOutput(output);
+                env.vars().setOutput(output);
             } catch (Throwable throwable) {
                 t = throwable;
             } finally {
@@ -247,7 +247,7 @@ abstract class AbstractTaskHandler<Input, Output> implements TaskHandler<Input, 
     }
 
     @Override
-    public Pack<Input, Output> args() {
+    public Pack<Input, Output> vars() {
         return args;
     }
 

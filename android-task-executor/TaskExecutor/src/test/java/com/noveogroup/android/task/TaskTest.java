@@ -13,12 +13,12 @@ public class TaskTest {
         executor.addTaskListener(new TaskListener.Default<Object, Object>() {
             @Override
             public void onStart(TaskHandler<Object, Object> handler) {
-                helper.append("[TaskListener::onStart{%d,%s}]", handler.args().input(), handler.args().output());
+                helper.append("[TaskListener::onStart{%d,%s}]", handler.vars().input(), handler.vars().output());
             }
 
             @Override
             public void onFinish(TaskHandler<Object, Object> handler) {
-                helper.append("[TaskListener::onFinish{%d,%s}]", handler.args().input(), handler.args().output());
+                helper.append("[TaskListener::onFinish{%d,%s}]", handler.vars().input(), handler.vars().output());
             }
         });
 
@@ -31,12 +31,12 @@ public class TaskTest {
         }, 100, new TaskListener.Default<Integer, String>() {
             @Override
             public void onCreate(TaskHandler<Integer, String> handler) {
-                helper.append("[TaskListener::onCreate{%d,%s}]", handler.args().input(), handler.args().output());
+                helper.append("[TaskListener::onCreate{%d,%s}]", handler.vars().input(), handler.vars().output());
             }
 
             @Override
             public void onDestroy(TaskHandler<Integer, String> handler) {
-                helper.append("[TaskListener::onDestroy{%d,%s}]", handler.args().input(), handler.args().output());
+                helper.append("[TaskListener::onDestroy{%d,%s}]", handler.vars().input(), handler.vars().output());
             }
         });
         Thread.sleep(Utils.DT);

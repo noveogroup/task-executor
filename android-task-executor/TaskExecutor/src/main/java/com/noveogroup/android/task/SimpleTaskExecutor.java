@@ -98,8 +98,8 @@ public class SimpleTaskExecutor extends AbstractTaskExecutor {
     }
 
     @Override
-    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> args, List<TaskListener<Input, Output>> taskListeners, Collection<String> tags) {
-        return new AbstractTaskHandler<Input, Output>(executorService, task, this, queue(tags), args, copyTaskListeners(taskListeners)) {
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> vars, List<TaskListener<Input, Output>> taskListeners, Collection<String> tags) {
+        return new AbstractTaskHandler<Input, Output>(executorService, task, this, queue(tags), vars, copyTaskListeners(taskListeners)) {
             @Override
             protected TaskEnvironment<Input, Output> createTaskEnvironment() {
                 return SimpleTaskExecutor.this.createTaskEnvironment(this);
