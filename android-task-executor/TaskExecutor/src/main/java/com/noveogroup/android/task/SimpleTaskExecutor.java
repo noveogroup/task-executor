@@ -61,6 +61,8 @@ public class SimpleTaskExecutor extends AbstractTaskExecutor {
      * its base functionality.
      *
      * @param taskHandler corresponding {@link TaskHandler} object.
+     * @param <Input>     type of task input.
+     * @param <Output>    type of task output.
      * @return a {@link TaskEnvironment} object.
      */
     protected <Input, Output> TaskEnvironment<Input, Output> createTaskEnvironment(TaskHandler<Input, Output> taskHandler) {

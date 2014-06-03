@@ -39,6 +39,9 @@ import java.util.*;
  * Any access to the pack is synchronized using a special object returning
  * by {@link Pack#lock()} method. This object can be used outside of pack
  * to synchronize complex and dependent sequences of accesses/updates.
+ *
+ * @param <Input>  type of task input.
+ * @param <Output> type of task output.
  */
 public final class Pack<Input, Output> implements Iterable<String> {
 

@@ -28,6 +28,9 @@ package com.noveogroup.android.task;
 
 /**
  * Represents a task that can be executed.
+ *
+ * @param <Input>  type of task input.
+ * @param <Output> type of task output.
  */
 public interface Task<Input, Output> {
 

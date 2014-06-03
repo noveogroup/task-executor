@@ -31,8 +31,7 @@ import java.util.*;
 /**
  * {@link AbstractTaskSet} is an abstract implementation of
  * the {@link TaskSet} interface. A subclass must implement the abstract
- * methods {@link #iterator()}, {@link #interrupt()} and
- * {@link #isInterrupted()}.
+ * methods {@link #iterator()} and {@link #interrupt()}}.
  */
 abstract class AbstractTaskSet implements TaskSet {
 

@@ -36,6 +36,9 @@ import java.util.concurrent.Future;
  * the {@link TaskHandler} interface. A subclass must implement the abstract
  * methods {@link #addToQueue()}, {@link #removeFromQueue()} and
  * {@link #createTaskEnvironment()}.
+ *
+ * @param <Input>  type of task input.
+ * @param <Output> type of task output.
  */
 abstract class AbstractTaskHandler<Input, Output> implements TaskHandler<Input, Output> {
 

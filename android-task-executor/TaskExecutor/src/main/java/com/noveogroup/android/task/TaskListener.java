@@ -88,9 +88,9 @@ package com.noveogroup.android.task;
  * <li>If user doesn't cancel the task it will be executed after some time.
  * Initially, working thread sets state to {@link TaskHandler.State#STARTED}
  * and call {@link #onStart(TaskHandler)}. After that thread calls
- * {@link Task#run(TaskEnvironment)}.</li>
+ * {@link Task#run(Object, TaskEnvironment)}.</li>
  * <li>If an exception (even {@link InterruptedException}) is thrown from
- * {@link Task#run(TaskEnvironment)} during execution - the task becomes
+ * {@link Task#run(Object, TaskEnvironment)} during execution - the task becomes
  * {@link TaskHandler.State#FAILED}, it will be removed from queue and
  * {@link #onFinish(TaskHandler)}, {@link #onFailed(TaskHandler)},
  * {@link #onQueueRemove(TaskHandler)}, {@link #onDestroy(TaskHandler)}
@@ -102,6 +102,8 @@ package com.noveogroup.android.task;
  * will be called.</li>
  * </ol>
  *
+ * @param <Input>  type of task input.
+ * @param <Output> type of task output.
  * @see TaskListener.Default
  * @see TaskHandler.State
  */
@@ -111,6 +113,9 @@ public interface TaskListener<Input, Output> {
      * Default implementation of {@link TaskListener}.
      * <p/>
      * Does nothing.
+     *
+     * @param <Input>  type of task input.
+     * @param <Output> type of task output.
      */
     public class Default<Input, Output> implements TaskListener<Input, Output> {
 

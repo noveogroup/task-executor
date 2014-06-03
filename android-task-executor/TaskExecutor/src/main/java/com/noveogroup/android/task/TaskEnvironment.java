@@ -28,11 +28,14 @@ package com.noveogroup.android.task;
 
 /**
  * Represents a task environment for {@link Task}. Each time an assigned
- * task environment is passed as a parameter to {@link Task#run(TaskEnvironment)}.
+ * task environment is passed as a parameter to {@link Task#run(Object, TaskEnvironment)}.
  * <p/>
  * Task environment is strictly corresponds to task execution. Even if the object
  * representing a task is reused different task environments will be passed
- * inside {@link Task#run(TaskEnvironment)} as a parameter.
+ * inside {@link Task#run(Object, TaskEnvironment)} as a parameter.
+ *
+ * @param <Input>  type of task input.
+ * @param <Output> type of task output.
  */
 public interface TaskEnvironment<Input, Output> {
 
@@ -82,9 +85,9 @@ public interface TaskEnvironment<Input, Output> {
 
     /**
      * Posts an interrupt request to a task corresponding to this task environment.
-     * Usually this method is called from inside of {@link Task#run(TaskEnvironment)}
+     * Usually this method is called from inside of {@link Task#run(Object, TaskEnvironment)}
      * and in this case an interruption flag will be set only.
-     * If somehow this method is calling from outside of {@link Task#run(TaskEnvironment)},
+     * If somehow this method is calling from outside of {@link Task#run(Object, TaskEnvironment)},
      * it is similar to calling corresponding {@link TaskHandler#interrupt()}.
      *
      * @see #isInterrupted()
@@ -108,7 +111,7 @@ public interface TaskEnvironment<Input, Output> {
      * Checks if the receiver was interrupted and throws an exception
      * if so.
      * <p/>
-     * This method is recommended to use inside {@link Task#run(TaskEnvironment)}
+     * This method is recommended to use inside {@link Task#run(Object, TaskEnvironment)}
      * in key points of execution process to support task interruption.
      *
      * @throws InterruptedException if the receiver was interrupted.

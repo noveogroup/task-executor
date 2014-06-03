@@ -30,6 +30,9 @@ package com.noveogroup.android.task;
  * {@link SimpleTaskEnvironment} is an default implementation of
  * the {@link TaskEnvironment} interface. A subclass may implement
  * an additional functionality.
+ *
+ * @param <Input>  type of task input.
+ * @param <Output> type of task output.
  */
 public class SimpleTaskEnvironment<Input, Output> implements TaskEnvironment<Input, Output> {
 

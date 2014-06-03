@@ -49,14 +49,14 @@ public interface TaskHandler<Input, Output> {
         STARTED,
 
         /**
-         * The task has been canceled before method {@link Task#run(TaskEnvironment)}
+         * The task has been canceled before method {@link Task#run(Object, TaskEnvironment)}
          * was entered.
          */
         CANCELED,
 
         /**
          * The task was running but failed due to an exception was thrown
-         * from {@link Task#run(TaskEnvironment)}.
+         * from {@link Task#run(Object, TaskEnvironment)}.
          * <p/>
          * Task is considered as failed even if {@link InterruptedException}
          * was thrown.
@@ -68,8 +68,19 @@ public interface TaskHandler<Input, Output> {
          */
         SUCCEED;
 
+        /**
+         * {@link #CREATED}, {@link #STARTED}.
+         */
         public static final Set<State> ALIVE_SET;
+
+        /**
+         * {@link #CANCELED}, {@link #FAILED}, {@link #SUCCEED}.
+         */
         public static final Set<State> DESTROYED_SET;
+
+        /**
+         * {@link #FAILED}, {@link #SUCCEED}.
+         */
         public static final Set<State> FINISHED_SET;
 
         static {
