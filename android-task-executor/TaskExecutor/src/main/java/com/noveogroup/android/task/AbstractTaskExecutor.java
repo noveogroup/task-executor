@@ -90,25 +90,21 @@ abstract class AbstractTaskExecutor implements TaskExecutor {
     }
 
     @Override
-    public void addTaskListener(TaskListener<Object, Object>... taskListeners) {
+    public void addTaskListener(TaskListener taskListener) {
         synchronized (lock()) {
-            for (TaskListener<Object, Object> taskListener : taskListeners) {
-                if (taskListener != null) {
-                    listeners.add(listeners.size(), taskListener);
-                }
+            if (taskListener != null) {
+                listeners.add(listeners.size(), taskListener);
             }
         }
     }
 
     @Override
-    public void removeTaskListener(TaskListener<Object, Object>... taskListeners) {
+    public void removeTaskListener(TaskListener taskListener) {
         synchronized (lock()) {
-            for (TaskListener<Object, Object> taskListener : taskListeners) {
-                if (taskListener != null) {
-                    int lastIndex = listeners.lastIndexOf(taskListener);
-                    if (lastIndex != -1) {
-                        listeners.remove(lastIndex);
-                    }
+            if (taskListener != null) {
+                int lastIndex = listeners.lastIndexOf(taskListener);
+                if (lastIndex != -1) {
+                    listeners.remove(lastIndex);
                 }
             }
         }

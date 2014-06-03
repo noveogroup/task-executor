@@ -61,9 +61,9 @@ public interface TaskExecutor {
 
     public void setErrorHandler(ErrorHandler errorHandler);
 
-    public void addTaskListener(TaskListener<Object, Object>... taskListeners);
+    public void addTaskListener(TaskListener<Object, Object> taskListeners);
 
-    public void removeTaskListener(TaskListener<Object, Object>... taskListeners);
+    public void removeTaskListener(TaskListener<Object, Object> taskListeners);
 
     public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> args, List<TaskListener<Input, Output>> taskListeners, Collection<String> tags);
 
