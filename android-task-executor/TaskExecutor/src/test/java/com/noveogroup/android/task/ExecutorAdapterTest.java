@@ -12,11 +12,11 @@ import java.util.concurrent.TimeUnit;
 public class ExecutorAdapterTest {
 
     private static ExecutorService createAdapter() {
-        return new ExecutorAdapter();
+        return new ExecutorAdapter(new SimpleTaskExecutor(createExecutor()));
     }
 
     private static ExecutorService createExecutor() {
-        return Executors.newCachedThreadPool();
+        return Executors.newFixedThreadPool(3);
     }
 
     private void testExecute(ExecutorService executorService) {
