@@ -10,6 +10,13 @@ public class C4<T1, T2, T3, T4> {
     public C4() {
     }
 
+    public C4(T1 v1, T2 v2, T3 v3, T4 v4) {
+        this.v1 = v1;
+        this.v2 = v2;
+        this.v3 = v3;
+        this.v4 = v4;
+    }
+
     public T1 getV1() {
         return v1;
     }

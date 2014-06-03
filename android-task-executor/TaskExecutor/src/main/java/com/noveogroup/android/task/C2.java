@@ -8,6 +8,11 @@ public class C2<T1, T2> {
     public C2() {
     }
 
+    public C2(T1 v1, T2 v2) {
+        this.v1 = v1;
+        this.v2 = v2;
+    }
+
     public T1 getV1() {
         return v1;
     }
