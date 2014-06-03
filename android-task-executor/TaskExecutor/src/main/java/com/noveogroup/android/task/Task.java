@@ -42,10 +42,10 @@ public interface Task<Input, Output> {
      * no need to duplicate try-catch clauses.
      *
      * @param env   the task environment.
-     * @param input an input value.
+     * @param value an input value.
      * @return an output value.
      * @throws Throwable the throwable object.
      */
-    public Output run(Input input, TaskEnvironment<Input, Output> env) throws Throwable;
+    public Output run(Input value, TaskEnvironment<Input, Output> env) throws Throwable;
 
 }
