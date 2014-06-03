@@ -90,18 +90,48 @@ abstract class AbstractTaskSet implements TaskSet {
     }
 
     @Override
-    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> args, TaskListener<Input, Output>... taskListeners) {
-        return executor().execute(task, args, Arrays.asList(taskListeners), tags());
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task) {
+        return executor().execute(task, tags());
     }
 
     @Override
-    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Input input, TaskListener<Input, Output>... taskListeners) {
-        return executor().execute(task, input, Arrays.asList(taskListeners), tags());
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, TaskListener<Input, Output> taskListener) {
+        return executor().execute(task, taskListener, tags());
     }
 
     @Override
-    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, TaskListener<Input, Output>... taskListeners) {
-        return execute(task, new Pack<Input, Output>(), taskListeners);
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, List<TaskListener<Input, Output>> taskListeners) {
+        return executor().execute(task, taskListeners, tags());
+    }
+
+    @Override
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Input input) {
+        return executor().execute(task, input, tags());
+    }
+
+    @Override
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Input input, TaskListener<Input, Output> taskListener) {
+        return executor().execute(task, input, taskListener, tags());
+    }
+
+    @Override
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Input input, List<TaskListener<Input, Output>> taskListeners) {
+        return executor().execute(task, input, taskListeners, tags());
+    }
+
+    @Override
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> args) {
+        return executor().execute(task, args, tags());
+    }
+
+    @Override
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> args, TaskListener<Input, Output> taskListener) {
+        return executor().execute(task, args, taskListener, tags());
+    }
+
+    @Override
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> args, List<TaskListener<Input, Output>> taskListeners) {
+        return executor().execute(task, args, taskListeners, tags());
     }
 
     @Override

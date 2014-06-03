@@ -28,6 +28,7 @@ package com.noveogroup.android.task;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 public interface TaskSet extends Iterable<TaskHandler<?, ?>> {
@@ -57,11 +58,23 @@ public interface TaskSet extends Iterable<TaskHandler<?, ?>> {
 
     public TaskSet filter(Collection<TaskHandler.State> states);
 
-    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> args, TaskListener<Input, Output>... taskListeners);
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task);
 
-    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Input input, TaskListener<Input, Output>... taskListeners);
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, TaskListener<Input, Output> taskListener);
 
-    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, TaskListener<Input, Output>... taskListeners);
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, List<TaskListener<Input, Output>> taskListeners);
+
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Input input);
+
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Input input, TaskListener<Input, Output> taskListener);
+
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Input input, List<TaskListener<Input, Output>> taskListeners);
+
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> args);
+
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> args, TaskListener<Input, Output> taskListener);
+
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> args, List<TaskListener<Input, Output>> taskListeners);
 
     public int size();
 

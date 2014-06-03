@@ -127,46 +127,13 @@ abstract class AbstractTaskExecutor implements TaskExecutor {
     }
 
     @Override
-    public abstract <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> args, List<TaskListener<Input, Output>> taskListeners, Collection<String> tags);
-
-    @Override
-    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> args, List<TaskListener<Input, Output>> taskListeners, String... tags) {
-        return execute(task, args, taskListeners, Arrays.asList(tags));
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, String... tags) {
+        return execute(task, new Pack<Input, Output>(), Collections.<TaskListener<Input, Output>>emptyList(), Arrays.asList(tags));
     }
 
     @Override
-    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> args, TaskListener<Input, Output> taskListener, String... tags) {
-        return execute(task, args, Collections.singletonList(taskListener), Arrays.asList(tags));
-    }
-
-    @Override
-    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> args, String... tags) {
-        return execute(task, args, new ArrayList<TaskListener<Input, Output>>(0), Arrays.asList(tags));
-    }
-
-    @Override
-    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Input input, List<TaskListener<Input, Output>> taskListeners, Collection<String> tags) {
-        return execute(task, new Pack<Input, Output>().setInput(input), taskListeners, tags);
-    }
-
-    @Override
-    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Input input, List<TaskListener<Input, Output>> taskListeners, String... tags) {
-        return execute(task, new Pack<Input, Output>().setInput(input), taskListeners, Arrays.asList(tags));
-    }
-
-    @Override
-    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Input input, TaskListener<Input, Output> taskListener, String... tags) {
-        return execute(task, new Pack<Input, Output>().setInput(input), Collections.singletonList(taskListener), Arrays.asList(tags));
-    }
-
-    @Override
-    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Input input, String... tags) {
-        return execute(task, new Pack<Input, Output>().setInput(input), new ArrayList<TaskListener<Input, Output>>(0), Arrays.asList(tags));
-    }
-
-    @Override
-    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, List<TaskListener<Input, Output>> taskListeners, String... tags) {
-        return execute(task, new Pack<Input, Output>(), taskListeners, Arrays.asList(tags));
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Collection<String> tags) {
+        return execute(task, new Pack<Input, Output>(), Collections.<TaskListener<Input, Output>>emptyList(), tags);
     }
 
     @Override
@@ -175,9 +142,77 @@ abstract class AbstractTaskExecutor implements TaskExecutor {
     }
 
     @Override
-    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, String... tags) {
-        return execute(task, new Pack<Input, Output>(), new ArrayList<TaskListener<Input, Output>>(0), Arrays.asList(tags));
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, TaskListener<Input, Output> taskListener, Collection<String> tags) {
+        return execute(task, new Pack<Input, Output>(), Collections.singletonList(taskListener), tags);
     }
+
+    @Override
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, List<TaskListener<Input, Output>> taskListeners, String... tags) {
+        return execute(task, new Pack<Input, Output>(), taskListeners, Arrays.asList(tags));
+    }
+
+    @Override
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, List<TaskListener<Input, Output>> taskListeners, Collection<String> tags) {
+        return execute(task, new Pack<Input, Output>(), taskListeners, tags);
+    }
+
+    @Override
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Input input, String... tags) {
+        return execute(task, new Pack<Input, Output>().setInput(input), Collections.<TaskListener<Input, Output>>emptyList(), Arrays.asList(tags));
+    }
+
+    @Override
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Input input, Collection<String> tags) {
+        return execute(task, new Pack<Input, Output>().setInput(input), Collections.<TaskListener<Input, Output>>emptyList(), tags);
+    }
+
+    @Override
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Input input, TaskListener<Input, Output> taskListener, String... tags) {
+        return execute(task, new Pack<Input, Output>().setInput(input), Collections.singletonList(taskListener), Arrays.asList(tags));
+    }
+
+    @Override
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Input input, TaskListener<Input, Output> taskListener, Collection<String> tags) {
+        return execute(task, new Pack<Input, Output>().setInput(input), Collections.singletonList(taskListener), tags);
+    }
+
+    @Override
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Input input, List<TaskListener<Input, Output>> taskListeners, String... tags) {
+        return execute(task, new Pack<Input, Output>().setInput(input), taskListeners, Arrays.asList(tags));
+    }
+
+    @Override
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Input input, List<TaskListener<Input, Output>> taskListeners, Collection<String> tags) {
+        return execute(task, new Pack<Input, Output>().setInput(input), taskListeners, tags);
+    }
+
+    @Override
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> args, String... tags) {
+        return execute(task, args, Collections.<TaskListener<Input, Output>>emptyList(), Arrays.asList(tags));
+    }
+
+    @Override
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> args, Collection<String> tags) {
+        return execute(task, args, Collections.<TaskListener<Input, Output>>emptyList(), tags);
+    }
+
+    @Override
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> args, TaskListener<Input, Output> taskListener, String... tags) {
+        return execute(task, args, Collections.singletonList(taskListener), Arrays.asList(tags));
+    }
+
+    @Override
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> args, TaskListener<Input, Output> taskListener, Collection<String> tags) {
+        return execute(task, args, Collections.singletonList(taskListener), tags);
+    }
+
+    @Override
+    public <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> args, List<TaskListener<Input, Output>> taskListeners, String... tags) {
+        return execute(task, args, taskListeners, Arrays.asList(tags));
+    }
+
+    @Override
+    public abstract <Input, Output> TaskHandler<Input, Output> execute(Task<Input, Output> task, Pack<Input, Output> args, List<TaskListener<Input, Output>> taskListeners, Collection<String> tags);
 
     @Override
     public void shutdown() {
