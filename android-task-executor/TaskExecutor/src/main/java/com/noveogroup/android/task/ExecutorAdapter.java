@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 public class ExecutorAdapter extends AbstractExecutorService {
 
-    private static class TaskRunnable implements Task {
+    private static class TaskRunnable implements Task<Object, Object> {
 
         private final Runnable runnable;
 
