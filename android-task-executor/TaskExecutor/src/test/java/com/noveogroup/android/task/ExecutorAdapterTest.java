@@ -5,24 +5,18 @@ import org.junit.Test;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class ExecutorAdapterTest {
 
     private static ExecutorService createAdapter() {
-        SimpleTaskExecutor executor = new SimpleTaskExecutor(createExecutor()) {
-            @Override
-            protected SimpleTaskEnvironment createTaskEnvironment(TaskHandler taskHandler) {
-                return new SimpleTaskEnvironment(taskHandler);
-            }
-        };
-        return new ExecutorAdapter(executor);
+        return new ExecutorAdapter();
     }
 
     private static ExecutorService createExecutor() {
-        return new ScheduledThreadPoolExecutor(3);
+        return Executors.newCachedThreadPool();
     }
 
     private void testExecute(ExecutorService executorService) {

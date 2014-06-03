@@ -31,6 +31,10 @@ public class ExecutorAdapter extends AbstractExecutorService {
     private final TaskExecutor executor;
     private volatile boolean shutdown = false;
 
+    public ExecutorAdapter() {
+        this(new SimpleTaskExecutor());
+    }
+
     public ExecutorAdapter(TaskExecutor executor) {
         this.executor = executor;
     }

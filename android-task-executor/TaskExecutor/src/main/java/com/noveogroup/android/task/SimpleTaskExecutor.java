@@ -28,6 +28,7 @@ package com.noveogroup.android.task;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * {@link SimpleTaskEnvironment} is an default implementation of
@@ -49,6 +50,10 @@ public class SimpleTaskExecutor extends AbstractTaskExecutor {
 
     private final ExecutorService executorService;
     private final Set<TaskHandler<?, ?>> queue = new HashSet<TaskHandler<?, ?>>();
+
+    public SimpleTaskExecutor() {
+        this(Executors.newCachedThreadPool());
+    }
 
     public SimpleTaskExecutor(ExecutorService executorService) {
         this.executorService = executorService;

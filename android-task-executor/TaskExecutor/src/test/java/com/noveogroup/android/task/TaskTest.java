@@ -2,19 +2,13 @@ package com.noveogroup.android.task;
 
 import org.junit.Test;
 
-import java.util.concurrent.Executors;
-
 public class TaskTest {
-
-    private TaskExecutor createTaskExecutor() {
-        return new SimpleTaskExecutor(Executors.newFixedThreadPool(3));
-    }
 
     @Test
     public void runTest() throws InterruptedException {
         final Helper helper = new Helper();
 
-        TaskExecutor executor = createTaskExecutor();
+        TaskExecutor executor = new SimpleTaskExecutor();
 
         executor.addTaskListener(new TaskListener.Default<Object, Object>() {
             @Override
