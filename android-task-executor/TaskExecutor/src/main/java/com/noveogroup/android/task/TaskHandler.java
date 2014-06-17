@@ -26,6 +26,7 @@
 
 package com.noveogroup.android.task;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -159,5 +160,7 @@ public interface TaskHandler<Input, Output> {
     public void join() throws InterruptedException;
 
     public boolean join(long timeout) throws InterruptedException;
+
+    public Output get() throws Throwable;
 
 }

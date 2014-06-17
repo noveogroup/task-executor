@@ -331,6 +331,16 @@ abstract class AbstractTaskHandler<Input, Output> implements TaskHandler<Input, 
         }
     }
 
+    @Override
+    public Output get() throws Throwable {
+        join();
+        if (getState() == State.FAILED) {
+            throw getThrowable();
+        } else {
+            return vars().output();
+        }
+    }
+
     private void handleListenerError(TaskListener listener, Throwable throwable) {
         synchronized (executor().lock()) {
             ErrorHandler errorHandler = executor().getErrorHandler();
