@@ -69,4 +69,61 @@ public class Tasks {
         };
     }
 
+    public static <T> Task<T, T> simple() {
+        return new Task<T, T>() {
+            @Override
+            public T run(T value, TaskEnvironment<T, T> env) throws Throwable {
+                return value;
+            }
+        };
+    }
+
+    public static <Input1, Output1, Input2, Output2, Output>
+    Task<C2<Input1, Input2>, Output> merge(final Task<Input1, Output1> task1,
+                                           final Task<Input2, Output2> task2,
+                                           final Task<C2<Output1, Output2>, Output> task) {
+        return new Task<C2<Input1, Input2>, Output>() {
+            @Override
+            public Output run(C2<Input1, Input2> value, TaskEnvironment<C2<Input1, Input2>, Output> env) throws Throwable {
+                Output1 output1 = env.executor().execute(task1, value.getV1()).get();
+                Output2 output2 = env.executor().execute(task2, value.getV2()).get();
+                return env.executor().execute(task, new C2<Output1, Output2>(output1, output2)).get();
+            }
+        };
+    }
+
+    public static <Input1, Output1, Input2, Output2, Input3, Output3, Output>
+    Task<C3<Input1, Input2, Input3>, Output> merge(final Task<Input1, Output1> task1,
+                                                   final Task<Input2, Output2> task2,
+                                                   final Task<Input3, Output3> task3,
+                                                   final Task<C3<Output1, Output2, Output3>, Output> task) {
+        return new Task<C3<Input1, Input2, Input3>, Output>() {
+            @Override
+            public Output run(C3<Input1, Input2, Input3> value, TaskEnvironment<C3<Input1, Input2, Input3>, Output> env) throws Throwable {
+                Output1 output1 = env.executor().execute(task1, value.getV1()).get();
+                Output2 output2 = env.executor().execute(task2, value.getV2()).get();
+                Output3 output3 = env.executor().execute(task3, value.getV3()).get();
+                return env.executor().execute(task, new C3<Output1, Output2, Output3>(output1, output2, output3)).get();
+            }
+        };
+    }
+
+    public static <Input1, Output1, Input2, Output2, Input3, Output3, Input4, Output4, Output>
+    Task<C4<Input1, Input2, Input3, Input4>, Output> merge(final Task<Input1, Output1> task1,
+                                                           final Task<Input2, Output2> task2,
+                                                           final Task<Input3, Output3> task3,
+                                                           final Task<Input4, Output4> task4,
+                                                           final Task<C4<Output1, Output2, Output3, Output4>, Output> task) {
+        return new Task<C4<Input1, Input2, Input3, Input4>, Output>() {
+            @Override
+            public Output run(C4<Input1, Input2, Input3, Input4> value, TaskEnvironment<C4<Input1, Input2, Input3, Input4>, Output> env) throws Throwable {
+                Output1 output1 = env.executor().execute(task1, value.getV1()).get();
+                Output2 output2 = env.executor().execute(task2, value.getV2()).get();
+                Output3 output3 = env.executor().execute(task3, value.getV3()).get();
+                Output4 output4 = env.executor().execute(task4, value.getV4()).get();
+                return env.executor().execute(task, new C4<Output1, Output2, Output3, Output4>(output1, output2, output3, output4)).get();
+            }
+        };
+    }
+
 }
