@@ -61,7 +61,7 @@ public class C3<T1, T2, T3> {
 
     @Override
     public String toString() {
-        return String.format("C4{v1=%s,v2=%s,v3=%s}", v1, v2, v3);
+        return String.format("C3{v1=%s,v2=%s,v3=%s}", v1, v2, v3);
     }
 
 }

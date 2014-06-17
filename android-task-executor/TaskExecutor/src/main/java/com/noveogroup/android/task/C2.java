@@ -49,7 +49,7 @@ public class C2<T1, T2> {
 
     @Override
     public String toString() {
-        return String.format("C4{v1=%s,v2=%s}", v1, v2);
+        return String.format("C2{v1=%s,v2=%s}", v1, v2);
     }
 
 }
