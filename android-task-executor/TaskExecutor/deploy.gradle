@@ -1,0 +1,88 @@
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+project.group = 'com.noveogroup'
+project.version = '0.6.2'
+
+boolean isReleaseBuild, isSnapshotBuild, isLocalBuild
+String sonatypeRepositoryUrl
+if (hasProperty('release')) {
+    isReleaseBuild = true
+    sonatypeRepositoryUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+} else if (hasProperty('shapshot')) {
+    isSnapshotBuild = true
+    project.version += '-SNAPSHOT'
+    sonatypeRepositoryUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+} else {
+    isLocalBuild = true
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives jar
+    archives sourcesJar
+    archives javadocJar
+}
+
+
+signing {
+    required { isReleaseBuild }
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        if (isLocalBuild) {
+            mavenLocal()
+        } else {
+            mavenDeployer {
+                if (isReleaseBuild) {
+                    beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+                }
+                repository(url: sonatypeRepositoryUrl) {
+                    authentication(userName: sonatypeUsername, password: sonatypePassword)
+                }
+                pom {
+                    artifactId = 'task-executor'
+                    project {
+                        name 'Task Executor'
+                        description 'Simple customizable asynchronous (background) task executor for Android. An efficient replacement to standard AsyncTask. Built-in progress dialog and error messages. Listeners, grouping and a lot of other useful features for dealing with async tasks.'
+                        url 'http://noveogroup.github.io/android-task-executor/'
+                        licenses {
+                            license {
+                                name 'The MIT License (MIT)'
+                                url 'http://opensource.org/licenses/MIT'
+                                distribution 'repo'
+                            }
+                        }
+                        scm {
+                            url 'scm:git@github.com:noveogroup/android-task-manager.git'
+                            connection 'scm:git:git://github.com/noveogroup/android-task-manager.git'
+                            developerConnection 'scm:git:git@github.com:noveogroup/android-task-manager.git'
+                        }
+                        developers {
+                            developer {
+                                id 'stefan.nsk'
+                                name 'Pavel Stepanov'
+                                url 'https://github.com/stefan-nsk'
+                                roles {
+                                    role 'architect'
+                                    role 'developer'
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
