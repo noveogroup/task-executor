@@ -31,96 +31,58 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.widget.Toast;
 
-// Что должна будет делать эта штуковина:
-// - отслеживать исполнение задач:
-//  - показать progress dialog пока задачи есть в очереди
-//  - показать activity progress пока задачи есть в очереди
-//  - покрутить анимацию или что-то такое пока задачи есть в очереди
-//  - предоставить вызов для отмены задач
-//  - показать error dialog
-//  - показать error toast
-//  - показать завершенность задачи в процентах, в полоске, в цифрах
-// - должна быть настраиваемой на любой тонкий вкус
-// todo implement it
 public class ProgressManager {
 
     private final Context context;
-    private final UIHandler handler;
-    private final Object lock = new Object();
-    private boolean visible = false;
-    private ProgressDialog progressDialog = null;
     private boolean destroyed = false;
-
-    private final Runnable syncCallback = new Runnable() {
-        @Override
-        public void run() {
-            synchronized (lock) {
-                if (visible) {
-                    if (progressDialog == null) {
-                        progressDialog = ProgressDialog.show(context, "Please wait", "Downloading ...", true, true,
-                                new DialogInterface.OnCancelListener() {
-                                    @Override
-                                    public void onCancel(DialogInterface dialogInterface) {
-                                        ProgressManager.this.onCancel();
-                                    }
-                                });
-                    }
-                } else {
-                    if (progressDialog != null) {
-                        progressDialog.hide();
-                        progressDialog = null;
-                    }
-                }
-            }
-        }
-    };
+    private ProgressDialog progressDialog = null;
 
     public ProgressManager(Context context) {
         this.context = context;
-        this.handler = new UIHandler(context);
     }
 
     public void show() {
-        synchronized (lock) {
-            if (destroyed) return;
-            if (!visible) {
-                visible = true;
-                handler.remove(syncCallback);
-                handler.post(syncCallback);
+        if (destroyed) return;
+
+        if (progressDialog != null) {
+            if (progressDialog.isShowing()) {
+                return;
+            } else {
+                progressDialog.dismiss();
+                progressDialog = null;
             }
         }
+
+        DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialogInterface) {
+                ProgressManager.this.progressDialog.dismiss();
+                ProgressManager.this.progressDialog = null;
+                ProgressManager.this.onCancel();
+            }
+        };
+        progressDialog = ProgressDialog.show(context, "Please wait", "Downloading ...", true, true, cancelListener);
     }
 
     public void hide() {
-        synchronized (lock) {
-            if (destroyed) return;
-            if (visible) {
-                visible = false;
-                handler.remove(syncCallback);
-                handler.post(syncCallback);
-            }
+        if (progressDialog != null) {
+            progressDialog.hide();
+            progressDialog = null;
         }
     }
 
-    public void destroy() {
-        synchronized (lock) {
-            hide();
-            destroyed = true;
-            handler.remove();
-        }
+    public void onResume() {
+        destroyed = false;
+    }
+
+    public void onPause() {
+        hide();
+        destroyed = true;
     }
 
     public void error(Throwable throwable) {
-        synchronized (lock) {
-            if (destroyed) return;
-            final String message = throwable.getMessage();
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
+        if (destroyed) return;
+        Toast.makeText(context, throwable.getMessage(), Toast.LENGTH_SHORT).show();
     }
 
     protected void onCancel() {

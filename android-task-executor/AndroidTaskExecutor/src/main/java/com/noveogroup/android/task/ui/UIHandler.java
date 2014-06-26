@@ -237,6 +237,15 @@ public class UIHandler {
         this.subCache = root.subCache;
     }
 
+    /**
+     * Returns underlying {@link Handler} object.
+     *
+     * @return the underlying handler.
+     */
+    public Handler getHandler() {
+        return handler;
+    }
+
     private static Set<String> union(Collection<String> set1, Collection<String> set2) {
         HashSet<String> set = new HashSet<String>(set1.size() + set2.size());
         set.addAll(set1);
