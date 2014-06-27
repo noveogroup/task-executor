@@ -11,7 +11,7 @@
 
     <groupId>com.noveogroup</groupId>
     <artifactId>task-executor</artifactId>
-    <version>0.6.2</version>
+    <version>0.6.3-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Task Executor</name>
@@ -31,7 +31,7 @@
         <url>https://github.com/noveogroup/task-executor/</url>
         <connection>scm:git:git://github.com/noveogroup/task-executor.git</connection>
         <developerConnection>scm:git:git@github.com:noveogroup/task-executor.git</developerConnection>
-	<tag>task-executor-0.6.2</tag>
+	<tag>HEAD</tag>
   </scm>
 
     <developers>
