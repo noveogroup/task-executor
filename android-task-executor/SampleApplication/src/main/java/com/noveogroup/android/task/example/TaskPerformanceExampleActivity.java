@@ -5,30 +5,14 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 
-import com.noveogroup.android.task.SimpleTaskEnvironment;
 import com.noveogroup.android.task.Task;
-import com.noveogroup.android.task.TaskExecutor;
-import com.noveogroup.android.task.ui.AndroidTaskExecutor;
+import com.noveogroup.android.task.TaskEnvironment;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class TaskPerformanceExampleActivity extends ExampleActivity {
-
-    private AndroidTaskExecutor executor = new AndroidTaskExecutor(this);
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        executor.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        executor.onPause();
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,11 +27,12 @@ public class TaskPerformanceExampleActivity extends ExampleActivity {
                 synchronized (executor.lock()) {
                     for (int i = 0; i < 1000; i++) {
                         final int index = i;
-                        executor.execute(new Task<SimpleTaskEnvironment>() {
+                        executor.execute(new Task<Void, Void>() {
                             @Override
-                            public void run(SimpleTaskEnvironment env) throws Throwable {
+                            public Void run(Void value, TaskEnvironment<Void, Void> env) throws Throwable {
                                 Log.i(TAG, "task #" + index);
                                 Utils.calculate(100);
+                                return null;
                             }
                         });
                     }

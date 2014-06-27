@@ -1,4 +1,4 @@
-/*
+package com.noveogroup.android.task.example;/*
  * Copyright (c) 2013 Noveo Group
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,8 +23,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
-package com.noveogroup.android.task.ui;
 
 import android.app.ProgressDialog;
 import android.content.Context;

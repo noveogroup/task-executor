@@ -5,24 +5,8 @@ import android.view.View;
 
 import com.noveogroup.android.task.Task;
 import com.noveogroup.android.task.TaskEnvironment;
-import com.noveogroup.android.task.ui.AndroidTaskExecutor;
 
 public class SimpleTaskExampleActivity extends ExampleActivity {
-
-    private AndroidTaskExecutor executor = new AndroidTaskExecutor(this);
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        executor.onResume();
-        executor.addTaskListener(new LogTaskListener());
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        executor.onPause();
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,10 +17,11 @@ public class SimpleTaskExampleActivity extends ExampleActivity {
         findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                executor.execute(new Task<TaskEnvironment>() {
+                executor.execute(new Task<Object, Object>() {
                     @Override
-                    public void run(TaskEnvironment env) throws Throwable {
+                    public Object run(Object value, TaskEnvironment<Object, Object> env) throws Throwable {
                         Utils.download(3000);
+                        return null;
                     }
                 });
             }
