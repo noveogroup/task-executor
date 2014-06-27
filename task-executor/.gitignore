@@ -1,0 +1,6 @@
+# Apache Maven
+target
+
+# IntelliJ Idea
+.idea
+*.iml
