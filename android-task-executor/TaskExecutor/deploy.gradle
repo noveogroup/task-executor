@@ -55,7 +55,7 @@ uploadArchives {
                     artifactId = 'task-executor'
                     project {
                         name 'Task Executor'
-                        description 'Simple customizable asynchronous (background) task executor for Android. An efficient replacement to standard AsyncTask. Built-in progress dialog and error messages. Listeners, grouping and a lot of other useful features for dealing with async tasks.'
+                        description 'Simple asynchronous (background) task executor for Java.'
                         url 'http://noveogroup.github.io/android-task-executor/'
                         licenses {
                             license {
