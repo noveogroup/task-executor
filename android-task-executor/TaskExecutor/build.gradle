@@ -1,6 +1,0 @@
-apply plugin: 'java'
-apply from: project.file('deploy.gradle')
-
-dependencies {
-    testCompile 'junit:junit:4.11'
-}
