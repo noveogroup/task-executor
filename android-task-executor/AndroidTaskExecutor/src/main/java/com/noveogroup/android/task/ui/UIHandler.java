@@ -144,7 +144,7 @@ public class UIHandler {
     private static class WaitCallback implements Runnable {
 
         private final Object waitObject = new Object();
-        private boolean finished = false;
+        private volatile boolean finished = false;
 
         protected void runCallback() {
         }
