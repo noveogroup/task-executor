@@ -31,8 +31,8 @@
 
     <scm>
         <url>https://github.com/noveogroup/task-executor/</url>
-        <connection>scm:git:git://github.com/noveogroup/task-manager.git</connection>
-        <developerConnection>scm:git:git@github.com:noveogroup/task-manager.git</developerConnection>
+        <connection>scm:git:git://github.com/noveogroup/task-executor.git</connection>
+        <developerConnection>scm:git:git@github.com:noveogroup/task-executor.git</developerConnection>
     </scm>
 
     <developers>
