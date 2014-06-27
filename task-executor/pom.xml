@@ -31,7 +31,8 @@
         <url>https://github.com/noveogroup/task-executor/</url>
         <connection>scm:git:git://github.com/noveogroup/task-executor.git</connection>
         <developerConnection>scm:git:git@github.com:noveogroup/task-executor.git</developerConnection>
-    </scm>
+	<tag>HEAD</tag>
+  </scm>
 
     <developers>
         <developer>
@@ -122,6 +123,13 @@
                         </configuration>
                     </execution>
                 </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.scm</groupId>
+                        <artifactId>maven-scm-provider-gitexe</artifactId>
+                        <version>1.9</version>
+                    </dependency>
+                </dependencies>
             </plugin>
 
         </plugins>
