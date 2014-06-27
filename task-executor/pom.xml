@@ -116,6 +116,7 @@
                     <execution>
                         <id>default</id>
                         <goals>
+                            <goal>prepare</goal>
                             <goal>perform</goal>
                         </goals>
                         <configuration>
