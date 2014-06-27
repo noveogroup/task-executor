@@ -1,21 +1,41 @@
-Android Task Executor
-=====================
+Task Executor
+=============
 
-Android Task Executor is a simple customizable asynchronous (background) task
-executor for Android. It is an efficient replacement to standard AsyncTask.
-There are built-in progress dialog and error messages, listeners, grouping
-and a lot of other useful features.
+Simple asynchronous (background) task executor for Java.
+
+Downloads
+---------
+
+ - [task-executor-0.6.2.jar](http://search.maven.org/remotecontent?filepath=com/noveogroup/task-executor/0.6.2/task-executor-0.6.2.jar)
+ - [task-executor-0.6.2-javadoc.jar](http://search.maven.org/remotecontent?filepath=com/noveogroup/task-executor/0.6.2/task-executor-0.6.2-javadoc.jar)
+ - [task-executor-0.6.2-sources.jar](http://search.maven.org/remotecontent?filepath=com/noveogroup/task-executor/0.6.2/task-executor-0.6.2-sources.jar)
+
+Maven Dependency
+----------------
+```xml
+<dependency>
+    <groupId>com.noveogroup</groupId>
+    <artifactId>task-executor</artifactId>
+    <version>0.6.2</version>
+</dependency>
+```
+
+Gradle Dependency
+-----------------
+```groovy
+'com.noveogroup:task-executor:0.6.2'
+```
 
 Known Issues
 ============
 
-1. There are no JavaDoc
+1. ...
 
 Developed By
 ============
 
-* [Noveo Group][1]
-* Pavel Stepanov - <pstepanov@noveogroup.com>
+* [Noveo Group](http://noveogroup.com/)
+* [Pavel Stepanov](https://github.com/stefan-nsk) - <pstepanov@noveogroup.com>
 
 License
 =======
@@ -43,5 +63,3 @@ License
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
-
-[1]: http://noveogroup.com/
