@@ -72,7 +72,6 @@ public abstract class ExampleActivity extends Activity {
     protected final TaskExecutor executor = new SimpleTaskExecutor();
     private final UITaskListener<Object, Object> taskListener = new UITaskListener<Object, Object>() {
         @Override
-        @UI
         public void uiCreate(TaskHandler<Object, Object> handler) {
             if (!executor.queue().isEmpty()) {
                 progressManager.show();
@@ -80,7 +79,6 @@ public abstract class ExampleActivity extends Activity {
         }
 
         @Override
-        @UI
         public void uiDestroy(TaskHandler<Object, Object> handler) {
             if (executor.queue().isEmpty()) {
                 progressManager.hide();

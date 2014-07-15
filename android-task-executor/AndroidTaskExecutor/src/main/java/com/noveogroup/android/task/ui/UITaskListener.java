@@ -3,18 +3,9 @@ package com.noveogroup.android.task.ui;
 import com.noveogroup.android.task.TaskHandler;
 import com.noveogroup.android.task.TaskListener;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
 public class UITaskListener<Input, Output> implements TaskListener<Input, Output> {
-
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.METHOD)
-    public static @interface UI {
-    }
 
     private final UIHandler uiHandler;
 
@@ -28,12 +19,14 @@ public class UITaskListener<Input, Output> implements TaskListener<Input, Output
 
     private void call(String methodName, Runnable uiCallback) {
         try {
-            Method method = ((Object) this).getClass().getDeclaredMethod(methodName, TaskHandler.class);
-            UI annotation = method.getAnnotation(UI.class);
-            if (annotation != null) {
-                try {
-                    uiHandler.sync(uiCallback);
-                } catch (InterruptedException ignored) {
+            {
+                Class<?> aClass = ((Object) this).getClass();
+                Method method = aClass.getMethod(methodName, TaskHandler.class);
+                if (method.getDeclaringClass() != UITaskListener.class) {
+                    try {
+                        uiHandler.sync(uiCallback);
+                    } catch (InterruptedException ignored) {
+                    }
                 }
             }
         } catch (NoSuchMethodException e) {
