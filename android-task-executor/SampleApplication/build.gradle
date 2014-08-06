@@ -2,6 +2,7 @@ apply plugin: 'android'
 
 dependencies {
     compile project(':AndroidTaskExecutor')
+    compile 'com.squareup.retrofit:retrofit:1.6.1'
 }
 
 android {
